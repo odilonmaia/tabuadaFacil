@@ -622,6 +622,9 @@ window.abrirEdicaoPerfil = function() {
         inputNome.value = perfilAtivo.nome || '';
     }
 
+    // Garante que o avatar atual do perfil seja o selecionado ao abrir a tela
+    window.avatarSelecionadoAtual = perfilAtivo.fotoUrlPersonalizada || perfilAtivo.fotoUrl || 'taby.png';
+
     if (modalForm) {
         modalForm.classList.remove('oculto');
         modalForm.style.setProperty('display', 'block', 'important');
@@ -630,6 +633,10 @@ window.abrirEdicaoPerfil = function() {
         modalForm.style.setProperty('left', '50%', 'important');
         modalForm.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
         modalForm.style.setProperty('z-index', '999999', 'important');
+        
+        // FIX DA TRANSPARÊNCIA: Fundo sólido no modal e sombra gigante para escurecer o fundo da tela
+        modalForm.style.setProperty('background', '#0f172a', 'important');
+        modalForm.style.setProperty('box-shadow', '0 0 40px rgba(0,0,0,0.8), 0 0 0 3000px rgba(7, 10, 18, 0.92)', 'important');
     }
 
     if (typeof window.renderizarGaleriaPerfil === 'function') {
@@ -675,15 +682,11 @@ window.salvarPerfil = async function(e) {
     perfilAtivo.nome = nomeFormatado;
 
     try {
-        if (window.tempFotoBase64Personalizada) {
-            const fotoRef = ref(storage, `perfis/${idAtual}_avatar.jpg`);
-            await uploadString(fotoRef, window.tempFotoBase64Personalizada, 'data_url');
-            const urlDownload = await getDownloadURL(fotoRef);
-            
-            perfilAtivo.fotoUrl = urlDownload;
-            perfilAtivo.fotoUrlPersonalizada = urlDownload;
-        } else if (window.avatarSelecionadoAtual) {
+        // FIX DA FOTO: Aplica a foto selecionada em todas as variáveis de imagem para forçar a atualização
+        if (window.avatarSelecionadoAtual) {
             perfilAtivo.fotoUrl = window.avatarSelecionadoAtual;
+            perfilAtivo.fotoUrlPersonalizada = window.avatarSelecionadoAtual;
+            perfilAtivo.skin = 'personalizada';
         }
 
         const index = perfisLocais.findIndex(p => (p.perfilId || p.id) === idAtual);
@@ -693,6 +696,7 @@ window.salvarPerfil = async function(e) {
             perfisLocais.push(perfilAtivo);
         }
 
+        // Salva as alterações
         localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
         localStorage.setItem('usuario_perfis', JSON.stringify(perfisLocais));
 
@@ -700,7 +704,7 @@ window.salvarPerfil = async function(e) {
             localStorage.setItem(`tabuada_perfil_${perfilAtivo.uid}`, JSON.stringify(perfilAtivo));
         }
 
-        window.tempFotoBase64Personalizada = null;
+        // Atualiza todos os elementos visuais da tela inicial imediatamente
         if (typeof window.atualizarInterfacePerfil === 'function') {
             window.atualizarInterfacePerfil(perfilAtivo);
         }
@@ -710,28 +714,18 @@ window.salvarPerfil = async function(e) {
         if (typeof window.atualizarNomeEAvatarInterface === 'function') {
             window.atualizarNomeEAvatarInterface();
         }
-        if (typeof tocarSom === 'function') {
-            tocarSom('conquista');
+        if (typeof window.tocarSom === 'function') {
+            window.tocarSom('conquista');
         }
 
         window.fecharEdicaoPerfil();
 
-        const containerGrid = document.getElementById('container-grid-perfis');
-        if (containerGrid) containerGrid.style.display = 'grid';
-
-        if (typeof window.renderizarGridPerfis === 'function') {
-            window.renderizarGridPerfis();
-        } else if (typeof window.renderizarPerfis === 'function') {
-            window.renderizarPerfis();
-        }
-
-        window.irParaPainelJogo();
-
     } catch (err) {
-        console.error("Erro ao enviar imagem ou salvar perfil no Firebase:", err);
-        alert("Erro ao salvar perfil na nuvem. Verifique sua conexão e tente novamente.");
+        console.error("Erro ao salvar perfil:", err);
+        alert("Erro ao salvar perfil localmente.");
     }
 };
+
 
 window.atualizarInterfacePerfil = function(perfil) {
     if (!perfil) return;
@@ -4610,8 +4604,19 @@ window.atualizarVisibilidadeBotoesExclusao = function() {
 // 14. RECURSOS DE ÁUDIO, SONS E EFEITOS VISUAIS
 // =========================================================================
 //#region [14] ÁUDIO E EFEITOS
+
+// Declaração segura e global das variáveis do sistema de som
+if (typeof window.somAtivado === 'undefined') {
+    window.somAtivado = true;
+}
+
+if (typeof window.somElementoGlobal === 'undefined') {
+    window.somElementoGlobal = new Audio();
+}
+
 window.tocarSom = function(tipo) {
-    if (!somAtivado) return;
+    if (!window.somAtivado) return; // Se mutado, encerra imediatamente
+    
     let urlAudio = "";
     if (tipo === 'clique') urlAudio = "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3";
     else if (tipo === 'acerto') urlAudio = "https://assets.mixkit.co/active_storage/sfx/947/947-preview.mp3";
@@ -4621,27 +4626,52 @@ window.tocarSom = function(tipo) {
     else if (tipo === 'vitoria' || tipo === 'conquista') urlAudio = "https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3";
 
     if (urlAudio) {
-        somElementoGlobal.pause();
-        somElementoGlobal.currentTime = 0;
-        somElementoGlobal.src = urlAudio;
-        somElementoGlobal.volume = 0.4;
-        somElementoGlobal.play().catch(() => {});
+        try {
+            window.somElementoGlobal.pause();
+            window.somElementoGlobal.currentTime = 0;
+            window.somElementoGlobal.src = urlAudio;
+            window.somElementoGlobal.volume = 0.4;
+            window.somElementoGlobal.play().catch(() => {});
+        } catch(e) {
+            console.warn("Erro ao reproduzir áudio:", e);
+        }
     }
 };
 
-window.toggleSom = function() {
-    somAtivado = !somAtivado;
-
-    const iconeOn = document.getElementById('icone-som-on');
-    const iconeOff = document.getElementById('icone-som-off');
-    
-    if (iconeOn && iconeOff) {
-        iconeOn.style.display = somAtivado ? 'block' : 'none';
-        iconeOff.style.display = somAtivado ? 'none' : 'block';
+window.toggleSom = function(e) {
+    if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
     }
 
-    if (somAtivado) {
-        tocarSom('clique');
+    // Alterna o estado global do som
+    window.somAtivado = !window.somAtivado;
+
+    // Localiza o botão e o span do ícone exatamente pelos seletores do seu HTML
+    const btnSom = document.getElementById('btn-som-global');
+    const iconeSom = btnSom ? btnSom.querySelector('.icone-som') : null;
+
+    if (!window.somAtivado) {
+        // Estado Mutado
+        if (btnSom) {
+            btnSom.classList.add('mutado');
+            btnSom.style.opacity = '0.5';
+            btnSom.style.filter = 'grayscale(100%)';
+        }
+        if (iconeSom) {
+            iconeSom.innerText = '🔇';
+        }
+    } else {
+        // Estado Ativado
+        if (btnSom) {
+            btnSom.classList.remove('mutado');
+            btnSom.style.opacity = '1';
+            btnSom.style.filter = 'none';
+        }
+        if (iconeSom) {
+            iconeSom.innerText = '🔊';
+        }
+        window.tocarSom('clique');
     }
 };
 
@@ -4656,7 +4686,7 @@ function dispararConfetesConquista() {
 }
 
 window.compartilharApp = function() {
-    tocarSom('clique');
+    window.tocarSom('clique');
     if (navigator.share) {
         navigator.share({ title: 'Tabuada Fácil 🚀', text: 'Venha praticar matemática e disputar o ranking comigo!', url: window.location.href }).catch(() => {});
     } else {
@@ -4665,7 +4695,7 @@ window.compartilharApp = function() {
 };
 
 window.compartilharTempoRelampago = async function() {
-    tocarSom('clique');
+    window.tocarSom('clique');
 
     const elementoTelaFinal = document.getElementById('tela-final');
     const btnCompartilhar = document.getElementById('btn-compartilhar-tempo');
@@ -4746,7 +4776,10 @@ window.addEventListener('beforeinstallprompt', e => {
 
 document.addEventListener('click', function(event) {
     const botaoClicado = event.target.closest('button, .btn, [role="button"]');
-    if (botaoClicado) {
+    const eBotaoSom = event.target.closest('#btn-toggle-som, [onclick*="toggleSom"], .btn-som-topo');
+
+    // Toca o som em botões genéricos, exceto se for o próprio botão de mutar/desmutar
+    if (botaoClicado && !eBotaoSom) {
         tocarSom('clique');
     }
 });

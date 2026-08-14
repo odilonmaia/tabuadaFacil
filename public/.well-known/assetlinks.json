@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "br.com.tabuadafacil.twa",
+        "sha256_cert_fingerprints": ["51:B4:39:FB:03:EC:A2:03:12:C3:7B:01:29:60:B8:E8:98:7B:92:CF:17:65:68:9F:17:74:2B:49:59:88:0B:37"]
+      }
+    }]

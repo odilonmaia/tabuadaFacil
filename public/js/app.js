@@ -622,7 +622,6 @@ window.abrirEdicaoPerfil = function() {
         inputNome.value = perfilAtivo.nome || '';
     }
 
-    // Garante que o avatar atual do perfil seja o selecionado ao abrir a tela
     window.avatarSelecionadoAtual = perfilAtivo.fotoUrlPersonalizada || perfilAtivo.fotoUrl || 'taby.png';
 
     if (modalForm) {
@@ -633,8 +632,6 @@ window.abrirEdicaoPerfil = function() {
         modalForm.style.setProperty('left', '50%', 'important');
         modalForm.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
         modalForm.style.setProperty('z-index', '999999', 'important');
-        
-        // FIX DA TRANSPARÊNCIA: Fundo sólido no modal e sombra gigante para escurecer o fundo da tela
         modalForm.style.setProperty('background', '#0f172a', 'important');
         modalForm.style.setProperty('box-shadow', '0 0 40px rgba(0,0,0,0.8), 0 0 0 3000px rgba(7, 10, 18, 0.92)', 'important');
     }
@@ -682,7 +679,6 @@ window.salvarPerfil = async function(e) {
     perfilAtivo.nome = nomeFormatado;
 
     try {
-        // FIX DA FOTO: Aplica a foto selecionada em todas as variáveis de imagem para forçar a atualização
         if (window.avatarSelecionadoAtual) {
             perfilAtivo.fotoUrl = window.avatarSelecionadoAtual;
             perfilAtivo.fotoUrlPersonalizada = window.avatarSelecionadoAtual;
@@ -696,7 +692,6 @@ window.salvarPerfil = async function(e) {
             perfisLocais.push(perfilAtivo);
         }
 
-        // Salva as alterações
         localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
         localStorage.setItem('usuario_perfis', JSON.stringify(perfisLocais));
 
@@ -704,7 +699,6 @@ window.salvarPerfil = async function(e) {
             localStorage.setItem(`tabuada_perfil_${perfilAtivo.uid}`, JSON.stringify(perfilAtivo));
         }
 
-        // Atualiza todos os elementos visuais da tela inicial imediatamente
         if (typeof window.atualizarInterfacePerfil === 'function') {
             window.atualizarInterfacePerfil(perfilAtivo);
         }
@@ -725,7 +719,6 @@ window.salvarPerfil = async function(e) {
         alert("Erro ao salvar perfil localmente.");
     }
 };
-
 
 window.atualizarInterfacePerfil = function(perfil) {
     if (!perfil) return;
@@ -1433,38 +1426,52 @@ window.removerFotoGaleria = async function(urlFoto) {
 // 5. NAVEGAÇÃO E PAINEL INICIAL DO JOGO
 // =========================================================================
 //#region [5] NAVEGAÇÃO E PAINEL INICIAL
+
+// ROTEADOR CENTRALIZADO E SEGURO DE TELAS
 window.mudarTela = function(idTela) {
+    if (typeof window.tocarSom === 'function') {
+        window.tocarSom('clique');
+    }
+
+    // 1. Oculta com segurança todas as telas do sistema
     document.querySelectorAll('.tela').forEach(t => {
         t.classList.remove('ativo');
         t.classList.add('oculto');
         t.style.setProperty('display', 'none', 'important');
+        t.style.removeProperty('visibility');
+        t.style.removeProperty('opacity');
     });
 
+    // 2. Se houver modal de seleção de perfis aberto, oculta-o
     const telaPerfis = document.getElementById('tela-selecao-perfis');
     if (telaPerfis && idTela !== 'tela-selecao-perfis') {
         telaPerfis.classList.add('oculto');
         telaPerfis.style.setProperty('display', 'none', 'important');
     }
-    
+
+    // 3. Exibe apenas a tela requisitada
     const telaAlvo = document.getElementById(idTela);
     if (telaAlvo) {
         telaAlvo.classList.remove('oculto');
         telaAlvo.classList.add('ativo');
-        telaAlvo.style.display = 'flex';
-    }
+        
+        // Força exibição do elemento com regra de alta prioridade
+        telaAlvo.style.setProperty('display', 'block', 'important');
+        telaAlvo.style.setProperty('visibility', 'visible', 'important');
+        telaAlvo.style.setProperty('opacity', '1', 'important');
 
-    window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        console.error(`[Navegação] Tela com ID "${idTela}" não encontrada no HTML.`);
+    }
 };
 
 window.voltarParaInicial = function() {
     window.irParaPainelJogo();
 };
 
-window.irParaPainelJogo = function() {
-    if (typeof tocarSom === 'function') {
-        tocarSom('clique');
-    }
-
+window.irParaPainelJogo = function(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
     window.mudarTela('tela-painel-jogo');
     
     if (typeof window.atualizarHeaderPerfilAtivo === 'function') window.atualizarHeaderPerfilAtivo();
@@ -1479,8 +1486,8 @@ window.irParaPainelJogo = function() {
     if (typeof verificarTempoSessao === 'function') verificarTempoSessao();
 };
 
-window.mostrarTelaAprender = function() {
-    tocarSom('clique');
+window.mostrarTelaAprender = function(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
     window.mudarTela('tela-aprender');
 };
 
@@ -4279,20 +4286,27 @@ window.atualizarGraficosEvolucao = function() {
 };
 //#endregion
 
-
 // =========================================================================
 // 12. MODO ESTUDO DE TABUADAS
 // =========================================================================
 //#region [12] MODO ESTUDO DE TABUADAS
+
+window.abrirModoConsulta = function(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    window.mudarTela('tela-aprender');
+};
+
+window.mostrarTelaAprender = function(e) {
+    window.abrirModoConsulta(e);
+};
+
 window.abrirTabuadas = function(tipo) {
-    tocarSom('clique');
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
     
-    tipoTabuadaEstudo = tipo;
     window.tipoTabuadaEstudo = tipo;
-    
     window.mudarTela('tela-visualizar-tabuadas');
+
     const elTit = document.getElementById('titulo-tipo-tabuada');
-    
     const nomesOperacoes = {
         multiplicacao: 'MULTIPLICAÇÃO',
         divisao: 'DIVISÃO',
@@ -4308,24 +4322,18 @@ window.abrirTabuadas = function(tipo) {
     const elRes = document.getElementById('resultado-lista-tabuada');
     if (elRes) {
         elRes.innerHTML = `
-            <div style="text-align: center; padding: 30px 15px; color: #94a3b8; font-size: 14px; background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(56, 189, 248, 0.2); border-radius: 16px; margin-top: 10px;">
-                👆 <strong style="color: #38bdf8;">Toque em um número acima</strong> para visualizar a tabuada correspondente.
+            <div style="text-align: center; padding: 25px 15px; color: #cbd5e1; font-size: 14px; background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(56, 189, 248, 0.2); border-radius: 16px; margin-top: 10px;">
+                👆 <strong style="color: #38bdf8;">Toque em um número acima</strong> para carregar a tabuada.
             </div>
         `;
     }
 };
 
 window.gerarListaTabuada = function(num, evt) {
-    tocarSom('clique');
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
 
     const botoesNum = document.querySelectorAll('.grid-num-tabuada button, .btn-num-tabuada');
-    botoesNum.forEach(btn => {
-        btn.classList.remove('selecionado');
-        btn.style.removeProperty('background');
-        btn.style.removeProperty('border-color');
-        btn.style.removeProperty('box-shadow');
-        btn.style.removeProperty('color');
-    });
+    botoesNum.forEach(btn => btn.classList.remove('selecionado'));
 
     let btnClicado = document.getElementById(`btn-num-${num}`);
     if (!btnClicado && evt && evt.currentTarget) {
@@ -4336,7 +4344,7 @@ window.gerarListaTabuada = function(num, evt) {
         btnClicado.classList.add('selecionado');
     }
 
-    const opAtual = (typeof tipoTabuadaEstudo !== 'undefined') ? tipoTabuadaEstudo : (window.tipoTabuadaEstudo || 'multiplicacao');
+    const opAtual = window.tipoTabuadaEstudo || 'multiplicacao';
 
     let html = `
         <h3 style="text-align:center; margin-bottom:14px; color:#38bdf8; font-size: 20px; font-weight: 800; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
@@ -4357,7 +4365,7 @@ window.gerarListaTabuada = function(num, evt) {
             operacaoTexto = `${num + i} - ${num} = <b>${i}</b>`;
         }
 
-        html += `<div class="item-tabuada-card">${operacaoTexto}</div>`;
+        html += `<div class="item-tabuada-card" style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; color: #fff;">${operacaoTexto}</div>`;
     }
     html += `</div>`;
     
@@ -4365,7 +4373,6 @@ window.gerarListaTabuada = function(num, evt) {
     if (elRes) elRes.innerHTML = html;
 };
 //#endregion
-
 
 // =========================================================================
 // 13. SEGURANÇA E EXCLUSÃO DE PERFIS / CONTAS
@@ -4644,36 +4651,51 @@ window.toggleSom = function(e) {
         if (typeof e.stopPropagation === 'function') e.stopPropagation();
     }
 
-    // Alterna o estado global do som
+    // 1. Alterna o estado global e salva no localStorage
     window.somAtivado = !window.somAtivado;
+    localStorage.setItem('tabuada_som_ativado', window.somAtivado);
 
-    // Localiza o botão e o span do ícone exatamente pelos seletores do seu HTML
-    const btnSom = document.getElementById('btn-som-global');
-    const iconeSom = btnSom ? btnSom.querySelector('.icone-som') : null;
+    // 2. Busca SEMPRE o elemento correto no DOM sem depender de e.currentTarget
+    const btnSom = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
 
+    // 3. Aplica o áudio e a classe visual
     if (!window.somAtivado) {
-        // Estado Mutado
+        if (window.somElementoGlobal) {
+            try {
+                window.somElementoGlobal.pause();
+                window.somElementoGlobal.currentTime = 0;
+            } catch (err) {}
+        }
+
         if (btnSom) {
             btnSom.classList.add('mutado');
-            btnSom.style.opacity = '0.5';
-            btnSom.style.filter = 'grayscale(100%)';
-        }
-        if (iconeSom) {
-            iconeSom.innerText = '🔇';
+            btnSom.setAttribute('aria-label', 'Ativar Som');
         }
     } else {
-        // Estado Ativado
         if (btnSom) {
             btnSom.classList.remove('mutado');
-            btnSom.style.opacity = '1';
-            btnSom.style.filter = 'none';
+            btnSom.setAttribute('aria-label', 'Desativar Som');
         }
-        if (iconeSom) {
-            iconeSom.innerText = '🔊';
-        }
+        
         window.tocarSom('clique');
     }
 };
+
+// VÍNCULO DIRETO AO CARREGAR A PÁGINA
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSom = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
+    if (btnSom) {
+        btnSom.onclick = (e) => window.toggleSom(e);
+        
+        // Aplica o estado inicial correto
+        if (!window.somAtivado) {
+            btnSom.classList.add('mutado');
+        } else {
+            btnSom.classList.remove('mutado');
+        }
+    }
+});
+
 
 function dispararConfetesConquista() {
     if (typeof confetti === 'function') {
@@ -4764,7 +4786,6 @@ function fazerDownloadDireto(urlData) {
 }
 //#endregion
 
-
 // =========================================================================
 // 15. INICIALIZAÇÃO E EVENT LISTENERS DO DOM
 // =========================================================================
@@ -4776,11 +4797,22 @@ window.addEventListener('beforeinstallprompt', e => {
 
 document.addEventListener('click', function(event) {
     const botaoClicado = event.target.closest('button, .btn, [role="button"]');
-    const eBotaoSom = event.target.closest('#btn-toggle-som, [onclick*="toggleSom"], .btn-som-topo');
+    const eBotaoSom = event.target.closest('#btn-som-global, #btn-toggle-som, [onclick*="toggleSom"], .btn-som-topo, .btn-som-moderno');
 
-    // Toca o som em botões genéricos, exceto se for o próprio botão de mutar/desmutar
     if (botaoClicado && !eBotaoSom) {
-        tocarSom('clique');
+        if (typeof window.tocarSom === 'function') {
+            window.tocarSom('clique');
+        }
+    }
+
+    const btnConsultar = event.target.closest('#btn-consultar-tabuadas, .btn-consultar-tabuadas, [onclick*="abrirModoConsulta"]');
+    const eBotaoInfo = event.target.closest('.btn-info-ico');
+
+    if (btnConsultar && !eBotaoInfo) {
+        event.preventDefault();
+        if (typeof window.abrirModoConsulta === 'function') {
+            window.abrirModoConsulta(event);
+        }
     }
 });
 
@@ -4801,9 +4833,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderizarGaleriaPerfil();
     }
     
-    // -------------------------------------------------------------
-    // FUNÇÃO REUTILIZÁVEL E DELEGATION DE CLIQUE DO PERFIL
-    // -------------------------------------------------------------
     const dispararAberturaPerfil = (e) => {
         if (e) {
             e.preventDefault();
@@ -4816,7 +4845,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (typeof window.abrirEdicaoPerfilUnico === 'function') {
             window.abrirEdicaoPerfilUnico();
         } else {
-            // Fallback direto caso as funções globais não estejam carregadas no momento
             const modal = document.getElementById('form-perfil-modal');
             if (modal) {
                 modal.classList.remove('oculto');
@@ -4825,7 +4853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Escuta qualquer clique na foto, no botão, no ícone do lápis ou no badge
     document.addEventListener('click', (e) => {
         const elementoClicado = e.target.closest('#btn-perfil-header, #header-foto-perfil, .btn-perfil-avatar, .badge-editar-perfil, .icon-editar-perfil, [onclick*="abrirEdicaoPerfil"]');
         
@@ -4834,9 +4861,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // -------------------------------------------------------------
-    // DEMAIS LISTENERS DA APLICAÇÃO
-    // -------------------------------------------------------------
+    const btnSomGlobal = document.getElementById('btn-som-global');
+    if (btnSomGlobal) {
+        btnSomGlobal.addEventListener('click', (e) => {
+            if (typeof window.toggleSom === 'function') {
+                window.toggleSom(e);
+            }
+        });
+    }
+
     const btnRelatorio = document.getElementById('btn-abrir-relatorio');
     if (btnRelatorio) {
         btnRelatorio.addEventListener('click', (e) => {
@@ -4906,3 +4939,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 150);
 });
 //#endregion
+
+// ESSE TRECHO DE CÓDIGO É RESPONSÁVEL POR GERENCIAR O SOM GLOBAL DO APLICATIVO, INCLUINDO A ATIVAÇÃO/DESATIVAÇÃO, REPRODUÇÃO DE SONS E INTERAÇÃO COM BOTÕES DE SOM.
+// ELE GARANTE QUE O ESTADO DO SOM SEJA SALVO NO LOCALSTORAGE E QUE OS BOTÕES REFLETAM CORRETAMENTE O ESTADO ATUAL (MUTADO OU ATIVO).
+//FOI ESSE TRECHO QUE EU REESCREVI PARA GARANTIR QUE O BOTÃO DE SOM FUNCIONE CORRETAMENTE, MESMO SE O USUÁRIO CLICAR EM OUTROS ELEMENTOS DA PÁGINA, SEM DEPENDER DO
+//EVENTO ORIGINAL.
+// EXPOSIÇÃO GLOBAL DA FUNÇÃO
+window.toggleSom = function(e) {
+    if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+
+    window.somAtivado = !window.somAtivado;
+    localStorage.setItem('tabuada_som_ativado', window.somAtivado);
+
+    const btnSom = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
+
+    if (!window.somAtivado) {
+        if (window.somElementoGlobal) {
+            try {
+                window.somElementoGlobal.pause();
+                window.somElementoGlobal.currentTime = 0;
+            } catch (err) {}
+        }
+        if (btnSom) {
+            btnSom.classList.add('mutado');
+            btnSom.setAttribute('aria-label', 'Ativar Som');
+        }
+    } else {
+        if (btnSom) {
+            btnSom.classList.remove('mutado');
+            btnSom.setAttribute('aria-label', 'Desativar Som');
+        }
+        if (typeof window.tocarSom === 'function') {
+            window.tocarSom('clique');
+        }
+    }
+};
+
+// ESCUTA IMEDIATA DE PONTEIRO (CAPTURA O CLIQUE ANTES DE QUALQUER INTERRUPÇÃO)
+document.addEventListener('pointerdown', function(e) {
+    const btn = e.target.closest('#btn-som-global, .btn-som-moderno');
+    if (btn) {
+        window.toggleSom(e);
+    }
+}, true);

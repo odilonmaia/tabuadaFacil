@@ -1108,30 +1108,39 @@ button:active {
 
 /* BOTÕES DO MODO ESTUDO (TABUADAS) */
 .btn-op-estudo {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    border: 2px solid #38bdf8;
-    color: #ffffff;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1.5px solid rgba(56, 189, 248, 0.3);
+    color: #e2e8f0;
     border-radius: 14px;
-    padding: 16px 10px;
+    padding: 14px 10px;
     font-size: 15px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4), inset 0 0 10px rgba(56, 189, 248, 0.25);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(4px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
+/* EFEITO AO PASSAR O MOUSE (HOVER DESTAQUE AZUL) */
 .btn-op-estudo:hover {
-    background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
-    border-color: #7dd3fc;
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.75), inset 0 0 15px rgba(56, 189, 248, 0.4);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    transform: translateY(-2deg);
 }
+
+/* EFEITO AO CLICAR */
+.btn-op-estudo:active {
+    transform: scale(0.97);
+}
+
 
 /* BOTÕES DA GRADE NUMÉRICA DA TABUADA */
 .btn-num-tabuada {

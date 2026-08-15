@@ -1981,6 +1981,63 @@ window.abrirDiarioDeBordoTaby = function() {
 // 7. MECÂNICA DE JOGO, GERADOR DE OPÇÕES E CRONÔMETRO
 // =========================================================================
 //#region [7] MECÂNICA DE JOGO, GERADOR E CRONÔMETRO
+
+// Checagem robusta e absoluta do status PRO do usuário
+window.verificarSeEhPro = function() {
+    // 1. Variáveis globais explícitas
+    if (window.usuarioEhPro === true || window.ehPro === true) return true;
+
+    // 2. Validações no perfil atual
+    const p = window.perfilAtual || {};
+    if (p.ehPro === true || p.ehPro === 'true' || p.isPro === true || p.isPro === 'true') return true;
+    if (p.plano && typeof p.plano === 'string' && p.plano.toLowerCase() !== 'free') return true;
+
+    // 3. Validação pelo selo/pílula visual no topo da tela (se existir no DOM)
+    const badgePro = document.querySelector('.badge-status-pro-topo, #badge-status-pro-topo');
+    if (badgePro && badgePro.innerText && badgePro.innerText.toUpperCase().includes('PRO')) return true;
+
+    return false;
+};
+
+// Sincroniza o HUD de vidas em todas as telas (Jogo, Trilha e Painel)
+window.atualizarHUDVidasPartida = function() {
+    const ehPro = window.verificarSeEhPro();
+    
+    // Seleciona todos os containers de vidas do app
+    const seletores = [
+        '#gameplay-hearts-partida',
+        '#gameplay-hearts-trilha',
+        '.gameplay-hearts-partida',
+        '#contador-vidas-trilha'
+    ];
+
+    seletores.forEach(seletor => {
+        const elementos = document.querySelectorAll(seletor);
+        elementos.forEach(el => {
+            if (!el) return;
+            
+            if (ehPro) {
+                // Renderiza Vidas Ilimitadas para Plano PRO
+                el.innerHTML = `<span class="icone-vida-glow" style="color: #38bdf8; font-weight: 900; font-size: 18px; display: inline-flex; align-items: center; gap: 4px;">💎 ∞</span>`;
+            } else {
+                // Renderiza Corações para Plano Free
+                const maxVidas = 5;
+                let coracoesHTML = '';
+                const vidasAtuais = typeof window.vidasUsuario !== 'undefined' ? window.vidasUsuario : 5;
+                
+                for (let i = 0; i < maxVidas; i++) {
+                    if (i < vidasAtuais) {
+                        coracoesHTML += `❤️ `;
+                    } else {
+                        coracoesHTML += `<span style="opacity: 0.3; filter: grayscale(100%);">🖤</span> `;
+                    }
+                }
+                el.innerHTML = coracoesHTML.trim();
+            }
+        });
+    });
+};
+
 window.selecionarTipoJogo = function(tipo) {
     tocarSom('clique');
     tipoJogoSelecionado = tipo;
@@ -2116,8 +2173,9 @@ window.iniciarJogo = function() {
         return;
     }
 
+    // Permite a entrada direta se for PRO; se for Free, consome vida
     if (typeof consumirVidaParaEntrar === 'function') {
-        if (!consumirVidaParaEntrar()) {
+        if (!window.verificarSeEhPro() && !consumirVidaParaEntrar()) {
             return;
         }
     }
@@ -2221,6 +2279,7 @@ function executarCarregamentoJogoReal() {
     respondendoTravado = false;
 
     window.mudarTela('tela-jogo');
+    window.atualizarHUDVidasPartida(); // Força a renderização do HUD assim que abre a tela de jogo
 
     if (tipoJogoSelecionado === 'relampago') {
         iniciarCronometro();
@@ -2320,6 +2379,8 @@ window.verificarEscolha = function(indice) {
 
     if (timerTransicaoQuestao) clearTimeout(timerTransicaoQuestao);
 
+    let semVidasDerrota = false;
+
     try {
         const tempoGastoMs = Date.now() - inicioTempoQuestao;
 
@@ -2362,6 +2423,18 @@ window.verificarEscolha = function(indice) {
                     btn.classList.add('correto');
                 }
             }
+
+            // CONTROLE DE VIDAS: Pula desconto de vidas se for PRO
+            if (!window.verificarSeEhPro()) {
+                if (typeof window.vidasUsuario !== 'undefined') {
+                    window.vidasUsuario = Math.max(0, window.vidasUsuario - 1);
+                }
+                window.atualizarHUDVidasPartida();
+
+                if (window.vidasUsuario <= 0) {
+                    semVidasDerrota = true;
+                }
+            }
         }
 
         dadosTrilhaUsuario.maestriaContas[chaveConta] = scoreAtual;
@@ -2372,6 +2445,16 @@ window.verificarEscolha = function(indice) {
 
     timerTransicaoQuestao = setTimeout(() => {
         try {
+            if (semVidasDerrota) {
+                if (typeof window.abrirPaywall === 'function') {
+                    window.abrirPaywall();
+                } else {
+                    alert("Suas vidas acabaram! Faça upgrade para o Plano PRO para jogar com vidas ilimitadas.");
+                    window.irParaPainelJogo();
+                }
+                return;
+            }
+
             perguntaAtual++;
             if (perguntaAtual > totalPerguntas) {
                 finalizarJogo();

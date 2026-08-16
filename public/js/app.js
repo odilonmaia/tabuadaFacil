@@ -1427,7 +1427,7 @@ window.removerFotoGaleria = async function(urlFoto) {
 // =========================================================================
 //#region [5] NAVEGAÇÃO E PAINEL INICIAL
 
-// ROTEADOR CENTRALIZADO E SEGURO DE TELAS
+// ROTEADOR CENTRALIZADO E SEGURO DE TELAS (COM SINCRONIZAÇÃO AUTOMÁTICA DA BOTTOM NAV)
 window.mudarTela = function(idTela) {
     if (typeof window.tocarSom === 'function') {
         window.tocarSom('clique');
@@ -1464,7 +1464,29 @@ window.mudarTela = function(idTela) {
     } else {
         console.error(`[Navegação] Tela com ID "${idTela}" não encontrada no HTML.`);
     }
+
+    // 4. Sincroniza o estado ativo da Bottom Nav Bar
+    sincronizarBottomNav(idTela);
 };
+
+// Sincroniza o botão destacado na barra inferior de acordo com a tela atual
+function sincronizarBottomNav(idTela) {
+    const botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
+    if (!botoesNav || botoesNav.length === 0) return;
+
+    botoesNav.forEach(b => b.classList.remove('ativo'));
+
+    // Mapeamento das telas para os botões correspondentes da Bottom Nav
+    if (idTela === 'tela-painel-jogo') {
+        botoesNav[0]?.classList.add('ativo'); // Treino
+    } else if (idTela === 'tela-trilha') {
+        botoesNav[1]?.classList.add('ativo'); // Trilha
+    } else if (idTela === 'tela-aprender' || idTela === 'tela-visualizar-tabuadas') {
+        botoesNav[2]?.classList.add('ativo'); // Estudo
+    } else if (idTela === 'tela-ranking') {
+        botoesNav[3]?.classList.add('ativo'); // Ranking
+    }
+}
 
 window.voltarParaInicial = function() {
     window.irParaPainelJogo();
@@ -2573,7 +2595,9 @@ async function finalizarJogo() {
 
         localStorage.setItem('tabuada_trilha_progresso', JSON.stringify(dadosTrilhaUsuario));
 
-        window.mudarTela('tela-final-trilha');
+        window.AdsManager.exibirIntersticial(function() {
+            window.mudarTela('tela-final-trilha');
+        });
 
         const elNotaVal = document.getElementById('trilha-nota-val');
         const elPrecVal = document.getElementById('trilha-precisao-val');
@@ -2602,7 +2626,10 @@ async function finalizarJogo() {
     }
 
     pararCronometro();
-    window.mudarTela('tela-final');
+    
+    window.AdsManager.exibirIntersticial(function() {
+        window.mudarTela('tela-final');
+    });
 
     let tempoFim = Date.now();
     let tempoReal = ((tempoFim - tempoInicioMillis) / 1000);
@@ -3521,43 +3548,8 @@ window.processarPagamento = function(tipoPlano) {
 window.assistirAnuncioPorVida = function() {
     tocarSom('clique');
 
-    const modalExistente = document.getElementById('modal-simulacao-video');
-    if (modalExistente) modalExistente.remove();
-
-    const modal = document.createElement('div');
-    modal.id = 'modal-simulacao-video';
-    modal.className = 'paywall-overlay';
-    modal.style.zIndex = '20000';
-
-    modal.innerHTML = `
-        <div class="card-painel-container" style="max-width: 360px; text-align: center; border: 2px solid #10b981; background: #070a12; border-radius: 24px; padding: 24px;">
-            <div style="font-size: 11px; font-weight: 800; color: #34d399; letter-spacing: 1px; margin-bottom: 8px;">🎬 ANÚNCIO PREMIADO</div>
-            <h4 style="color: #fff; font-size: 16px; margin-bottom: 12px;">Assistindo vídeo para recarregar vida...</h4>
-            
-            <div style="width: 100%; background: rgba(255,255,255,0.1); height: 12px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; border: 1px solid rgba(56,189,248,0.2);">
-                <div id="barra-progresso-video" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.1s linear;"></div>
-            </div>
-
-            <p id="tempo-restante-video" style="color: #94a3b8; font-size: 12px; font-weight: 700;">Aguarde 5 segundos...</p>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    let tempo = 5;
-    const barra = document.getElementById('barra-progresso-video');
-    const txtTempo = document.getElementById('tempo-restante-video');
-
-    const intervalo = setInterval(() => {
-        tempo -= 0.1;
-        let pct = ((5 - tempo) / 5) * 100;
-        if (barra) barra.style.width = `${pct}%`;
-        if (txtTempo) txtTempo.innerText = `Aguarde ${Math.ceil(tempo)} segundo(s)...`;
-
-        if (tempo <= 0) {
-            clearInterval(intervalo);
-            modal.remove();
-
+    window.AdsManager.exibirRecompensado(
+        function() {
             let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
             saldoVidas += 1;
             localStorage.setItem('usuario_vidas', saldoVidas.toString());
@@ -3568,10 +3560,12 @@ window.assistirAnuncioPorVida = function() {
             if (typeof tocarSom === 'function') {
                 tocarSom('conquista');
             }
-
             alert("🎉 Parabéns! Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
+        },
+        function() {
+            console.log("Anúncio premiado não concluído ou indisponível.");
         }
-    }, 100);
+    );
 };
 
 window.exibirModalVidasEsgotadasTaby = function() {
@@ -3956,7 +3950,7 @@ window.atualizarCabecalhoRelatorioLimpo = function() {
         perfil = null;
     }
 
-    const nomeAtivo = (perfil && perfil.nome) ? perfil.nome : 'ODILON MAIA';
+    const nomeAtivo = (perfil && perfil.nome) ? perfil.nome : 'JOGADOR';
 
     let fotoAtiva = 'icon144.png';
     if (perfil) {
@@ -3988,7 +3982,7 @@ window.carregarEstatisticasReaisRelatorio = function() {
         
         const perfilIdAtivo = perfil ? (perfil.perfilId || perfil.id) : localStorage.getItem('perfil_ativo_id');
         const userIdAtual = (auth && auth.currentUser) ? auth.currentUser.uid : (perfil ? perfil.uid : null);
-        const nomePerfilNorm = perfil && perfil.nome ? String(perfil.nome).trim().toUpperCase() : 'ODILON';
+        const nomePerfilNorm = perfil && perfil.nome ? String(perfil.nome).trim().toUpperCase() : 'JOGADOR';
 
         let totalQuestoesGeral = 0;
         let totalAcertosGeral = 0;
@@ -4216,7 +4210,7 @@ window.atualizarGraficosEvolucao = function() {
     let perfil = perfilStr ? JSON.parse(perfilStr) : null;
     const perfilIdAtivo = perfil ? (perfil.perfilId || perfil.id) : localStorage.getItem('perfil_ativo_id');
     const userIdAtual = (auth && auth.currentUser) ? auth.currentUser.uid : (perfil ? perfil.uid : null);
-    const nomePerfilNorm = perfil && perfil.nome ? String(perfil.nome).trim().toUpperCase() : 'ODILON';
+    const nomePerfilNorm = perfil && perfil.nome ? String(perfil.nome).trim().toUpperCase() : 'JOGADOR';
 
     const diasQtd = filtroPeriodo === '7dias' ? 7 : 30;
     const labelsDatas = [];
@@ -4764,22 +4758,6 @@ window.toggleSom = function(e) {
     }
 };
 
-// VÍNCULO DIRETO AO CARREGAR A PÁGINA
-document.addEventListener('DOMContentLoaded', () => {
-    const btnSom = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
-    if (btnSom) {
-        btnSom.onclick = (e) => window.toggleSom(e);
-        
-        // Aplica o estado inicial correto
-        if (!window.somAtivado) {
-            btnSom.classList.add('mutado');
-        } else {
-            btnSom.classList.remove('mutado');
-        }
-    }
-});
-
-
 function dispararConfetesConquista() {
     if (typeof confetti === 'function') {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
@@ -4869,6 +4847,7 @@ function fazerDownloadDireto(urlData) {
 }
 //#endregion
 
+
 // =========================================================================
 // 15. INICIALIZAÇÃO E EVENT LISTENERS DO DOM
 // =========================================================================
@@ -4944,13 +4923,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const btnSomGlobal = document.getElementById('btn-som-global');
+    const btnSomGlobal = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
     if (btnSomGlobal) {
-        btnSomGlobal.addEventListener('click', (e) => {
-            if (typeof window.toggleSom === 'function') {
-                window.toggleSom(e);
-            }
-        });
+        if (!window.somAtivado) {
+            btnSomGlobal.classList.add('mutado');
+        } else {
+            btnSomGlobal.classList.remove('mutado');
+        }
     }
 
     const btnRelatorio = document.getElementById('btn-abrir-relatorio');
@@ -5023,48 +5002,72 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 //#endregion
 
-// ESSE TRECHO DE CÓDIGO É RESPONSÁVEL POR GERENCIAR O SOM GLOBAL DO APLICATIVO, INCLUINDO A ATIVAÇÃO/DESATIVAÇÃO, REPRODUÇÃO DE SONS E INTERAÇÃO COM BOTÕES DE SOM.
-// ELE GARANTE QUE O ESTADO DO SOM SEJA SALVO NO LOCALSTORAGE E QUE OS BOTÕES REFLETAM CORRETAMENTE O ESTADO ATUAL (MUTADO OU ATIVO).
-//FOI ESSE TRECHO QUE EU REESCREVI PARA GARANTIR QUE O BOTÃO DE SOM FUNCIONE CORRETAMENTE, MESMO SE O USUÁRIO CLICAR EM OUTROS ELEMENTOS DA PÁGINA, SEM DEPENDER DO
-//EVENTO ORIGINAL.
-// EXPOSIÇÃO GLOBAL DA FUNÇÃO
-window.toggleSom = function(e) {
-    if (e) {
-        if (typeof e.preventDefault === 'function') e.preventDefault();
-        if (typeof e.stopPropagation === 'function') e.stopPropagation();
-    }
 
-    window.somAtivado = !window.somAtivado;
-    localStorage.setItem('tabuada_som_ativado', window.somAtivado);
+// =========================================================================
+// 16. GERENCIADOR CENTRAL DE ANÚNCIOS (ADSENSE + ADMOB)
+// =========================================================================
+window.AdsManager = {
+    // Detecta se a aplicação está rodando dentro do App Android (TWA/WebView Nativa)
+    isNativeApp: function() {
+        return typeof window.AndroidApp !== 'undefined';
+    },
 
-    const btnSom = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
+    // Exibe anúncio Intersticial (transição de tela/fim de partida)
+    exibirIntersticial: function(callbackPosAnuncio) {
+        if (this.isNativeApp()) {
+            window.AndroidApp.mostrarIntersticialAdMob();
+        }
+        if (callbackPosAnuncio) callbackPosAnuncio();
+    },
 
-    if (!window.somAtivado) {
-        if (window.somElementoGlobal) {
-            try {
-                window.somElementoGlobal.pause();
-                window.somElementoGlobal.currentTime = 0;
-            } catch (err) {}
+    // Exibe anúncio Recompensado (ganhar +1 vida)
+    exibirRecompensado: function(onSucesso, onFalha) {
+        if (this.isNativeApp()) {
+            window.onAnuncioRecompensadoConcluido = function() {
+                if (onSucesso) onSucesso();
+            };
+            window.AndroidApp.mostrarRecompensadoAdMob();
+        } else {
+            // Fallback Web: Executa a simulação visual de vídeo de 5s para o navegador
+            this.simularAnuncioWeb(onSucesso);
         }
-        if (btnSom) {
-            btnSom.classList.add('mutado');
-            btnSom.setAttribute('aria-label', 'Ativar Som');
-        }
-    } else {
-        if (btnSom) {
-            btnSom.classList.remove('mutado');
-            btnSom.setAttribute('aria-label', 'Desativar Som');
-        }
-        if (typeof window.tocarSom === 'function') {
-            window.tocarSom('clique');
-        }
-    }
-};
+    },
 
-// ESCUTA IMEDIATA DE PONTEIRO (CAPTURA O CLIQUE ANTES DE QUALQUER INTERRUPÇÃO)
-document.addEventListener('pointerdown', function(e) {
-    const btn = e.target.closest('#btn-som-global, .btn-som-moderno');
-    if (btn) {
-        window.toggleSom(e);
-    }
-}, true);
+    // Simulação visual para navegadores Desktop/Mobile Web
+  // Simulação visual para navegadores Desktop/Mobile Web
+    simularAnuncioWeb: function(onSucesso) {
+        const modalExistente = document.getElementById('modal-simulacao-video');
+        if (modalExistente) modalExistente.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'modal-simulacao-video';
+        modal.className = 'paywall-overlay';
+        modal.style.zIndex = '20000';
+
+        modal.innerHTML = `
+            <div class="card-painel-container" style="max-width: 360px; text-align: center; border: 2px solid #10b981; background: #070a12; border-radius: 24px; padding: 24px;">
+                <div style="font-size: 11px; font-weight: 800; color: #34d399; letter-spacing: 1px; margin-bottom: 8px;">🎬 ANÚNCIO PREMIADO</div>
+                <h4 style="color: #fff; font-size: 16px; margin-bottom: 12px;">Assistindo vídeo para recarregar vida...</h4>
+                
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 12px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; border: 1px solid rgba(56,189,248,0.2);">
+                    <div id="barra-progresso-video" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.1s;"></div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Animação da barra e callback
+        let progresso = 0;
+        const intervalo = setInterval(() => {
+            progresso += 2;
+            const barra = document.getElementById('barra-progresso-video');
+            if (barra) barra.style.width = progresso + '%';
+
+            if (progresso >= 100) {
+                clearInterval(intervalo);
+                modal.remove();
+                if (typeof onSucesso === 'function') onSucesso();
+            }
+        }, 100);
+    },}

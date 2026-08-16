@@ -8,14 +8,14 @@
     <meta name="google-adsense-account" content="ca-pub-8040540242603270">
     
     <!-- Viewport Responsivo e Ajustado para PWA/App Nativo -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <!-- SEO / Google Search -->
     <title>Tabuada Fácil 🚀</title>
     <meta name="description" content="Aprenda matemática, pratique tabuada e dispute o ranking online de forma divertida e rápida!">
 
     <!-- CSS do Projeto -->
-    <link rel="stylesheet" href="css/style.css?v=3.7">
+    <link rel="stylesheet" href="css/style.css?v=3.8">
 
     <!-- Configurações PWA & Mobile Nativo -->
     <meta name="theme-color" content="#070a12">
@@ -50,14 +50,12 @@
 </head>
 <body>
 
-<!-- TELA 1: PAINEL PRINCIPAL -->
-<div id="tela-painel-jogo" class="tela ativo">
+<div class="app-viewport">
 
-    <!-- 1. HEADER TOPO GLOBAL HARMONIZADO -->
+    <!-- 1. HEADER TOPO GLOBAL FIXO NATIVO -->
     <header class="header-topo-global">
         <div class="header-container">
-
-            <!-- ESQUERDA: Avatar do Usuário com Badge de Edição -->
+            <!-- ESQUERDA: Avatar do Usuário -->
             <div class="header-esquerda">
                 <button id="btn-perfil-header" class="moldura-avatar-btn" title="Editar Perfil" onclick="window.abrirEdicaoPerfil()">
                     <div class="moldura-avatar-ring">
@@ -75,538 +73,536 @@
             </div>
 
             <!-- DIREITA: Botão de Som -->
-           <!-- DIREITA: Botão de Som -->
-<div class="header-direita">
-    <button id="btn-som-global" class="btn-som-moderno" type="button" onclick="window.toggleSom(event)" title="Ativar/Desativar Som">
-        <span class="icone-som">🔊</span>
-    </button>
-</div>
-
+            <div class="header-direita">
+                <button id="btn-som-global" class="btn-som-moderno" type="button" onclick="window.toggleSom(event)" title="Ativar/Desativar Som">
+                    <span class="icone-som">🔊</span>
+                </button>
+            </div>
         </div>
     </header>
 
-    <div class="app-container">
+    <!-- ÁREA DE CONTEÚDO CENTRAL (VIEWPORT FIXO SPA) -->
+    <main class="app-content-area">
 
-        <div style="width: 100%; text-align: center; margin-bottom: 8px; margin-top: 6px;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <h2 class="user-greeting" style="margin: 0;">
-                    Olá, <span id="display-nome-inicial">Estudante</span>! 👋
-                </h2>
-            </div>
-            
-            <div id="mini-ranking-sub-nome" class="status-badges mini-ranking-topo" style="display: none;">
-                <span class="badge-treino">📊 Treino: <b id="rank-treino-display">#1</b></span>
-                <span class="badge-relampago">⚡ Relâmpago: <b id="rank-relampago-display">#1</b></span>
-            </div>
-        </div>
-
-        <div class="status-bar-global">
-            <div class="status-item hud-ofensiva-futurista">
-                <span class="fogo-animado">🔥</span>
-                <span class="valor-ofensiva">31</span>
-            </div>
-
-            <div class="status-item hud-vida-futurista pro">
-                <span class="icone-vida-glow">💎</span>
-                <span class="valor-vida">∞</span>
-            </div>
-
-            <div class="status-item">
-                <button id="btn-abrir-relatorio" class="btn-relatorio-centro">
-                    📊 RELATÓRIO
-                </button>
-            </div>
-        </div>
-
-        <div class="card-painel-container" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 12px; background: rgba(30, 41, 59, 0.75); border: 1.5px solid rgba(56, 189, 248, 0.4);">
-            <img src="taby.png" alt="Taby" class="robo-flutuante" style="width: 50px; height: 50px; object-fit: contain; flex-shrink: 0;" onerror="this.onerror=null; this.src='icon144.png';">
-            <div id="painel-dica-taby" style="font-size: 12.5px; color: #e2e8f0; line-height: 1.45; text-align: left; width: 100%;">
-            </div>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; margin: 0 auto;">
-
-            <button id="btn-modo-trilha" 
-                    class="btn-modo-trilha" 
-                    onclick="window.mostrarTelaTrilha()" 
-                    style="position: relative; width: 100%; max-width: 400px; padding: 12px 42px 12px 16px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border: 2px solid #c084fc; border-radius: 16px; color: #ffffff; font-weight: 900; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; margin-bottom: 10px;">
-                <span>🪐</span>
-                <span style="white-space: nowrap;">MODO TRILHA DE APRENDIZADO</span>
-                <span>🚀</span>
-                <span class="btn-info-ico" onclick="event.stopPropagation(); window.mostrarAjudaTaby('trilha');">i</span>
-            </button>
-
-            <button id="btn-consultar-tabuadas" 
-                    class="btn-consultar-tabuadas" 
-                    onclick="window.abrirModoConsulta(event)" 
-                    type="button">
-                <span>📚</span>
-                <span>CONSULTAR TABUADAS</span>
-                <span class="btn-info-ico" onclick="event.stopPropagation(); window.mostrarAjudaTaby('tabuada');">i</span>
-            </button>
-
-            <div class="card-painel-container">
-                <span class="section-label">1. ESCOLHA O MODO DE TREINO:</span>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
-                    <button id="btn-modo-treino" onclick="selecionarTipoJogo('normal')" class="btn-modo selecionado">
-                        🎯 Treino Livre
-                        <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('treino');">i</span>
-                    </button>
-                    <button id="btn-modo-relampago" onclick="selecionarTipoJogo('relampago')" class="btn-modo">
-                        <span>⚡</span>
-                        <span style="white-space: nowrap;">Modo Relâmpago</span>
-                        <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('relampago');">i</span>
-                    </button>
-                </div>
-
-                <span id="titulo-instrucao-operacoes" class="section-label" style="margin-top: 14px;">2. ESCOLHA UMA OPERAÇÃO:</span>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%;">
-                    <button id="btn-op-mult" onclick="selecionarOperacao('multiplicacao')" class="btn-op-redesign selecionado">
-                        ✖️ Multiplicação
-                    </button>
-                    <button id="btn-op-div" onclick="selecionarOperacao('divisao')" class="btn-op-redesign">
-                        ➗ Divisão
-                    </button>
-                    <button id="btn-op-add" onclick="selecionarOperacao('adicao')" class="btn-op-redesign">
-                        ➕ Adição
-                    </button>
-                    <button id="btn-op-sub" onclick="selecionarOperacao('subtracao')" class="btn-op-redesign">
-                        ➖ Subtração
-                    </button>
-                </div>
-
-                <button id="btn-op-insano" onclick="selecionarOperacao('insano')" class="btn-modo btn-insano-destaque oculto" style="margin-top: 8px;">
-                    🔥 MODO INSANO
-                    <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('insano');">i</span>
-                </button>
-
-                <button onclick="iniciarJogo()" class="btn-comecar-desafio">
-                    COMEÇAR DESAFIO 🚀
-                </button>
-            </div>
-
-            <div class="adsense-container-box">
-                <ins class="adsbygoogle"
-                     style="display:block; width:100%; min-height:90px;"
-                     data-ad-client="ca-pub-8040540242603270"
-                     data-ad-slot="5874739202"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            </div>
-
-            <button onclick="mostrarRanking()" class="btn-ranking-futurista">
-                🏆 Ver Ranking Geral
-            </button>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 20px;">
-                <button class="btn-compartilhar-futurista" onclick="window.compartilharApp()" style="background: rgba(30, 41, 59, 0.85); border: 1.5px solid #38bdf8; color: #38bdf8; padding: 12px; border-radius: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    🔗 COMPARTILHAR
-                </button>
-                <button class="btn-sair-futurista" onclick="window.sairDaConta()" style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid #ef4444; color: #fca5a5; padding: 12px; border-radius: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    🚪 Sair da Conta
-                </button>
-            </div>
-
-            <section class="container-educativo-ui">
-                <div class="card-educativo-glass">
-                    <div class="header-educativo">
-                        <span class="badge-tag-ui">🎓 PLATAFORMA EDUCATIVA GAMIFICADA</span>
-                        <h2>A Tabuada Gravada na Memória Para Sempre! 🧠⚡</h2>
-                    </div>
-
-                    <p class="texto-destaque-ui" style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.6;">
-                        Chega de sofrer com a matemática! O <strong>Tabuada Fácil</strong> combina algoritmos de repetibilidade inteligente e gamificação para fixar as 4 operações de forma definitiva. Uma jornada divertida que desenvolve raciocínio ágil e total confiança para provas e para a vida.
-                    </p>
-
-                    <h3 class="titulo-sessao-ui">🎮 Modos de Treino e Gamificação</h3>
+        <!-- TELA 1: PAINEL PRINCIPAL DE TREINO -->
+        <section id="tela-painel-jogo" class="tela ativo">
+            <div class="app-container">
+                <div class="sub-header-saudacao">
+                    <h2 class="user-greeting">
+                        Olá, <span id="display-nome-inicial">Estudante</span>! 👋
+                    </h2>
                     
-                    <div class="grid-recursos-ui">
-                        <div class="card-recurso-item">
-                            <div class="icone-recurso">📊</div>
-                            <div>
-                                <h4>Modo Treino Livre</h4>
-                                <p style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5; margin: 0;">Ideal para a fixação inicial. Permite praticar adição, subtração, multiplicação e divisão de forma personalizada e sem a pressão do relógio.</p>
-                            </div>
-                        </div>
+                    <div id="mini-ranking-sub-nome" class="status-badges mini-ranking-topo" style="display: none;">
+                        <span class="badge-treino">📊 Treino: <b id="rank-treino-display">#1</b></span>
+                        <span class="badge-relampago">⚡ Relâmpago: <b id="rank-relampago-display">#1</b></span>
+                    </div>
+                </div>
 
-                        <div class="card-recurso-item">
-                            <div class="icone-recurso">⚡</div>
-                            <div>
-                                <h4>Modo Relâmpago (Desafio do Tempo)</h4>
-                                <p style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5; margin: 0;">Desenvolvido para estimular a agilidade mental e o raciocínio rápido. O aluno desafia a si mesmo contra o cronômetro.</p>
-                            </div>
-                        </div>
-
-                        <div class="card-recurso-item">
-                            <div class="icone-recurso">🏆</div>
-                            <div>
-                                <h4>Rankings Globais e por Operação</h4>
-                                <p style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5; margin: 0;">Sistema de classificação dinâmico dividido entre o <em>Ranking Treino (Pontuação)</em> e o <em>Ranking Relâmpago (Tempo)</em>.</p>
-                            </div>
-                        </div>
-
-                        <div class="card-recurso-item destaque-trilha-item">
-                            <div class="icone-recurso">🪐</div>
-                            <div>
-                                <h4>Modo Trilha de Aprendizado (15 Planetas)</h4>
-                                <p style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5; margin: 0;">Uma jornada espacial dividida em 15 estágios. A progressão ocorre ao atingir mais de 85% de domínio nas operações de cada planeta.</p>
-                            </div>
-                        </div>
+                <div class="status-bar-global">
+                    <div class="status-item hud-ofensiva-futurista">
+                        <span class="fogo-animado">🔥</span>
+                        <span class="valor-ofensiva">31</span>
                     </div>
 
-                    <div class="box-pais-educadores-ui">
-                        <div class="header-pais-ui">
-                            <span class="icone-pais">👨‍👩‍👧‍👦</span>
-                            <h3>Por que o Tabuada Fácil é Diferente das Tabelas Antigas?</h3>
+                    <div class="status-item hud-vida-futurista pro">
+                        <span class="icone-vida-glow">💎</span>
+                        <span class="valor-vida">∞</span>
+                    </div>
+
+                    <div class="status-item">
+                        <button id="btn-abrir-relatorio" class="btn-relatorio-centro">
+                            📊 RELATÓRIO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-painel-container card-taby-mini">
+                    <img src="icon144.png" alt="Taby" class="robo-flutuante" onerror="this.onerror=null; this.src='icon144.png';">
+                    <div id="painel-dica-taby" class="texto-dica-taby"></div>
+                </div>
+
+                <div class="card-painel-container configurador-desafio-box">
+                    <span class="section-label">1. MODO DE TREINO:</span>
+                    <div class="grid-2-cols">
+                        <button id="btn-modo-treino" onclick="selecionarTipoJogo('normal')" class="btn-modo selecionado">
+                            🎯 Treino
+                            <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('treino');">i</span>
+                        </button>
+                        <button id="btn-modo-relampago" onclick="selecionarTipoJogo('relampago')" class="btn-modo">
+                            ⚡ Relâmpago
+                            <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('relampago');">i</span>
+                        </button>
+                    </div>
+
+                    <span id="titulo-instrucao-operacoes" class="section-label">2. OPERAÇÃO:</span>
+                    <div class="grid-2-cols">
+                        <button id="btn-op-mult" onclick="selecionarOperacao('multiplicacao')" class="btn-op-redesign selecionado">
+                            ✖️ Multiplicação
+                        </button>
+                        <button id="btn-op-div" onclick="selecionarOperacao('divisao')" class="btn-op-redesign">
+                            ➗ Divisão
+                        </button>
+                        <button id="btn-op-add" onclick="selecionarOperacao('adicao')" class="btn-op-redesign">
+                            ➕ Adição
+                        </button>
+                        <button id="btn-op-sub" onclick="selecionarOperacao('subtracao')" class="btn-op-redesign">
+                            ➖ Subtração
+                        </button>
+                    </div>
+
+                    <button id="btn-op-insano" onclick="selecionarOperacao('insano')" class="btn-modo btn-insano-destaque oculto">
+                        🔥 MODO INSANO
+                        <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('insano');">i</span>
+                    </button>
+
+                    <button onclick="iniciarJogo()" class="btn-comecar-desafio">
+                        COMEÇAR DESAFIO 🚀
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TELA 2: MODO TRILHA ESPACIAL -->
+        <section id="tela-trilha" class="tela oculto espaco-sideral-bg">
+            <div class="estrelas-container"></div>
+            <div class="app-container content-z2">
+                <div class="topo-trilha-hud">
+                    <div class="status-vidas-gameplay" id="gameplay-hearts-trilha">
+                        <span class="coracao ativo">❤️</span>
+                        <span class="coracao ativo">❤️</span>
+                        <span class="coracao ativo">❤️</span>
+                        <span class="coracao ativo">❤️</span>
+                        <span class="coracao ativo">❤️</span>
+                    </div>
+                </div>
+
+                <div id="balao-taby-trilha" class="balao-taby-container">
+                    <button onclick="fecharBalaoTabyTrilha()" class="btn-fechar-balao">✕</button>
+                    <div class="flex-align-center-gap">
+                        <img src="icon144.png" alt="Taby" class="img-taby-mini" onerror="this.onerror=null; this.src='icon144.png';">
+                        <div class="texto-taby-trilha">
+                            Olá <b id="nome-aluno-taby-trilha" class="text-blue">Estudante</b>! 👋<br>
+                            Vamos avançar na nossa jornada espacial! 🚀
                         </div>
-                        
-                        <p style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.6; margin-bottom: 12px;">
-                            Antigamente, aprender a tabuada significava repetição exaustiva sem contexto. A <strong>metodologia baseada em repetição espaçada e gamificação</strong> é incomparavelmente superior para a retenção a longo prazo.
+                    </div>
+                </div>
+
+                <div class="titulo-trilha-box">
+                    <h2>Trilha de Aprendizado 🗺️</h2>
+                    <p>Dominando a tabuada no espaço!</p>
+                </div>
+
+                <button onclick="window.abrirDiarioDeBordoTaby()" class="btn-diario-bordo">
+                    <div class="anim-flutuar icon-diario">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            <path d="M12 6h4"></path>
+                            <path d="M12 10h4"></path>
+                        </svg>
+                    </div>
+                    <div class="texto-diario">
+                        <span class="tit">DIÁRIO DE BORDO</span>
+                        <span class="sub">Curiosidades Desbloqueadas</span>
+                    </div>
+                </button>
+
+                <div id="mapa-trilha-container" class="mapa-trilha-scroll"></div>
+
+                <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
+            </div>
+        </section>
+
+        <!-- TELA 3: MODALIDADE DE ESTUDO (CONSULTAR TABUADAS) -->
+        <section id="tela-aprender" class="tela oculto">
+            <div class="app-container">
+                <h2 class="titulo-secao-app">Modo Estudo 📚</h2>
+                <p class="subtitulo-secao-app">Escolha qual tabuada deseja consultar:</p>
+
+                <div class="grid-2-cols margin-bottom-grid">
+                    <button type="button" onclick="window.abrirTabuadas('multiplicacao')" class="btn-op-estudo">✖️ Multiplicação</button>
+                    <button type="button" onclick="window.abrirTabuadas('divisao')" class="btn-op-estudo">➗ Divisão</button>
+                    <button type="button" onclick="window.abrirTabuadas('adicao')" class="btn-op-estudo">➕ Adição</button>
+                    <button type="button" onclick="window.abrirTabuadas('subtracao')" class="btn-op-estudo">➖ Subtração</button>
+                </div>
+
+                <button type="button" onclick="window.irParaPainelJogo()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
+            </div>
+        </section>
+
+        <!-- TELA 4: VISUALIZAÇÃO INTERATIVA DE TABUADAS -->
+        <section id="tela-visualizar-tabuadas" class="tela oculto">
+            <div class="app-container">
+                <h1 id="titulo-tipo-tabuada" class="titulo-secao-app">Tabuada</h1>
+                <p class="subtitulo-secao-app">Toque em um número para ver a lista:</p>
+
+                <div class="grid-num-tabuada">
+                    <button id="btn-num-1" type="button" onclick="window.gerarListaTabuada(1, event)" class="btn-num-tabuada">1</button>
+                    <button id="btn-num-2" type="button" onclick="window.gerarListaTabuada(2, event)" class="btn-num-tabuada">2</button>
+                    <button id="btn-num-3" type="button" onclick="window.gerarListaTabuada(3, event)" class="btn-num-tabuada">3</button>
+                    <button id="btn-num-4" type="button" onclick="window.gerarListaTabuada(4, event)" class="btn-num-tabuada">4</button>
+                    <button id="btn-num-5" type="button" onclick="window.gerarListaTabuada(5, event)" class="btn-num-tabuada">5</button>
+                    <button id="btn-num-6" type="button" onclick="window.gerarListaTabuada(6, event)" class="btn-num-tabuada">6</button>
+                    <button id="btn-num-7" type="button" onclick="window.gerarListaTabuada(7, event)" class="btn-num-tabuada">7</button>
+                    <button id="btn-num-8" type="button" onclick="window.gerarListaTabuada(8, event)" class="btn-num-tabuada">8</button>
+                    <button id="btn-num-9" type="button" onclick="window.gerarListaTabuada(9, event)" class="btn-num-tabuada">9</button>
+                    <button id="btn-num-10" type="button" onclick="window.gerarListaTabuada(10, event)" class="btn-num-tabuada">10</button>
+                </div>
+
+                <div id="resultado-lista-tabuada" class="card-painel-container resultado-tabuada-box">
+                    <p class="text-center-secondary">Selecione um número acima para carregar a tabuada.</p>
+                </div>
+
+                <button type="button" onclick="window.mostrarTelaAprender()" class="btn-voltar-futurista">⬅️ Voltar às Operações</button>
+            </div>
+        </section>
+
+        <!-- TELA 5: RANKINGS GLOBAIS -->
+        <section id="tela-ranking" class="tela oculto">
+            <div class="app-container">
+                <div class="header-ranking-title">
+                    <h1 class="titulo-ranking">Top Jogadores 🏆</h1>
+                    <span class="btn-info-ico" onclick="mostrarAjudaTaby('ranking');">i</span>
+                </div>
+                
+                <div class="container-abas-ranking">
+                    <button id="btn-aba-treino" class="btn-aba-ranking ativo" onclick="window.selecionarAbaRanking('treino')">📊 TREINO</button>
+                    <button id="btn-aba-relampago" class="btn-aba-ranking" onclick="window.selecionarAbaRanking('relampago')">⚡ RELÂMPAGO</button>
+                </div>
+
+                <input type="hidden" id="tipo-ranking" value="treino">
+
+                <div id="filtro-operacoes-relampago" class="filtro-relampago-box display-none">
+                    <select id="select-op-relampago" onchange="carregarRankingRelampago()" class="select-ranking-style">
+                        <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
+                        <option value="multiplicacao">✖️ Multiplicação</option>
+                        <option value="divisao">➗ Divisão</option>
+                        <option value="adicao">➕ Adição</option>
+                        <option value="subtracao">➖ Subtração</option>
+                        <option value="insano">🔥 Modo Insano</option>
+                    </select>
+                </div>
+
+                <select id="filtro-tempo" onchange="aplicarFiltro()" class="select-filtro-tempo">
+                    <option value="hoje" selected>Hoje</option>
+                    <option value="3dias">Últimos 3 dias</option>
+                    <option value="1mes">Último mês</option>
+                    <option value="sempre">Sempre</option>
+                </select>
+
+                <div id="lista-ranking" class="card-painel-container lista-ranking-scroll">
+                    <p class="text-center-secondary">Carregando...</p>
+                </div>
+
+                <button onclick="voltarParaInicial()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
+            </div>
+        </section>
+
+        <!-- TELA 6: SEÇÃO EDUCATIVA & INFORMATIVA (SEO ISOLADO) -->
+        <section id="tela-educativo" class="tela oculto">
+            <div class="app-container scrollable-internal">
+                <section class="container-educativo-ui">
+                    <div class="card-educativo-glass">
+                        <div class="header-educativo">
+                            <span class="badge-tag-ui">🎓 PLATAFORMA EDUCATIVA GAMIFICADA</span>
+                            <h2>A Tabuada Gravada na Memória Para Sempre! 🧠⚡</h2>
+                        </div>
+
+                        <p class="texto-destaque-ui">
+                            Chega de sofrer com a matemática! O <strong>Tabuada Fácil</strong> combina algoritmos de repetibilidade inteligente e gamificação para fixar as 4 operações de forma definitiva.
                         </p>
 
-                        <ul class="lista-beneficios-pais" style="list-style: none; padding-left: 0; margin: 0;">
-                            <li style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5; margin-bottom: 8px;">✨ <strong>Fim do Estresse e da Ansiedade:</strong> A matemática se torna um jogo dinâmico.</li>
-                            <li style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5; margin-bottom: 8px;">🧠 <strong>Aumento do Foco:</strong> O feedback imediato ativa o sistema de recompensa dopaminérgico.</li>
-                            <li style="text-align: justify; text-justify: inter-word; hyphens: auto; line-height: 1.5;">📈 <strong>Segurança Escolar e Provas:</strong> Elimina erros bobos e reduz o tempo de resolução em exames.</li>
-                        </ul>
+                        <h3 class="titulo-sessao-ui">🎮 Modos de Treino e Gamificação</h3>
+                        
+                        <div class="grid-recursos-ui">
+                            <div class="card-recurso-item">
+                                <div class="icone-recurso">📊</div>
+                                <div>
+                                    <h4>Modo Treino Livre</h4>
+                                    <p>Ideal para a fixação inicial. Permite praticar as 4 operações sem a pressão do relógio.</p>
+                                </div>
+                            </div>
+
+                            <div class="card-recurso-item">
+                                <div class="icone-recurso">⚡</div>
+                                <div>
+                                    <h4>Modo Relâmpago</h4>
+                                    <p>Desenvolvido para estimular a agilidade mental e o raciocínio rápido contra o cronômetro.</p>
+                                </div>
+                            </div>
+
+                            <div class="card-recurso-item">
+                                <div class="icone-recurso">🏆</div>
+                                <div>
+                                    <h4>Rankings Globais</h4>
+                                    <p>Classificação dinâmica dividida entre Pontuação e Menor Tempo.</p>
+                                </div>
+                            </div>
+
+                            <div class="card-recurso-item destaque-trilha-item">
+                                <div class="icone-recurso">🪐</div>
+                                <div>
+                                    <h4>Trilha de Aprendizado (15 Planetas)</h4>
+                                    <p>Uma jornada espacial onde a progressão ocorre ao atingir mais de 85% de domínio.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box-pais-educadores-ui">
+                            <div class="header-pais-ui">
+                                <span class="icone-pais">👨‍👩‍👧‍👦</span>
+                                <h3>Por que o Tabuada Fácil é Diferente?</h3>
+                            </div>
+                            
+                            <p>
+                                A metodologia baseada em repetição espaçada e gamificação é incomparavelmente superior para a retenção a longo prazo.
+                            </p>
+
+                            <ul class="lista-beneficios-pais">
+                                <li>✨ <strong>Fim do Estresse:</strong> A matemática se torna um jogo dinâmico.</li>
+                                <li>🧠 <strong>Aumento do Foco:</strong> Feedback imediato e recompensa continuada.</li>
+                                <li>📈 <strong>Segurança Escolar:</strong> Elimina erros bobos e acelera a resolução em provas.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- OUTRAS TELAS DO FLUXO DE JOGO -->
+        <section id="tela-pre-jogo" class="tela oculto">
+            <div class="app-container">
+                <h2 class="titulo-pre-jogo">Modo Relâmpago ⚡</h2>
+                <p class="subtitulo-pre-jogo">Prepare-se! O cronômetro iniciará assim que você clicar em começar.</p>
+                
+                <div id="box-contador-regressivo" class="contador-regressivo-box oculto">3</div>
+                
+                <button id="btn-iniciar-desafio-real" onclick="comecarDesafioEfetivo()" class="btn-comecar-desafio">▶️ INICIAR AGORA</button>
+                <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
+            </div>
+        </section>
+
+        <!-- TELA DE JOGO ATUALIZADA (HUD EM PÍLULA NEON + TABY HARMONIZADO) -->
+        <section id="tela-jogo" class="tela oculto espaco-sideral-bg">
+            <div class="estrelas-container"></div>
+            <div class="app-container content-z2">
+                
+                <!-- HUD de Progresso e Vidas Unificado em Pílula Neon -->
+                <div class="header-partida-hud">
+                    <div class="hud-pilula-gameplay">
+                        <!-- Contador de Questões -->
+                        <div class="hud-item-gameplay">
+                            <span class="hud-label-ico">🎯</span>
+                            <span id="contador-perguntas" class="hud-valor-destaque">1/10</span>
+                        </div>
+
+                        <div class="hud-divisor-line"></div>
+
+                        <!-- Vidas / Status PRO -->
+                        <div class="hud-item-gameplay">
+                            <span id="gameplay-hearts-partida" class="hud-vidas-glow">
+                                <span class="gem-glow">💎</span> <span class="infinity-symbol">∞</span>
+                            </span>
+                        </div>
+
+                        <!-- Cronômetro (Visível apenas no Modo Relâmpago) -->
+                        <div id="container-cronometro" class="hud-item-gameplay oculto">
+                            <div class="hud-divisor-line"></div>
+                            <span class="hud-label-ico">⏱️</span>
+                            <span id="cronometro-jogo" class="hud-valor-destaque">0:00.0</span>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-        </div>
-    </div>
-</div>
+                <div class="card-painel-container text-center">
+                    
+                    <!-- MASCOTE E BALÃO AGRUPADOS E ALINHADOS -->
+                    <div class="taby-gameplay-dica">
+                        <img src="taby.png" alt="Taby" onerror="this.onerror=null; this.src='icon144.png';">
+                        <span>Calcule com atenção! ⚡</span>
+                    </div>
 
-<!-- TELAS DE NAVEGAÇÃO INTERNA (2 A 10) -->
-<div id="tela-autenticacao" class="tela oculto" style="display: none;">
-    <div class="app-container" style="padding-top: 10px;">
-        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-            <img src="taby.png" alt="Taby" class="robo-flutuante" style="width: 85px; height: auto; object-fit: contain; margin-bottom: 8px;" onerror="this.onerror=null; this.src='icon144.png';">
-            <div style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.5); border-radius: 18px; padding: 14px 18px; text-align: center; max-width: 340px;">
-                <p style="margin: 0; font-size: 14px; line-height: 1.4; color: #f8fafc; font-weight: 600;">
-                    Olá! Seja bem-vindo ao <b style="color: #38bdf8;">Tabuada Fácil</b>! 🚀<br>
-                    Eu sou o <b>Taby</b> e vou te ajudar a dominar a tabuada!
-                </p>
-            </div>
-        </div>
+                    <!-- Equação do Jogo -->
+                    <div id="conta-container" class="painel-equacao-futurista caixa-equacao-futurista">
+                        <span id="fator1">5</span>
+                        <span class="sinal" id="sinal-operacao">×</span>
+                        <span id="fator2">3</span>
+                        <span class="sinal">=</span>
+                        <span class="interrogacao">?</span>
+                    </div>
 
-        <div id="form-login" class="card-painel-container">
-            <h3 style="margin-top: 0; margin-bottom: 16px; color: #38bdf8; font-size: 18px; font-weight: 800;">Acesse sua Conta</h3>
-            <button onclick="fazerLoginGoogle()" style="width: 100%; background: #ffffff; color: #1e293b; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 14px;">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.14v3.15C3.15 21.32 7.23 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.14C.41 8.08 0 9.77 0 11.5s.41 3.42 1.14 4.9l4.13-3.16z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.15 2.68 1.14 6.6l4.13 3.16c.95-2.85 3.6-4.96 6.73-4.96z"/>
-                </svg>
-                Entrar com o Google
-            </button>
+                    <!-- Respostas -->
+                    <div id="alternativas-container" class="grid-alternativas-2x2">
+                        <button onclick="verificarEscolha(0)" id="alt-0" class="btn-resposta-futurista">15</button>
+                        <button onclick="verificarEscolha(1)" id="alt-1" class="btn-resposta-futurista">14</button>
+                        <button onclick="verificarEscolha(2)" id="alt-2" class="btn-resposta-futurista">8</button>
+                        <button onclick="verificarEscolha(3)" id="alt-3" class="btn-resposta-futurista">20</button>
+                    </div>
 
-            <div style="display: flex; align-items: center; text-align: center; margin: 16px 0; font-size: 13px; opacity: 0.7;">
-                <hr style="flex: 1; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
-                <span style="padding: 0 10px; color: #cbd5e1;">ou com e-mail</span>
-                <hr style="flex: 1; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
-            </div>
-
-            <input type="email" id="login-email" placeholder="E-mail" class="input-futurista">
-            <input type="password" id="login-senha" placeholder="Senha" class="input-futurista">
-            
-            <button onclick="fazerLoginFirebase()" class="btn-comecar-desafio">ENTRAR AGORA 🚀</button>
-            
-            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 16px;">
-                <a href="#" onclick="alternarFormularios('cadastro'); return false;" style="color: #38bdf8; text-decoration: none; font-weight: bold;">Criar Conta</a>
-                <a href="#" onclick="abrirModalSobre(event); return false;" style="opacity: 0.7; color: #fff; text-decoration: none;">Ajuda?</a>
-            </div>
-        </div>
-
-        <div id="form-cadastro" class="card-painel-container oculto">
-            <h3 style="margin-top: 0; margin-bottom: 16px; color: #a855f7; font-size: 18px; font-weight: 800;">Criar sua Conta</h3>
-            <input type="text" id="cad-nick" placeholder="Seu Nome / Nickname (Máx 10 letras)" maxlength="10" class="input-futurista">
-            <input type="email" id="cad-email" placeholder="Seu Melhor E-mail" class="input-futurista">
-            <input type="password" id="cad-senha" placeholder="Senha (Mínimo 6 dígitos)" class="input-futurista">
-            
-            <button onclick="realizarCadastroFirebase()" class="btn-painel-trilha">CONCLUIR CADASTRO ✨</button>
-            <br>
-            <a href="#" onclick="alternarFormularios('login'); return false;" style="color: #38bdf8; text-decoration: none; font-size: 14px; font-weight: bold;">Já tenho conta. Voltar ao Login.</a>
-        </div>
-    </div>
-</div>
-
-<div id="tela-selecao-perfis" class="tela oculto" style="display: none !important;">
-    <h2 class="header-perfis">Quem vai jogar agora?</h2>
-    <p>Escolha o seu perfil para carregar sua jornada</p>
-    <div id="container-grid-perfis" class="grid-perfis-container"></div>
-</div>
-
-<div id="tela-trilha" class="tela oculto espaco-sideral-bg">
-    <div class="estrelas-container"></div>
-    <div class="app-container" style="position: relative; z-index: 2;">
-        <div style="width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); padding: 10px 16px; border-radius: 18px; border: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
-            <div class="status-vidas-gameplay" id="gameplay-hearts-trilha" style="display: flex; gap: 6px; font-size: 18px;">
-                <span class="coracao ativo">❤️</span>
-                <span class="coracao ativo">❤️</span>
-                <span class="coracao ativo">❤️</span>
-                <span class="coracao ativo">❤️</span>
-                <span class="coracao ativo">❤️</span>
-            </div>
-        </div>
-
-        <div id="balao-taby-trilha" style="position: relative; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 189, 248, 0.5); border-radius: 18px; padding: 12px 14px; width: 100%; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-            <button onclick="fecharBalaoTabyTrilha()" style="position: absolute; top: 6px; right: 8px; background: rgba(255, 255, 255, 0.15); border: none; color: #cbd5e1; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="taby.png" alt="Taby" style="width: 48px; height: 48px; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.7)); flex-shrink: 0;" onerror="this.onerror=null; this.src='icon144.png';">
-                <div style="font-size: 13px; line-height: 1.4; color: #e2e8f0; text-align: left; font-weight: 500;">
-                    Olá <b id="nome-aluno-taby-trilha" style="color: #38bdf8;">Estudante</b>! 👋<br>
-                    Vamos avançar na nossa jornada espacial de aprendizado! 🚀
+                    <!-- Botão de Sair Estilizado via Classe -->
+                    <button onclick="confirmarSaidaJogo()" class="btn-desistir-futurista">
+                        🚪 Desistir e Sair
+                    </button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <h2 style="font-size: 22px; margin-bottom: 2px; color: #38bdf8; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            Trilha de Aprendizado 🗺️
-        </h2>
-        <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px; color: #cbd5e1;">Dominando a tabuada no espaço!</p>
-
-        <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0 14px 0; padding: 0 10px; box-sizing: border-box;">
-            <button onclick="window.abrirDiarioDeBordoTaby()" style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.9) 0%, rgba(2, 44, 34, 0.95) 100%); border: 1.5px solid #10b981; color: #6ee7b7; padding: 8px 16px; border-radius: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; width: auto; box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);">
-                <div class="anim-flutuar" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; filter: drop-shadow(0 0 5px #34d399);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                        <path d="M12 6h4"></path>
-                        <path d="M12 10h4"></path>
-                    </svg>
-                </div>
-                <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.2;">
-                    <span style="font-size: 12px; font-weight: 900; letter-spacing: 0.3px;">DIÁRIO DE BORDO</span>
-                    <span style="font-size: 9.5px; font-weight: 700; color: #34d399; opacity: 0.9;">Curiosidades Desbloqueadas</span>
-                </div>
-            </button>
-        </div>
-
-        <div id="mapa-trilha-container" style="width: 100%; max-height: 48vh; overflow-y: auto; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; gap: 22px; margin-bottom: 14px; position: relative;"></div>
-
-        <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
-    </div>
-</div>
-
-<div id="tela-final-trilha" class="tela oculto">
-    <div class="app-container" style="justify-content: center; min-height: 85vh; padding: 20px 16px;">
-        <div style="display: flex; justify-content: center; margin-bottom: 12px;">
-            <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-animado" style="width: 85px; height: 85px; object-fit: contain; filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.7));">
-        </div>
         
-        <h1 id="trilha-titulo-resultado" style="font-size: 25px; color: #f1c40f; margin-bottom: 4px; font-weight: 900; text-align: center; text-shadow: 0 0 10px rgba(241, 196, 15, 0.3);">Bom Progresso! 💪</h1>
-        <p id="trilha-subtitulo-resultado" style="font-size: 13px; color: #94a3b8; margin-bottom: 20px; text-align: center;">Seu progresso foi salvo na Trilha Pessoal!</p>
-
-        <div class="card-painel-container" style="margin-bottom: 24px; padding: 18px 16px; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.75); border-radius: 20px; backdrop-filter: blur(10px);">
-            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 16px;">
-                <div style="text-align: center;">
-                    <span style="font-size: 11px; color: #94a3b8; display: block; font-weight: 800; letter-spacing: 0.8px; margin-bottom: 2px;">ACERTOS</span>
-                    <strong id="trilha-nota-val" style="font-size: 26px; color: #2ecc71; text-shadow: 0 0 8px rgba(46, 204, 113, 0.4);">20/20</strong>
+        <section id="tela-final" class="tela oculto">
+            <div class="app-container padding-top-10">
+                <h1 class="titulo-sucesso">Mandou bem! 🎉</h1>
+                <p class="subtitulo-sucesso">Você completou esta rodada de desafios!</p>
+                
+                <div id="nota-final" class="nota-grande-destaque">10/10</div>
+                <div id="display-porcentagem-final" class="precisao-destaque">Precisão: 100%</div>
+                <div id="display-tempo-final" class="tempo-destaque oculto">⏱️ Tempo Total: 0s</div>
+                <p id="mensagem-envio" class="msg-envio-destaque"></p>
+                
+                <div class="adsense-container-box">
+                    <ins class="adsbygoogle"
+                         style="display:block; width:100%;"
+                         data-ad-client="ca-pub-8040540242603270"
+                         data-ad-slot="5874739202"
+                         data-ad-format="horizontal"
+                         data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
-                <div style="height: 36px; width: 1px; background: rgba(255,255,255,0.15);"></div>
-                <div style="text-align: center;">
-                    <span style="font-size: 11px; color: #94a3b8; display: block; font-weight: 800; letter-spacing: 0.8px; margin-bottom: 2px;">PRECISÃO</span>
-                    <strong id="trilha-precisao-val" style="font-size: 26px; color: #fb923c; text-shadow: 0 0 8px rgba(251, 146, 60, 0.4);">100%</strong>
+
+                <div class="botoes-pos-partida-stack">
+                    <button id="btn-compartilhar-tempo" onclick="compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">📤 Compartilhar meu Tempo ⚡</button>
+                    <button onclick="continuarJogando()" class="btn-comecar-desafio">Continuar Jogando 🚀</button>
+                    <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
                 </div>
             </div>
+        </section>
 
-            <div id="box-diagnostico-trilha" style="background: rgba(7, 10, 18, 0.6); border-radius: 12px; padding: 12px 14px; font-size: 13px; text-align: center; line-height: 1.5; color: #e2e8f0; font-weight: 500; border: 1px solid rgba(255,255,255,0.06);">
-                🤖 "Seu nível de Maestria neste planeta subiu! Continue praticando para alcançar 85%!"
+        <section id="tela-final-trilha" class="tela oculto">
+            <div class="app-container centro-vertical-padding">
+                <div class="flex-justify-center margin-bottom-12">
+                    <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-animado img-taby-resultado">
+                </div>
+                
+                <h1 id="trilha-titulo-resultado" class="titulo-trilha-resultado">Bom Progresso! 💪</h1>
+                <p id="trilha-subtitulo-resultado" class="subtitulo-trilha-resultado">Seu progresso foi salvo na Trilha Pessoal!</p>
+
+                <div class="card-painel-container resultado-trilha-card">
+                    <div class="metricas-lado-a-lado">
+                        <div class="metrica-col">
+                            <span class="label">ACERTOS</span>
+                            <strong id="trilha-nota-val" class="val-green">20/20</strong>
+                        </div>
+                        <div class="divisor-vertical"></div>
+                        <div class="metrica-col">
+                            <span class="label">PRECISÃO</span>
+                            <strong id="trilha-precisao-val" class="val-orange">100%</strong>
+                        </div>
+                    </div>
+
+                    <div id="box-diagnostico-trilha" class="box-diagnostico-taby-texto">
+                        🤖 "Seu nível de Maestria neste planeta subiu! Continue praticando para alcançar 85%!"
+                    </div>
+                </div>
+
+                <div class="stack-botoes-full">
+                    <button onclick="window.continuarTrilhaMesmoPlaneta()" class="btn-praticar-verde">PRATICAR NOVAMENTE 🚀</button>
+                    <button onclick="window.mostrarTelaTrilha()" class="btn-mapa-trilha">🗺️ Voltar ao Mapa da Trilha</button>
+                    <button onclick="window.voltarParaInicial()" class="btn-painel-inicial-cinza">🏠 Voltar ao Painel Inicial</button>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
-            <button onclick="window.continuarTrilhaMesmoPlaneta()" style="width: 100%; height: 50px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 1.5px solid #34d399; color: #ffffff; font-weight: 800; font-size: 14px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">PRATICAR NOVAMENTE 🚀</button>
-            <button onclick="window.mostrarTelaTrilha()" style="width: 100%; height: 50px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1.5px solid #38bdf8; color: #e2e8f0; font-weight: 700; font-size: 14px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">🗺️ Voltar ao Mapa da Trilha</button>
-            <button onclick="window.voltarParaInicial()" style="width: 100%; height: 48px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(148, 163, 184, 0.25); color: #94a3b8; font-weight: 600; font-size: 13.5px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">🏠 Voltar ao Painel Inicial</button>
-        </div>
-    </div>
-</div>
+        <section id="tela-autenticacao" class="tela oculto display-none">
+            <div class="app-container padding-top-10">
+                <div class="header-auth-box">
+                    <img src="taby.png" alt="Taby" class="robo-flutuante img-auth-taby" onerror="this.onerror=null; this.src='icon144.png';">
+                    <div class="balao-auth-welcome">
+                        <p>
+                            Olá! Seja bem-vindo ao <b class="text-blue">Tabuada Fácil</b>! 🚀<br>
+                            Eu sou o <b>Taby</b> e vou te ajudar a dominar a tabuada!
+                        </p>
+                    </div>
+                </div>
 
-<div id="tela-aprender" class="tela oculto">
-    <div class="app-container">
-        <h2 style="color: #38bdf8; font-size: 22px; font-weight: 800; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); margin-bottom: 4px; text-align: center;">Modo Estudo 📚</h2>
-        <p style="color: #cbd5e1; font-size: 13.5px; margin-bottom: 20px; text-align: center;">Escolha qual tabuada deseja consultar:</p>
+                <div id="form-login" class="card-painel-container">
+                    <h3 class="titulo-auth-card">Acesse sua Conta</h3>
+                    <button onclick="fazerLoginGoogle()" class="btn-google-login">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.14v3.15C3.15 21.32 7.23 24 12 24z"/>
+                            <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.14C.41 8.08 0 9.77 0 11.5s.41 3.42 1.14 4.9l4.13-3.16z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.15 2.68 1.14 6.6l4.13 3.16c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                        </svg>
+                        Entrar com o Google
+                    </button>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; margin-bottom: 20px;">
-            <button type="button" onclick="window.abrirTabuadas('multiplicacao')" class="btn-op-estudo">✖️ Multiplicação</button>
-            <button type="button" onclick="window.abrirTabuadas('divisao')" class="btn-op-estudo">➗ Divisão</button>
-            <button type="button" onclick="window.abrirTabuadas('adicao')" class="btn-op-estudo">➕ Adição</button>
-            <button type="button" onclick="window.abrirTabuadas('subtracao')" class="btn-op-estudo">➖ Subtração</button>
-        </div>
+                    <div class="divisor-ou-linha">
+                        <hr><span class="label-ou">ou com e-mail</span><hr>
+                    </div>
 
-        <button type="button" onclick="window.irParaPainelJogo()" class="btn-voltar-futurista" style="width: 100%;">⬅️ Voltar ao Painel</button>
-    </div>
-</div>
+                    <input type="email" id="login-email" placeholder="E-mail" class="input-futurista">
+                    <input type="password" id="login-senha" placeholder="Senha" class="input-futurista">
+                    
+                    <button onclick="fazerLoginFirebase()" class="btn-comecar-desafio">ENTRAR AGORA 🚀</button>
+                    
+                    <div class="links-auth-row">
+                        <a href="#" onclick="alternarFormularios('cadastro'); return false;" class="link-destaque-blue">Criar Conta</a>
+                        <a href="#" onclick="abrirModalSobre(event); return false;" class="link-secundario-white">Ajuda?</a>
+                    </div>
+                </div>
 
-<div id="tela-visualizar-tabuadas" class="tela oculto">
-    <div class="app-container">
-        <h1 id="titulo-tipo-tabuada" style="font-size: 22px; margin-bottom: 4px; color: #38bdf8; font-weight: 800; text-align: center;">Tabuada</h1>
-        <p style="margin-bottom: 16px; font-size: 13.5px; color: #cbd5e1; text-align: center;">Toque em um número para ver a lista:</p>
-
-        <div class="grid-num-tabuada" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; width: 100%;">
-            <button id="btn-num-1" type="button" onclick="window.gerarListaTabuada(1, event)" class="btn-num-tabuada">1</button>
-            <button id="btn-num-2" type="button" onclick="window.gerarListaTabuada(2, event)" class="btn-num-tabuada">2</button>
-            <button id="btn-num-3" type="button" onclick="window.gerarListaTabuada(3, event)" class="btn-num-tabuada">3</button>
-            <button id="btn-num-4" type="button" onclick="window.gerarListaTabuada(4, event)" class="btn-num-tabuada">4</button>
-            <button id="btn-num-5" type="button" onclick="window.gerarListaTabuada(5, event)" class="btn-num-tabuada">5</button>
-            <button id="btn-num-6" type="button" onclick="window.gerarListaTabuada(6, event)" class="btn-num-tabuada">6</button>
-            <button id="btn-num-7" type="button" onclick="window.gerarListaTabuada(7, event)" class="btn-num-tabuada">7</button>
-            <button id="btn-num-8" type="button" onclick="window.gerarListaTabuada(8, event)" class="btn-num-tabuada">8</button>
-            <button id="btn-num-9" type="button" onclick="window.gerarListaTabuada(9, event)" class="btn-num-tabuada">9</button>
-            <button id="btn-num-10" type="button" onclick="window.gerarListaTabuada(10, event)" class="btn-num-tabuada">10</button>
-        </div>
-
-        <div id="resultado-lista-tabuada" class="card-painel-container" style="margin-bottom: 20px; font-size: 16px; line-height: 1.6;">
-            <p style="text-align: center; color: #cbd5e1; margin: 0;">Selecione um número acima para carregar a tabuada.</p>
-        </div>
-
-        <button type="button" onclick="window.mostrarTelaAprender()" class="btn-voltar-futurista" style="width: 100%;">⬅️ Voltar às Operações</button>
-    </div>
-</div>
-
-<div id="tela-pre-jogo" class="tela oculto">
-    <div class="app-container">
-        <h2 style="font-size: 26px; margin-bottom: 10px; color: #fb923c; font-weight: 900;">Modo Relâmpago ⚡</h2>
-        <p style="font-size: 15px; margin-bottom: 30px; color: #cbd5e1;">Prepare-se! O cronômetro iniciará assim que você clicar em começar.</p>
-        
-        <div id="box-contador-regressivo" class="oculto" style="font-size: 75px; font-weight: 900; color: #f39c12; margin-bottom: 30px;">3</div>
-        
-        <button id="btn-iniciar-desafio-real" onclick="comecarDesafioEfetivo()" class="btn-comecar-desafio" style="margin-bottom: 15px;">▶️ INICIAR AGORA</button>
-        <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
-    </div>
-</div>
-
-<div id="tela-jogo" class="tela oculto espaco-sideral-bg">
-    <div class="estrelas-container"></div>
-
-    <div class="app-container" style="position: relative; z-index: 2;">
-        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); padding: 10px 14px; border-radius: 16px; border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
-            <div class="status-vidas-gameplay" style="display: flex; align-items: center; gap: 4px; font-size: 16px;">
-                <span id="gameplay-hearts-partida">❤️ ❤️ ❤️ ❤️ ❤️</span>
+                <div id="form-cadastro" class="card-painel-container oculto">
+                    <h3 class="titulo-cad-card">Criar sua Conta</h3>
+                    <input type="text" id="cad-nick" placeholder="Seu Nome / Nickname (Máx 10 letras)" maxlength="10" class="input-futurista">
+                    <input type="email" id="cad-email" placeholder="Seu Melhor E-mail" class="input-futurista">
+                    <input type="password" id="cad-senha" placeholder="Senha (Mínimo 6 dígitos)" class="input-futurista">
+                    
+                    <button onclick="realizarCadastroFirebase()" class="btn-painel-trilha">CONCLUIR CADASTRO ✨</button>
+                    <br>
+                    <a href="#" onclick="alternarFormularios('login'); return false;" class="link-voltar-login">Já tenho conta. Voltar ao Login.</a>
+                </div>
             </div>
-            
-            <span id="container-cronometro" class="oculto" style="color: #fb923c; background: rgba(251, 146, 60, 0.15); border: 1px solid rgba(251, 146, 60, 0.4); padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 13px;">
-                ⏱️ <span id="cronometro-jogo">0:00.0</span>
-            </span>
-            
-            <span style="color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.4); padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 13px;" id="contador-perguntas">
-                1/10
-            </span>
-        </div>
+        </section>
 
-        <div class="card-painel-container" style="text-align: center;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
-                <img src="taby.png" alt="Taby" style="width: 45px; height: 45px; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));" onerror="this.onerror=null; this.src='icon144.png';">
-                <span style="font-size: 14px; color: #e2e8f0; font-weight: 700;">Calcule com atenção! ⚡</span>
-            </div>
+        <section id="tela-selecao-perfis" class="tela oculto display-none-important">
+            <h2 class="header-perfis">Quem vai jogar agora?</h2>
+            <p>Escolha o seu perfil para carregar sua jornada</p>
+            <div id="container-grid-perfis" class="grid-perfis-container"></div>
+        </section>
 
-            <div id="conta-container" class="painel-equacao-futurista">
-                <span id="fator1">5</span>
-                <span class="sinal" id="sinal-operacao">×</span>
-                <span id="fator2">3</span>
-                <span class="sinal">= ?</span>
-            </div>
+    </main>
 
-            <div id="alternativas-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 16px;">
-                <button onclick="verificarEscolha(0)" id="alt-0" class="btn-resposta-futurista">15</button>
-                <button onclick="verificarEscolha(1)" id="alt-1" class="btn-resposta-futurista">14</button>
-                <button onclick="verificarEscolha(2)" id="alt-2" class="btn-resposta-futurista">8</button>
-                <button onclick="verificarEscolha(3)" id="alt-3" class="btn-resposta-futurista">20</button>
-            </div>
-
-            <button onclick="confirmarSaidaJogo()" class="btn-desistir-futurista">🚶 Desistir e Sair</button>
-        </div>
-    </div>
-</div>
-
-<div id="tela-final" class="tela oculto">
-    <div class="app-container" style="padding-top: 10px;">
-        <h1 style="font-size: 28px; color: #2ecc71; margin-bottom: 4px; font-weight: 900;">Mandou bem! 🎉</h1>
-        <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 10px;">Você completou esta rodada de desafios!</p>
-        
-        <div style="font-size: 65px; font-weight: 900; color: #2ecc71; margin: 5px 0;" id="nota-final">10/10</div>
-        <div style="font-size: 18px; font-weight: 800; color: #38bdf8; margin-bottom: 4px;" id="display-porcentagem-final">Precisão: 100%</div>
-        <div style="font-size: 16px; font-weight: 800; color: #fb923c; margin-bottom: 8px;" id="display-tempo-final" class="oculto">⏱️ Tempo Total: 0s</div>
-        <p id="mensagem-envio" style="font-weight: 700; color: #a855f7; margin-bottom: 12px;"></p>
-        
-        <div class="adsense-container-box">
-            <ins class="adsbygoogle"
-                 style="display:block; width:100%;"
-                 data-ad-client="ca-pub-8040540242603270"
-                 data-ad-slot="5874739202"
-                 data-ad-format="horizontal"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-
-        <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
-            <button id="btn-compartilhar-tempo" onclick="compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">📤 Compartilhar meu Tempo ⚡</button>
-            <button onclick="continuarJogando()" class="btn-comecar-desafio">Continuar Jogando 🚀</button>
-            <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
-        </div>
-    </div>
-</div>
-
-<div id="tela-ranking" class="tela oculto">
-    <div class="app-container">
-        <div style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-            <h1 style="font-size: 26px; margin: 0; color: #f1c40f; font-weight: 900; text-align: center;">Top Jogadores 🏆</h1>
-            <span class="btn-info-ico" onclick="mostrarAjudaTaby('ranking');" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">i</span>
-        </div>
-        
-        <div class="container-abas-ranking" style="display: flex; gap: 10px; width: 100%; margin-bottom: 12px;">
-            <button id="btn-aba-treino" class="btn-aba-ranking ativo" onclick="window.selecionarAbaRanking('treino')">📊 TREINO</button>
-            <button id="btn-aba-relampago" class="btn-aba-ranking" onclick="window.selecionarAbaRanking('relampago')">⚡ RELÂMPAGO</button>
-        </div>
-
-        <input type="hidden" id="tipo-ranking" value="treino">
-
-        <div id="filtro-operacoes-relampago" style="display: none; width: 100%; margin-bottom: 10px;">
-            <select id="select-op-relampago" onchange="carregarRankingRelampago()" style="width: 100%; padding: 12px; border-radius: 14px; font-size: 14px; border: 1.5px solid rgba(56, 189, 248, 0.4); background-color: #0f172a; color: #38bdf8; font-weight: 800; outline: none;">
-                <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
-                <option value="multiplicacao">✖️ Multiplicação</option>
-                <option value="divisao">➗ Divisão</option>
-                <option value="adicao">➕ Adição</option>
-                <option value="subtracao">➖ Subtração</option>
-                <option value="insano">🔥 Modo Insano</option>
-            </select>
-        </div>
-
-        <select id="filtro-tempo" onchange="aplicarFiltro()" style="width: 100%; padding: 12px; margin-bottom: 16px; border-radius: 14px; font-size: 14px; border: 1.5px solid rgba(255,255,255,0.2); background-color: #1e293b; color: #fff; font-weight: 700; outline: none;">
-            <option value="hoje" selected>Hoje</option>
-            <option value="3dias">Últimos 3 dias</option>
-            <option value="1mes">Último mês</option>
-            <option value="sempre">Sempre</option>
-        </select>
-
-        <div id="lista-ranking" style="text-align: left; width: 100%; margin-bottom: 20px; font-size: 16px; max-height: 45vh; overflow-y: auto; padding: 12px;" class="card-painel-container">
-            <p style="text-align: center; color: #cbd5e1;">Carregando...</p>
-        </div>
-
-        <button onclick="voltarParaInicial()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
-    </div>
-</div>
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR NATIVA (BOTTOM NAV BAR) -->
+<nav class="bottom-nav-app">
+    <button class="btn-nav-item ativo" onclick="window.irParaPainelJogo(event)">
+        <span class="icon-nav">🎮</span>
+        <span class="label-nav">Treino</span>
+    </button>
+    <button class="btn-nav-item" onclick="window.mostrarTelaTrilha(event)">
+        <span class="icon-nav">🪐</span>
+        <span class="label-nav">Trilha</span>
+    </button>
+    <button class="btn-nav-item" onclick="window.mostrarTelaAprender(event)">
+        <span class="icon-nav">📚</span>
+        <span class="label-nav">Estudo</span>
+    </button>
+    <button class="btn-nav-item" onclick="window.mostrarRanking(event)">
+        <span class="icon-nav">🏆</span>
+        <span class="label-nav">Ranking</span>
+    </button>
+</nav>
 
 <!-- ==========================================================
      MODAIS E OVERLAYS ISOLADOS (FILHOS DIRETO DO BODY)
      ========================================================== -->
 
 <!-- 1. MODAL DE EDIÇÃO DE PERFIL -->
-<div id="form-perfil-modal" class="modal-overlay-ui oculto" style="display: none;">
+<div id="form-perfil-modal" class="modal-overlay-ui oculto display-none">
     <div class="card-painel-container">
         <h3 id="titulo-form-perfil" class="titulo-edicao-perfil">Editar Perfil</h3>
 
         <div class="campo-grupo-ui">
             <label class="label-input-ui">Nome do Jogador(a):</label>
-            <input type="text" id="input-nome-perfil" placeholder="Ex: Odilon" maxlength="15" class="input-futurista" style="margin-bottom: 0;">
+            <input type="text" id="input-nome-perfil" placeholder="Ex: Odilon" maxlength="15" class="input-futurista margin-bottom-0">
         </div>
 
         <div class="secao-galeria-perfil">
@@ -647,7 +643,7 @@
                 <button type="button" class="btn-nav-carrossel next" onclick="window.rolarCarrosselAvatares(1)" title="Próximo">›</button>
             </div>
 
-            <input type="file" id="input-upload-galeria" accept="image/*" onchange="window.carregarFotoParaAjuste(event)" style="display: none;">
+            <input type="file" id="input-upload-galeria" accept="image/*" onchange="window.carregarFotoParaAjuste(event)" class="display-none">
             
             <p id="aviso-limite-fotos" class="aviso-limite-texto oculto">
                 ⚠️ Limite de 6 fotos atingido! Para adicionar uma nova, exclua uma foto da sua galeria.
@@ -659,12 +655,12 @@
             <button type="button" onclick="window.fecharEdicaoPerfil();" class="btn-cancelar-perfil-ui">CANCELAR</button>
         </div>
 
-        <div class="secao-exclusao-perfil" style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed rgba(255, 255, 255, 0.15); display: flex; flex-direction: column; gap: 10px;">
-            <button type="button" id="btn-acao-excluir-perfil" onclick="window.solicitarExclusaoPerfil()" class="btn-excluir-acao" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px 14px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer;">
+        <div class="secao-exclusao-perfil">
+            <button type="button" id="btn-acao-excluir-perfil" onclick="window.solicitarExclusaoPerfil()" class="btn-excluir-acao display-none">
                 🗑️ Excluir Este Perfil
             </button>
 
-            <button type="button" id="btn-acao-excluir-conta" onclick="window.abrirModalConfirmacaoExclusao('conta')" class="btn-excluir-conta-acao" style="background: transparent; border: none; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline;">
+            <button type="button" id="btn-acao-excluir-conta" onclick="window.abrirModalConfirmacaoExclusao('conta')" class="btn-excluir-conta-acao">
                 ⚠️ Encerrar e Excluir Conta Completa
             </button>
         </div>
@@ -691,7 +687,7 @@
 </div>
 
 <!-- 3. MODAL DE RELATÓRIO E ACOMPANHAMENTO -->
-<div id="modal-relatorio" class="modal-overlay-ui oculto" style="display: none;">
+<div id="modal-relatorio" class="modal-overlay-ui oculto display-none">
     <div class="card-relatorio-ui">
         
         <div class="modal-header-relatorio">
@@ -703,7 +699,7 @@
         </div>
 
         <div class="perfil-relatorio-header">
-            <div class="moldura-foto-container" style="margin: 0;">
+            <div class="moldura-foto-container margin-0">
                 <img id="relatorio-foto-perfil" src="icon144.png" alt="Foto do Aluno" class="foto-perfil-img">
             </div>
 
@@ -823,7 +819,7 @@
         </div>
 
         <!-- ABA 2: ESTATÍSTICAS E EVOLUÇÃO -->
-        <div id="conteudo-aba-evolucao" class="aba-conteudo-relatorio" style="display: none;">
+        <div id="conteudo-aba-evolucao" class="aba-conteudo-relatorio display-none">
             <div class="painel-filtros-pais">
                 <div class="grupo-filtro">
                     <label for="filtro-operacao-grafico">🎯 Filtrar Operação:</label>
@@ -845,19 +841,19 @@
                 </div>
             </div>
 
-            <div class="secao-detalhamento-op" style="margin-top: 10px;">
+            <div class="secao-detalhamento-op margin-top-10">
                 <h4 class="subtitulo-relatorio">📈 Evolução da Precisão (%) com Valores Exatos</h4>
                 <canvas id="graficoEvolucaoPrecisao" height="180"></canvas>
             </div>
 
-            <div class="secao-detalhamento-op" style="margin-top: 15px;">
+            <div class="secao-detalhamento-op margin-top-15">
                 <h4 class="subtitulo-relatorio">📊 Volume Diário de Questões Resolvidas</h4>
                 <canvas id="graficoVolumeQuestoes" height="150"></canvas>
             </div>
         </div>
 
         <!-- ABA 3: CONECTAR CONTA -->
-        <div id="conteudo-aba-vinculo" class="aba-conteudo-relatorio" style="display: none;">
+        <div id="conteudo-aba-vinculo" class="aba-conteudo-relatorio display-none">
             <div class="card-acao-vinculo">
                 <h4>👧 Gerar Código de Acesso para o Responsável</h4>
                 <p>Gere um código de 6 dígitos para que seus pais acompanhem seu relatório no celular deles.</p>
@@ -886,176 +882,176 @@
 <!-- 4. MODAL INSTITUCIONAL: SOBRE -->
 <div id="modal-sobre-contato" class="modal-overlay-ui oculto">
     <div class="card-painel-container">
-        <h2 style="color: #38bdf8; font-size: 20px; margin-top: 0; font-weight: 800; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 8px;">
+        <h2 class="titulo-modal-inst">
             Sobre o tabuadafacil.com.br 🚀
         </h2>
         
-        <p style="font-size: 13.5px; color: #e2e8f0; line-height: 1.5; margin-bottom: 12px;">
+        <p class="texto-modal-inst">
             O <b>Tabuada Fácil</b> é uma plataforma educacional interativa desenvolvida para auxiliar estudantes, pais e educadores na prática e no aprendizado do cálculo mental e da matemática básica.
         </p>
 
-        <h3 style="color: #c084fc; font-size: 15px; margin-bottom: 8px;">Recursos Principais</h3>
-        <ul style="font-size: 13px; color: #cbd5e1; padding-left: 20px; line-height: 1.6; margin-bottom: 16px;">
+        <h3 class="subtitulo-modal-inst-purple">Recursos Principais</h3>
+        <ul class="lista-modal-inst">
             <li>Trilha Espacial de Aprendizado com sistema de maestria.</li>
             <li>Modo Relâmpago com cronômetro e ranking global unificado.</li>
             <li>Consultas interativas de tabuadas das 4 operações.</li>
             <li>Suporte a funcionamento offline via PWA.</li>
         </ul>
 
-        <h3 style="color: #fb923c; font-size: 15px; margin-bottom: 6px;">Contato e Suporte ✉️</h3>
-        <p style="font-size: 13.5px; color: #38bdf8; font-weight: bold; background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); text-align: center; margin-bottom: 16px;">
+        <h3 class="subtitulo-modal-inst-orange">Contato e Suporte ✉️</h3>
+        <p class="box-email-suporte">
             omarapps87@gmail.com
         </p>
 
-        <button id="btn-fechar-sobre" class="btn-voltar-futurista" style="width: 100%;">Fechar</button>
+        <button id="btn-fechar-sobre" class="btn-voltar-futurista">Fechar</button>
     </div>
 </div>
 
 <!-- 5. MODAL INSTITUCIONAL: PRIVACIDADE -->
 <div id="modal-privacidade" class="modal-overlay-ui oculto">
     <div class="card-painel-container">
-        <h2 style="color: #38bdf8; font-size: 20px; margin-top: 0; font-weight: 800; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 8px;">
+        <h2 class="titulo-modal-inst">
             Política de Privacidade 🔒
         </h2>
 
-        <p style="font-size: 12.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+        <p class="texto-modal-inst-small">
             A sua privacidade é extremamente importante para nós. Respeitamos a sua privacidade em relação a qualquer informação coletada.
         </p>
 
-        <button id="btn-fechar-privacidade" class="btn-voltar-futurista" style="margin-top: 12px; width: 100%;">Fechar</button>
+        <button id="btn-fechar-privacidade" class="btn-voltar-futurista margin-top-12">Fechar</button>
     </div>
 </div>
 
 <!-- 6. MODAL DE PAYWALL / PLANOS -->
-<div id="modal-paywall-planos" class="paywall-overlay oculto" style="display: none !important;">
-    <div class="card-painel-container" style="max-width: 480px !important;">
+<div id="modal-paywall-planos" class="paywall-overlay oculto display-none-important">
+    <div class="card-painel-container max-width-480-important">
         
         <button onclick="window.fecharPaywall()" class="btn-fechar-modal">&times;</button>
 
-        <div style="font-size: 11px; font-weight: 900; color: #38bdf8; letter-spacing: 1px; margin-bottom: 4px;">
+        <div class="sub-header-paywall">
             ⚡ O Método Definitivo para a Tabuada Virar Reflexo Automático
         </div>
-        <h3 style="color: #fff; font-size: 20px; font-weight: 900; margin-bottom: 6px;">
+        <h3 class="titulo-paywall">
             Diga Adeus à Contagem nos Dedos!
         </h3>
-        <p style="color: #94a3b8; font-size: 12.5px; line-height: 1.4; margin-bottom: 16px;">
+        <p class="desc-paywall">
             O Tabuada Fácil substitui a 'decoreba' cansativa por um algoritmo inteligente de repetição espaçada que transforma cálculos em respostas automáticas e sem esforço.
         </p>
 
-        <div style="display: flex; gap: 6px; background: #0f172a; padding: 4px; border-radius: 14px; border: 1px solid #1e293b; margin-bottom: 16px;">
-            <button class="tab-paywall-btn active" onclick="window.alternarAbaPaywall('pro')" style="flex: 1; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer;">
+        <div class="tabs-paywall-row">
+            <button class="tab-paywall-btn active" onclick="window.alternarAbaPaywall('pro')">
                 💎 Plano PRO
             </button>
-            <button class="tab-paywall-btn" onclick="window.alternarAbaPaywall('familia')" style="flex: 1; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer;">
+            <button class="tab-paywall-btn" onclick="window.alternarAbaPaywall('familia')">
                 👑 PREMIUM Família
             </button>
         </div>
 
         <div id="conteudo-aba-pro">
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left; background: rgba(15, 23, 42, 0.6); padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #f8fafc;">
-                    <span style="background: #22c55e; color: #000; border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: 900;">✓</span>
+            <div class="box-recursos-paywall">
+                <div class="item-recurso-paywall">
+                    <span class="check-icon">✓</span>
                     Algoritmo Anti-Inércia (Foco automático nas maiores dúvidas)
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #f8fafc;">
-                    <span style="background: #22c55e; color: #000; border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: 900;">✓</span>
+                <div class="item-recurso-paywall">
+                    <span class="check-icon">✓</span>
                     Vidas Ilimitadas & Desbloqueio de Todos os 15 Planetas
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #f8fafc;">
-                    <span style="background: #22c55e; color: #000; border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: 900;">✓</span>
+                <div class="item-recurso-paywall">
+                    <span class="check-icon">✓</span>
                     Zero Anúncios & Acesso Completo aos Rankings Globais
                 </div>
             </div>
 
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'pro_mensal', '9,90')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; margin-bottom: 8px; cursor: pointer;">
-                <div style="text-align: left;">
-                    <span style="font-weight: 800; color: #fff; font-size: 13.5px; display: block;">Mensal</span>
-                    <span style="font-size: 11px; color: #94a3b8;">Ideal para testar</span>
+            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'pro_mensal', '9,90')">
+                <div class="text-align-left">
+                    <span class="tit-duracao">Mensal</span>
+                    <span class="sub-duracao">Ideal para testar</span>
                 </div>
-                <span style="font-size: 15px; font-weight: 900; color: #38bdf8;">R$ 9,90 <small style="font-size: 10px; color: #94a3b8; font-weight: 600;">/mês</small></span>
+                <span class="preco-pro">R$ 9,90 <small>/mês</small></span>
             </div>
 
-            <div class="card-duracao destaque-recomendado selecionado" onclick="window.selecionarDuracao(this, 'pro_trimestral', '24,90')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%); border: 2px solid #38bdf8; border-radius: 12px; margin-bottom: 8px; cursor: pointer; box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 13px;">⭐</span>
-                    <div style="text-align: left;">
-                        <span style="font-weight: 900; color: #38bdf8; font-size: 12px; letter-spacing: 0.5px; display: block;">MAIS POPULAR</span>
-                        <span style="font-size: 12px; color: #e2e8f0; font-weight: 700;">Trimestral (3 Meses)</span>
+            <div class="card-duracao destaque-recomendado selecionado" onclick="window.selecionarDuracao(this, 'pro_trimestral', '24,90')">
+                <div class="flex-align-center-gap8">
+                    <span>⭐</span>
+                    <div class="text-align-left">
+                        <span class="tag-popular">MAIS POPULAR</span>
+                        <span class="nome-duracao-highlight">Trimestral (3 Meses)</span>
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <span style="font-size: 17px; font-weight: 900; color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); display: block;">R$ 24,90</span>
-                    <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">R$ 8,30/mês</span>
+                <div class="text-align-right">
+                    <span class="preco-pro-destaque">R$ 24,90</span>
+                    <span class="sub-preco">R$ 8,30/mês</span>
                 </div>
             </div>
 
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'pro_semestral', '34,90')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; margin-bottom: 8px; cursor: pointer;">
-                <div style="text-align: left;">
-                    <span style="font-weight: 800; color: #fff; font-size: 13.5px; display: block;">Semestral (6 Meses)</span>
-                    <span style="font-size: 11px; color: #34d399; font-weight: 700;">Economia Máxima</span>
+            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'pro_semestral', '34,90')">
+                <div class="text-align-left">
+                    <span class="tit-duracao">Semestral (6 Meses)</span>
+                    <span class="sub-duracao-green">Economia Máxima</span>
                 </div>
-                <div style="text-align: right;">
-                    <span style="font-size: 15px; font-weight: 900; color: #38bdf8; display: block;">R$ 34,90</span>
-                    <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">R$ 5,81/mês</span>
+                <div class="text-align-right">
+                    <span class="preco-pro">R$ 34,90</span>
+                    <span class="sub-preco">R$ 5,81/mês</span>
                 </div>
             </div>
         </div>
 
-        <div id="conteudo-aba-familia" style="display: none;">
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left; background: rgba(15, 23, 42, 0.6); padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #f8fafc;">
-                    <span style="background: #22c55e; color: #000; border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: 900;">✓</span>
+        <div id="conteudo-aba-familia" class="display-none">
+            <div class="box-recursos-paywall">
+                <div class="item-recurso-paywall">
+                    <span class="check-icon">✓</span>
                     Tudo do Plano PRO 💎 incluso
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #f8fafc;">
-                    <span style="background: #22c55e; color: #000; border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: 900;">✓</span>
+                <div class="item-recurso-paywall">
+                    <span class="check-icon">✓</span>
                     Até 3 Perfis Individuais (Evolução independente por filho)
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #f8fafc;">
-                    <span style="background: #22c55e; color: #000; border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: 900;">✓</span>
+                <div class="item-recurso-paywall">
+                    <span class="check-icon">✓</span>
                     Relatório Pedagógico com Índice de Reflexo e Erros em PDF
                 </div>
             </div>
 
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'fam_mensal', '14,90')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; margin-bottom: 8px; cursor: pointer;">
-                <div style="text-align: left;">
-                    <span style="font-weight: 800; color: #fff; font-size: 13.5px; display: block;">Mensal Família</span>
-                    <span style="font-size: 11px; color: #94a3b8;">Ideal para testar</span>
+            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'fam_mensal', '14,90')">
+                <div class="text-align-left">
+                    <span class="tit-duracao">Mensal Família</span>
+                    <span class="sub-duracao">Ideal para testar</span>
                 </div>
-                <span style="font-size: 15px; font-weight: 900; color: #fbbf24;">R$ 14,90 <small style="font-size: 10px; color: #94a3b8; font-weight: 600;">/mês</small></span>
+                <span class="preco-fam">R$ 14,90 <small>/mês</small></span>
             </div>
 
-            <div class="card-duracao destaque-recomendado" onclick="window.selecionarDuracao(this, 'fam_trimestral', '32,90')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%); border: 2px solid #fbbf24; border-radius: 12px; margin-bottom: 8px; cursor: pointer; box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 13px;">⭐</span>
-                    <div style="text-align: left;">
-                        <span style="font-weight: 900; color: #fbbf24; font-size: 12px; letter-spacing: 0.5px; display: block;">RECOMENDADO PARA PAIS</span>
-                        <span style="font-size: 12px; color: #e2e8f0; font-weight: 700;">Trimestral (3 Meses)</span>
+            <div class="card-duracao destaque-recomendado" onclick="window.selecionarDuracao(this, 'fam_trimestral', '32,90')">
+                <div class="flex-align-center-gap8">
+                    <span>⭐</span>
+                    <div class="text-align-left">
+                        <span class="tag-popular-gold">RECOMENDADO PARA PAIS</span>
+                        <span class="nome-duracao-highlight">Trimestral (3 Meses)</span>
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <span style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 8px rgba(251, 191, 36, 0.5); display: block;">R$ 32,90</span>
-                    <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">R$ 10,96/mês</span>
+                <div class="text-align-right">
+                    <span class="preco-fam-destaque">R$ 32,90</span>
+                    <span class="sub-preco">R$ 10,96/mês</span>
                 </div>
             </div>
 
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'fam_semestral', '49,90')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; margin-bottom: 8px; cursor: pointer;">
-                <div style="text-align: left;">
-                    <span style="font-weight: 800; color: #fff; font-size: 13.5px; display: block;">Semestral Família (6 Meses)</span>
-                    <span style="font-size: 11px; color: #34d399; font-weight: 700;">Melhor Custo-Benefício</span>
+            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'fam_semestral', '49,90')">
+                <div class="text-align-left">
+                    <span class="tit-duracao">Semestral Família (6 Meses)</span>
+                    <span class="sub-duracao-green">Melhor Custo-Benefício</span>
                 </div>
-                <div style="text-align: right;">
-                    <span style="font-size: 15px; font-weight: 900; color: #fbbf24; display: block;">R$ 49,90</span>
-                    <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">R$ 8,31/mês</span>
+                <div class="text-align-right">
+                    <span class="preco-fam">R$ 49,90</span>
+                    <span class="sub-preco">R$ 8,31/mês</span>
                 </div>
             </div>
         </div>
 
-        <button id="btn-paywall-confirmar" onclick="window.processarPagamentoSelecionado()" class="btn-comecar-desafio" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px; margin-bottom: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border-color: #34d399 !important;">
+        <button id="btn-paywall-confirmar" onclick="window.processarPagamentoSelecionado()" class="btn-comecar-desafio btn-assinar-paywall">
             ASSINAR AGORA POR R$ 24,90 🚀
         </button>
 
-        <div style="font-size: 11px; color: #64748b; line-height: 1.4; display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <div class="garantia-box-paywall">
             <span>🛡️</span>
             <span><b>Garantia do Método:</b> Desenvolvido com repetição focada para fixar o aprendizado na memória de longo prazo.</span>
         </div>
@@ -1064,30 +1060,30 @@
 </div>
 
 <!-- 7. MODAL DE CONFIRMAÇÃO DE SEGURANÇA E REAUTENTICAÇÃO -->
-<div id="modal-confirmar-exclusao-seguranca" class="modal-overlay-ui oculto" style="display: none;">
-    <div class="card-painel-container" style="max-width: 380px; text-align: center; border: 2px solid #ef4444;">
+<div id="modal-confirmar-exclusao-seguranca" class="modal-overlay-ui oculto display-none">
+    <div class="card-painel-container modal-seguranca-box">
         
-        <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
-        <h3 id="exclusao-titulo-modal" style="color: #ef4444; font-size: 18px; margin-bottom: 8px; font-weight: 800;">Confirmar Exclusão</h3>
+        <div class="icon-shield-exclusao">🛡️</div>
+        <h3 id="exclusao-titulo-modal" class="titulo-modal-exclusao">Confirmar Exclusão</h3>
         
-        <p id="exclusao-subtitulo-modal" style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 16px;">
+        <p id="exclusao-subtitulo-modal" class="subtitulo-modal-exclusao">
             Esta ação apagará seus dados permanentemente.
         </p>
 
-        <div id="container-campo-senha-exclusao" style="margin-bottom: 14px;">
-            <input type="password" id="input-senha-reautenticacao" placeholder="Digite sua senha do app" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #fff; text-align: center; font-size: 14px; box-sizing: border-box;" />
+        <div id="container-campo-senha-exclusao" class="margin-bottom-14">
+            <input type="password" id="input-senha-reautenticacao" placeholder="Digite sua senha do app" class="input-senha-seguranca" />
         </div>
 
-        <div id="container-campo-texto-exclusao" style="margin-bottom: 16px; display: none;">
-            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Digite a palavra <b>EXCLUIR</b>:</label>
-            <input type="text" id="input-texto-confirmacao-exclusao" placeholder="EXCLUIR" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ef4444; background: #1e293b; color: #fff; text-align: center; font-weight: 800; box-sizing: border-box;" />
+        <div id="container-campo-texto-exclusao" class="margin-bottom-16 display-none">
+            <label class="label-confirm-excluir">Digite a palavra <b>EXCLUIR</b>:</label>
+            <input type="text" id="input-texto-confirmacao-exclusao" placeholder="EXCLUIR" class="input-texto-confirm-excluir" />
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button type="button" onclick="window.fecharModalSegurancaExclusao()" style="flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #94a3b8; font-weight: 700; cursor: pointer;">
+        <div class="flex-gap-10 margin-top-10">
+            <button type="button" onclick="window.fecharModalSegurancaExclusao()" class="btn-cancelar-exclusao">
                 Cancelar
             </button>
-            <button type="button" id="btn-executar-exclusao-final" class="btn-comecar-desafio" style="flex: 1; padding: 10px; border-radius: 10px; background: #ef4444 !important; border-color: #f87171 !important; font-weight: 800; cursor: pointer;">
+            <button type="button" id="btn-executar-exclusao-final" class="btn-comecar-desafio btn-executar-exclusao">
                 Confirmar
             </button>
         </div>
@@ -1095,17 +1091,36 @@
     </div>
 </div>
 
-<!-- RODAPÉ -->
-<footer>
-  <p>&copy; 2026 Tabuada Fácil. Todos os direitos reservados.</p>
-  <nav>
-    <a href="#" onclick="abrirModalSobre(event)">Sobre / Contato</a> | 
-    <a href="#" onclick="abrirModalPrivacidade(event)">Política de Privacidade</a> 
-  </nav>
-</footer>
-
-<!-- SCRIPT DOS MODAIS INSTITUCIONAIS E NAVEGAÇÃO -->
+<!-- SCRIPT DE GERENCIAMENTO DAS ABAS NAV E MODAIS INSTITUCIONAIS -->
 <script>
+    // Gerenciador Global da Barra de Navegação Inferior (Bottom Nav)
+    window.navegarAbaNav = function(idTelaAlvo, btnElement) {
+        if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+        
+        // Esconde todas as telas principais da área de conteúdo
+        var telas = document.querySelectorAll('.app-content-area > .tela');
+        telas.forEach(function(t) {
+            t.classList.add('oculto');
+            t.classList.remove('ativo');
+        });
+
+        // Mostra a tela alvo
+        var telaDestino = document.getElementById(idTelaAlvo);
+        if (telaDestino) {
+            telaDestino.classList.remove('oculto');
+            telaDestino.classList.add('ativo');
+        }
+
+        // Atualiza a pílula ativa na Bottom Nav
+        var botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
+        botoesNav.forEach(function(b) {
+            b.classList.remove('ativo');
+        });
+        if (btnElement) {
+            btnElement.classList.add('ativo');
+        }
+    };
+
     window.abrirModalSobre = function(e) { 
         if (e && e.preventDefault) e.preventDefault();
         if (typeof window.tocarSom === 'function') window.tocarSom('clique');
@@ -1144,7 +1159,7 @@
         }
     };
 
-    // DELEGAÇÃO GLOBAL DE EVENTOS (Garante o clique em qualquer botão de fechar modal)
+    // DELEGAÇÃO GLOBAL DE EVENTOS
     document.addEventListener('click', function(e) {
         if (e.target && e.target.id === 'btn-fechar-privacidade') {
             window.fecharModalPrivacidade();

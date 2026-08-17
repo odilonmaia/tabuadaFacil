@@ -1065,3 +1065,80 @@ span.oculto,
     color: #38bdf8;
     text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
 }
+
+/* ==========================================================
+   TELA FINAL FUTURISTA (#tela-final)
+   ========================================================== */
+
+/* Cabeçalho Unificado Taby + Título */
+#tela-final .taby-vitoria-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 20px;
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+}
+
+#tela-final .taby-vitoria-header img {
+    width: 62px;
+    height: 62px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+    flex-shrink: 0;
+}
+
+#tela-final .vitoria-textos {
+    text-align: left;
+}
+
+#tela-final .titulo-vitoria-neon {
+    font-size: clamp(20px, 5vw, 24px);
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    margin: 0;
+    line-height: 1.2;
+}
+
+#tela-final .subtitulo-vitoria {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 2px 0 0 0;
+}
+
+/* Stack de Botões Padronizados */
+#tela-final .botoes-pos-partida-stack {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+/* Botão Secundário de Voltar com Estilo Sci-Fi Neon */
+#tela-final .btn-voltar-futurista {
+    width: 100%;
+    padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    border-radius: 14px;
+    color: #e2e8f0;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#tela-final .btn-voltar-futurista:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}

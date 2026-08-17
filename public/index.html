@@ -15,7 +15,7 @@
     <meta name="description" content="Aprenda matemática, pratique tabuada e dispute o ranking online de forma divertida e rápida!">
 
     <!-- CSS do Projeto -->
-    <link rel="stylesheet" href="css/style.css?v=3.8">
+    <link rel="stylesheet" href="css/style.css?v=3.9">
 
     <!-- Configurações PWA & Mobile Nativo -->
     <meta name="theme-color" content="#070a12">
@@ -447,17 +447,34 @@
             </div>
         </section>
 
-        
-        <section id="tela-final" class="tela oculto">
-            <div class="app-container padding-top-10">
-                <h1 class="titulo-sucesso">Mandou bem! 🎉</h1>
-                <p class="subtitulo-sucesso">Você completou esta rodada de desafios!</p>
+        <!-- TELA FINAL DE RESULTADOS DO JOGO (HARMONIZADA E FUTURISTA) -->
+        <section id="tela-final" class="tela oculto espaco-sideral-bg">
+            <div class="estrelas-container"></div>
+            <div class="app-container content-z2 padding-top-10">
                 
-                <div id="nota-final" class="nota-grande-destaque">10/10</div>
-                <div id="display-porcentagem-final" class="precisao-destaque">Precisão: 100%</div>
-                <div id="display-tempo-final" class="tempo-destaque oculto">⏱️ Tempo Total: 0s</div>
-                <p id="mensagem-envio" class="msg-envio-destaque"></p>
+              <!-- CABEÇALHO DINÂMICO UNIFICADO (TABY + FEEDBACK) -->
+                <div class="taby-vitoria-header">
+                    <img src="taby.png" alt="Taby" onerror="this.onerror=null; this.src='icon144.png';">
+                    <div class="vitoria-textos">
+                        <h1 id="titulo-feedback-final" class="titulo-vitoria-neon">Rodada Concluída!</h1>
+                        <p id="subtitulo-feedback-final" class="subtitulo-vitoria">Veja seu resultado abaixo:</p>
+                    </div>
+                </div>
                 
+                <!-- CARD PAINEL DE MÉTRICAS -->
+                <div class="card-painel-container text-center margin-bottom-12">
+                    <div id="nota-final" class="nota-grande-destaque">10/10</div>
+                    
+                    <div class="precisao-destaque">
+                        Precisão: <span id="display-porcentagem-final">100%</span>
+                        <span id="badge-vida-ganha" class="badge-recompensa-vida oculto"></span>
+                    </div>
+
+                    <div id="display-tempo-final" class="tempo-destaque oculto">⏱️ Tempo Total: 0s</div>
+                    <p id="mensagem-envio" class="msg-envio-destaque">Resultados salvos no Ranking! ✅</p>
+                </div>
+                
+                <!-- CONTAINER DE ANÚNCIO ADSENSE -->
                 <div class="adsense-container-box">
                     <ins class="adsbygoogle"
                          style="display:block; width:100%;"
@@ -468,18 +485,28 @@
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
 
+                <!-- STACK DE BOTÕES HARMONIZADOS NEON -->
                 <div class="botoes-pos-partida-stack">
-                    <button id="btn-compartilhar-tempo" onclick="compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">📤 Compartilhar meu Tempo ⚡</button>
-                    <button onclick="continuarJogando()" class="btn-comecar-desafio">Continuar Jogando 🚀</button>
-                    <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
+                    <button id="btn-compartilhar-tempo" onclick="compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">
+                        📤 Compartilhar meu Tempo ⚡
+                    </button>
+                    
+                    <button onclick="continuarJogando()" class="btn-comecar-desafio">
+                        Continuar Jogando 🚀
+                    </button>
+                    
+                    <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">
+                        ⬅️ Voltar ao Painel
+                    </button>
                 </div>
+
             </div>
         </section>
 
         <section id="tela-final-trilha" class="tela oculto">
             <div class="app-container centro-vertical-padding">
                 <div class="flex-justify-center margin-bottom-12">
-                    <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-animado img-taby-resultado">
+                    <img src="icon144.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-animado img-taby-resultado">
                 </div>
                 
                 <h1 id="trilha-titulo-resultado" class="titulo-trilha-resultado">Bom Progresso! 💪</h1>
@@ -514,7 +541,7 @@
         <section id="tela-autenticacao" class="tela oculto display-none">
             <div class="app-container padding-top-10">
                 <div class="header-auth-box">
-                    <img src="taby.png" alt="Taby" class="robo-flutuante img-auth-taby" onerror="this.onerror=null; this.src='icon144.png';">
+                    <img src="icon144.png" alt="Taby" class="robo-flutuante img-auth-taby" onerror="this.onerror=null; this.src='icon144.png';">
                     <div class="balao-auth-welcome">
                         <p>
                             Olá! Seja bem-vindo ao <b class="text-blue">Tabuada Fácil</b>! 🚀<br>
@@ -1183,7 +1210,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <!-- SCRIPT PRINCIPAL -->
-<script type="module" src="js/app.js?v=5.6"></script>
+<script type="module" src="js/app.js?v=5.7"></script>
 
 </body>
 </html>

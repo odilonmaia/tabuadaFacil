@@ -2522,17 +2522,26 @@ async function finalizarJogo() {
         console.warn("Erro ao salvar estatísticas da partida local:", e);
     }
 
-    const planoSalvo = localStorage.getItem('usuario_plano');
-    const tipoPlanoSalvo = localStorage.getItem('usuario_tipo_plano');
+    // VERIFICAÇÃO REFORÇADA SE O USUÁRIO É PRO/PREMIUM
+    const planoSalvo = (localStorage.getItem('usuario_plano') || '').toLowerCase();
+    const tipoPlanoSalvo = (localStorage.getItem('usuario_tipo_plano') || '').toLowerCase();
     const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    
-    const ehPago = (planoSalvo === 'pro' || planoSalvo === 'premium' || 
-                    tipoPlanoSalvo === 'pro' || tipoPlanoSalvo === 'premium_familia' || 
-                    ehPremiumFlag);
+    const ehProFlag = localStorage.getItem('usuario_is_pro') === 'true';
+
+    // Checa se a badge de PRO no header está ativa no DOM
+    const badgeTopoPro = document.querySelector('.badge-status-pro-topo');
+    const visivelProNoTopo = badgeTopoPro && !badgeTopoPro.classList.contains('oculto') && getComputedStyle(badgeTopoPro).display !== 'none';
+
+    const ehPago = (
+        planoSalvo === 'pro' || planoSalvo === 'premium' || 
+        tipoPlanoSalvo === 'pro' || tipoPlanoSalvo === 'premium_familia' || 
+        ehPremiumFlag || ehProFlag || visivelProNoTopo
+    );
 
     let ganhouVidaBonus = false;
     let limiteDiarioAtingido = false;
 
+    // Apenas calcula bônus de vidas se NÃO for usuário PRO
     if (!ehPago && porcentagemAcertos >= 90) {
         const dataHojeStr = new Date().toLocaleDateString('pt-BR');
         let dataSalva = localStorage.getItem('usuario_vidas_data_bonus');
@@ -2644,21 +2653,52 @@ async function finalizarJogo() {
     const dataHoje = new Date().toLocaleDateString('pt-BR');
     const operacaoSalvar = operacoesSelecionadas.length === 1 ? operacoesSelecionadas[0] : (operacoesSelecionadas.includes('insano') ? 'insano' : 'multiplicacao');
 
+    // AJUSTE DE FEEDBACK PEDAGÓGICO DINÂMICO
+    const elTituloFeedback = document.getElementById('titulo-feedback-final');
+    const elSubtituloFeedback = document.getElementById('subtitulo-feedback-final');
+
+    if (elTituloFeedback && elSubtituloFeedback) {
+        if (porcentagemAcertos >= 80) {
+            elTituloFeedback.innerText = "Mandou Bem! 🎉🚀";
+            elSubtituloFeedback.innerText = "Rodada concluída com sucesso!";
+        } else if (porcentagemAcertos >= 50) {
+            elTituloFeedback.innerText = "Bom Esforço! 💪✨";
+            elSubtituloFeedback.innerText = "Você está no caminho, continue treinando!";
+        } else {
+            elTituloFeedback.innerText = "Não Desista! 🧠⚡";
+            elSubtituloFeedback.innerText = "A prática leva à perfeição. Vamos tentar de novo?";
+        }
+    }
+
     const elNotaFin = document.getElementById('nota-final');
     const elPctFin = document.getElementById('display-porcentagem-final');
-    if (elNotaFin) elNotaFin.innerText = `${acertos}/${totalPerguntas}`;
-    
-    let textoPrecisao = `Precisão: ${porcentagemAcertos}%`;
+    const elBadgeVida = document.getElementById('badge-vida-ganha');
 
-    if (ehPago) {
-        let tagSelo = (planoSalvo === 'pro' || tipoPlanoSalvo === 'pro') ? " 💎 [PRO]" : " 👑 [PREMIUM]";
-        if (elPctFin) elPctFin.innerText = `${textoPrecisao}${tagSelo}`;
-    } else {
-        let sufixoBonus = ganhouVidaBonus 
-            ? " (💖 +1 Vida Ganha!)" 
-            : (limiteDiarioAtingido ? " (Máx. bônus diário de vidas atingido 🎬)" : "");
-            
-        if (elPctFin) elPctFin.innerText = `${textoPrecisao}${sufixoBonus}`;
+    if (elNotaFin) elNotaFin.innerText = `${acertos}/${totalPerguntas}`;
+    if (elPctFin) elPctFin.innerText = `${porcentagemAcertos}%`;
+
+    // TRATAMENTO DA MENSAGEM DE BÔNUS (LIMPAGEM TOTAL PARA CONTA PRO)
+    if (elBadgeVida) {
+        if (!ehPago) {
+            if (ganhouVidaBonus) {
+                elBadgeVida.innerText = " (💖 +1 Vida Ganha!)";
+                elBadgeVida.classList.remove('oculto');
+                elBadgeVida.style.display = 'inline';
+            } else if (limiteDiarioAtingido) {
+                elBadgeVida.innerText = " (Máx. bônus diário de vidas atingido 🎬)";
+                elBadgeVida.classList.remove('oculto');
+                elBadgeVida.style.display = 'inline';
+            } else {
+                elBadgeVida.innerText = "";
+                elBadgeVida.classList.add('oculto');
+                elBadgeVida.style.display = 'none';
+            }
+        } else {
+            // Garante que para usuários PRO a tag permaneça vazia e oculta
+            elBadgeVida.innerText = "";
+            elBadgeVida.classList.add('oculto');
+            elBadgeVida.style.display = 'none';
+        }
     }
 
     const displayTempoFinal = document.getElementById('display-tempo-final');
@@ -2743,82 +2783,6 @@ async function finalizarJogo() {
         });
     }
 }
-
-window.salvarEstatisticasPartida = function(acertosPartida, totalQuestoesPartida, operacoesUsadas) {
-    const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
-    if (!perfilStr) return;
-
-    let perfil = JSON.parse(perfilStr);
-
-    if (!perfil.estatisticas) {
-        perfil.estatisticas = {
-            totalPerguntas: 0,
-            totalAcertos: 0,
-            tempoTotalMs: 0,
-            operacoes: {
-                multiplicacao: { acertos: 0, total: 0 },
-                divisao:       { acertos: 0, total: 0 },
-                adicao:        { acertos: 0, total: 0 },
-                subtracao:     { acertos: 0, total: 0 }
-            }
-        };
-    }
-
-    perfil.estatisticas.totalPerguntas += totalQuestoesPartida;
-    perfil.estatisticas.totalAcertos += acertosPartida;
-
-    const opsCount = operacoesUsadas.length || 1;
-    const acertosPorOp = Math.round(acertosPartida / opsCount);
-    const questoesPorOp = Math.round(totalQuestoesPartida / opsCount);
-
-    operacoesUsadas.forEach(op => {
-        if (perfil.estatisticas.operacoes && perfil.estatisticas.operacoes[op]) {
-            perfil.estatisticas.operacoes[op].acertos += acertosPorOp;
-            perfil.estatisticas.operacoes[op].total += questoesPorOp;
-        }
-    });
-
-    localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfil));
-    
-    if (perfil.uid) {
-        localStorage.setItem(`tabuada_perfil_${perfil.uid}`, JSON.stringify(perfil));
-    }
-
-    let perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
-    const idAtual = perfil.perfilId || perfil.id;
-    const idx = perfisLocais.findIndex(p => (p.perfilId || p.id) === idAtual);
-    if (idx !== -1) {
-        perfisLocais[idx] = perfil;
-        localStorage.setItem('usuario_perfis', JSON.stringify(perfisLocais));
-    }
-};
-
-window.registrarQuestaoNoHistorico = function(operacao, acertou, tempoMs) {
-    let perfil = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
-    if (!perfil.estatisticas) {
-        perfil.estatisticas = {
-            totalPerguntas: 0, totalAcertos: 0, tempoTotalMs: 0,
-            operacoes: {
-                multiplicacao: { acertos: 0, total: 0 },
-                divisao:       { acertos: 0, total: 0 },
-                adicao:        { acertos: 0, total: 0 },
-                subtracao:     { acertos: 0, total: 0 }
-            }
-        };
-    }
-
-    perfil.estatisticas.totalPerguntas++;
-    if (acertou) perfil.estatisticas.totalAcertos++;
-    perfil.estatisticas.tempoTotalMs += tempoMs || 2000;
-
-    if (perfil.estatisticas.operacoes && perfil.estatisticas.operacoes[operacao]) {
-        perfil.estatisticas.operacoes[operacao].total++;
-        if (acertou) perfil.estatisticas.operacoes[operacao].acertos++;
-    }
-
-    localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfil));
-};
-//#endregion
 
 
 // =========================================================================

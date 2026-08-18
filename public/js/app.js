@@ -394,37 +394,20 @@ onAuthStateChanged(auth, async (user) => {
             telaAuth.classList.add('oculto');
         }
 
-        if (typeof window.fecharPaywall === 'function') {
-            window.fecharPaywall();
-        }
-
         let primeiroNome = 'JOGADOR';
         if (user.displayName) {
             primeiroNome = user.displayName.trim().split(' ')[0].toUpperCase();
         }
 
         const fotoGoogle = user.photoURL || null;
-        window.carregarOuCriarPerfilPrincipal(user.uid, primeiroNome, user.email, fotoGoogle);
-
-        const perfilAtivoSalvo = localStorage.getItem('perfil_ativo_id') || localStorage.getItem('tabuada_perfil_ativo');
-        const planoAtual = window.obterPlanoAtivo();
-        const perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
-
-        if (perfilAtivoSalvo) {
-            const telaPerfis = document.getElementById('tela-selecao-perfis');
-            if (telaPerfis) {
-                telaPerfis.style.display = 'none';
-                telaPerfis.classList.add('oculto');
-            }
-            window.irParaPainelJogo();
-            return;
+        
+        // Chamada protegida
+        if (typeof window.carregarOuCriarPerfilPrincipal === 'function') {
+            window.carregarOuCriarPerfilPrincipal(user.uid, primeiroNome, user.email, fotoGoogle);
         }
 
-        if (planoAtual === 'premium' && perfisLocais.length > 1) {
-            window.abrirTelaSelecaoPerfis();
-        } else {
-            window.irParaPainelJogo();
-        }
+        // Renderiza o painel principal
+        window.irParaPainelJogo();
     } else {
         usuarioAtualLogado = null;
         localStorage.removeItem('tabuada_perfil_selecionado');
@@ -433,7 +416,35 @@ onAuthStateChanged(auth, async (user) => {
         window.mudarTela('tela-autenticacao');
     }
 });
+        // =========================================================================
+// FUNÇÃO AUXILIAR DE CRIAÇÃO/CARREGAMENTO DE PERFIL PRINCIPAL
+// =========================================================================
+window.carregarOuCriarPerfilPrincipal = function(uid, nome, email, fotoUrl) {
+    let perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
+    let perfilAtivo = perfisLocais.find(p => p.uid === uid || p.id === uid);
 
+    if (!perfilAtivo) {
+        perfilAtivo = {
+            id: 'perfil_' + uid,
+            perfilId: 'perfil_' + uid,
+            uid: uid,
+            nome: nome || 'JOGADOR',
+            email: email || '',
+            fotoUrl: fotoUrl || 'icon144.png',
+            skin: 'padrao',
+            plano: 'gratis'
+        };
+        perfisLocais.push(perfilAtivo);
+        localStorage.setItem('usuario_perfis', JSON.stringify(perfisLocais));
+    }
+
+    localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
+    localStorage.setItem('perfil_ativo_id', perfilAtivo.perfilId || perfilAtivo.id);
+
+    if (typeof window.atualizarHeaderPerfilAtivo === 'function') {
+        window.atualizarHeaderPerfilAtivo();
+    }
+};
 window.fazerLoginGoogle = async function() {
     try {
         const provider = new GoogleAuthProvider();
@@ -564,7 +575,6 @@ window.definirPlanoAtivo = function(novoPlano) {
 
 // 3. Atualiza botões, pílulas, anúncios e vidas em tempo real
 window.sincronizarInterfaceGlobalPlano = function() {
-    // 1. Obtém o plano atual pela SSOT
     let plano = 'free';
     if (typeof window.obterPlanoAtivo === 'function') {
         plano = window.obterPlanoAtivo();
@@ -576,12 +586,8 @@ window.sincronizarInterfaceGlobalPlano = function() {
 
     const ehPago = (plano === 'pro' || plano === 'premium');
 
-    // 2. ATUALIZA A PÍLULA DA TELA INICIAL / DASHBOARD (Topo)
-    // Seleciona diretamente pela classe real ou ID do seu HTML
-    const elTopo = document.getElementById('badge-status-pro-topo') || 
-                   document.querySelector('.badge-status-pro-topo') ||
-                   document.getElementById('btn-plano-topo');
-
+    // 1. PÍLULA DO TOPO (Header)
+    const elTopo = document.getElementById('badge-status-pro-topo') || document.querySelector('.badge-status-pro-topo');
     if (elTopo) {
         if (ehPago) {
             const icone = (plano === 'pro') ? '💎' : '👑';
@@ -591,24 +597,41 @@ window.sincronizarInterfaceGlobalPlano = function() {
             elTopo.style.background = (plano === 'pro') ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 215, 0, 0.15)';
         } else {
             elTopo.innerHTML = '⚡ SEJA PRO';
-            elTopo.style.borderColor = '#94a3b8';
-            elTopo.style.color = '#94a3b8';
-            elTopo.style.background = 'rgba(148, 163, 184, 0.15)';
+            elTopo.style.borderColor = '#38bdf8';
+            elTopo.style.color = '#38bdf8';
+            elTopo.style.background = 'rgba(56, 189, 248, 0.15)';
         }
     }
 
-    // 3. ATUALIZA O ÍCONE E QUANTIDADE DE VIDAS
-    const elVidasTexto = document.getElementById('contador-vidas-texto') || document.querySelector('.qtd-vidas');
-    if (elVidasTexto) {
+    // 2. ATUALIZA TEXTO E ÍCONE DE VIDAS NA DASHBOARD
+    const elIconeVida = document.getElementById('icone-vida-hud');
+    const elContadorVidas = document.getElementById('contador-vidas-texto');
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+
+    if (elContadorVidas && elIconeVida) {
         if (ehPago) {
-            elVidasTexto.innerText = '∞';
+            elIconeVida.innerText = (plano === 'pro') ? '💎' : '👑';
+            elContadorVidas.innerText = '∞';
         } else {
-            const vidasAtuais = localStorage.getItem('tabuada_vidas_atuais') || '5';
-            elVidasTexto.innerText = vidasAtuais;
+            elIconeVida.innerText = '❤️';
+            elContadorVidas.innerText = saldoVidas;
         }
     }
 
-    // 4. ATUALIZA A PÍLULA NO MODAL DE EDITAR PERFIL
+    // 3. EXIBE OU OCULTA ELEMENTOS DO MODO FREE
+    const elTimer = document.getElementById('display-timer-vidas');
+    const btnVideo = document.getElementById('btn-assistir-ad-vidas');
+
+    if (ehPago) {
+        if (elTimer) elTimer.style.display = 'none';
+        if (btnVideo) btnVideo.style.display = 'none';
+    } else {
+        // Exibe o timer se as vidas forem menores que 5
+        if (elTimer) elTimer.style.display = (saldoVidas < 5) ? 'inline-flex' : 'none';
+        if (btnVideo) btnVideo.style.display = 'inline-flex';
+    }
+
+    // 4. PÍLULA NO MODAL EDITAR PERFIL
     const elPlanoModal = document.getElementById('display-plano-conta');
     if (elPlanoModal) {
         elPlanoModal.innerText = ehPago ? plano.toUpperCase() : 'FREE';
@@ -616,71 +639,11 @@ window.sincronizarInterfaceGlobalPlano = function() {
         elPlanoModal.style.color = ehPago ? (plano === 'pro' ? '#38bdf8' : '#ffd700') : '#94a3b8';
         elPlanoModal.style.background = ehPago ? (plano === 'pro' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 215, 0, 0.15)') : 'rgba(148, 163, 184, 0.15)';
     }
-};
 
-
-window.carregarOuCriarPerfilPrincipal = function(uid, nomePadrao, email, fotoGoogle = null) {
-    let perfilAtivo = null;
-    
-    try {
-        const perfilSalvo = localStorage.getItem(`tabuada_perfil_${uid}`);
-        if (perfilSalvo) {
-            perfilAtivo = JSON.parse(perfilSalvo);
-        }
-    } catch (e) {
-        console.warn("Erro ao ler perfil salvo:", e);
+    // 5. ATUALIZA CORAÇÕES NA PARTIDA / TRILHA
+    if (typeof window.atualizarHUDVidasPartida === 'function') {
+        window.atualizarHUDVidasPartida();
     }
-
-    if (!perfilAtivo) {
-        const perfilIdPadrao = 'prf_' + Date.now() + '_main';
-        const planoAtual = window.obterPlanoAtivo();
-
-        perfilAtivo = {
-            id: perfilIdPadrao,
-            perfilId: perfilIdPadrao,
-            uid: uid,
-            nome: nomePadrao,
-            email: email,
-            fotoUrl: fotoGoogle || (typeof AVATARES_TABY !== 'undefined' ? AVATARES_TABY.padrao : ''),
-            fotoUrlPersonalizada: fotoGoogle || null,
-            skin: 'padrao',
-            plano: planoAtual,
-            estatisticas: { 
-                totalPerguntas: 0, 
-                totalAcertos: 0, 
-                ofensivaDias: 1,
-                operacoes: {
-                    multiplicacao: { acertos: 0, total: 0 },
-                    divisao: { acertos: 0, total: 0 },
-                    adicao: { acertos: 0, total: 0 },
-                    subtracao: { acertos: 0, total: 0 }
-                }
-            }
-        };
-        localStorage.setItem(`tabuada_perfil_${uid}`, JSON.stringify(perfilAtivo));
-    } else if (fotoGoogle && !perfilAtivo.fotoUrlPersonalizada && !perfilAtivo.fotoUrl) {
-        perfilAtivo.fotoUrl = fotoGoogle;
-        localStorage.setItem(`tabuada_perfil_${uid}`, JSON.stringify(perfilAtivo));
-    }
-
-    if (perfilAtivo.plano) {
-        window.definirPlanoAtivo(perfilAtivo.plano);
-    }
-
-    let perfis = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
-    if (!perfis.some(p => p.perfilId === perfilAtivo.perfilId || p.id === perfilAtivo.id)) {
-        perfis.push(perfilAtivo);
-        localStorage.setItem('usuario_perfis', JSON.stringify(perfis));
-    }
-
-    localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
-    localStorage.setItem('perfil_ativo_id', perfilAtivo.perfilId || perfilAtivo.id);
-    
-    if (typeof window.atualizarInterfacePerfil === 'function') {
-        window.atualizarInterfacePerfil(perfilAtivo);
-    }
-
-    window.atualizarHeaderPerfilAtivo();
 };
 
 window.atualizarHeaderPerfilAtivo = function() {
@@ -1600,47 +1563,40 @@ window.removerFotoGaleria = async function(urlFoto) {
 //#region [5] NAVEGAÇÃO E PAINEL INICIAL
 
 // ROTEADOR CENTRALIZADO E SEGURO DE TELAS (COM SINCRONIZAÇÃO AUTOMÁTICA DA BOTTOM NAV)
+// Substitua o trecho da função window.mudarTela (por volta da linha 860) por este:
 window.mudarTela = function(idTela) {
     if (typeof window.tocarSom === 'function') {
         window.tocarSom('clique');
     }
 
-    // 1. Oculta com segurança todas as telas do sistema
-    document.querySelectorAll('.tela').forEach(t => {
+    // 1. Oculta todas as telas limpando estilos inline conflitantes
+    document.querySelectorAll('.app-content-area > .tela').forEach(t => {
         t.classList.remove('ativo');
         t.classList.add('oculto');
-        t.style.setProperty('display', 'none', 'important');
-        t.style.removeProperty('visibility');
-        t.style.removeProperty('opacity');
+        t.style.display = 'none';
     });
 
-    // 2. Se houver modal de seleção de perfis aberto, oculta-o
+    // 2. Oculta modal de perfis se estiver aberto
     const telaPerfis = document.getElementById('tela-selecao-perfis');
     if (telaPerfis && idTela !== 'tela-selecao-perfis') {
         telaPerfis.classList.add('oculto');
-        telaPerfis.style.setProperty('display', 'none', 'important');
+        telaPerfis.style.display = 'none';
     }
 
-    // 3. Exibe apenas a tela requisitada
+    // 3. Exibe a tela alvo com o tipo de display correto
     const telaAlvo = document.getElementById(idTela);
     if (telaAlvo) {
         telaAlvo.classList.remove('oculto');
         telaAlvo.classList.add('ativo');
         
-        // Força exibição do elemento com regra de alta prioridade
-        telaAlvo.style.setProperty('display', 'block', 'important');
-        telaAlvo.style.setProperty('visibility', 'visible', 'important');
-        telaAlvo.style.setProperty('opacity', '1', 'important');
-
+        // Mantém o display correto sem quebrar o fluxo interno do container
+        telaAlvo.style.display = 'block';
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        console.error(`[Navegação] Tela com ID "${idTela}" não encontrada no HTML.`);
     }
 
-    // 4. Sincroniza o estado ativo da Bottom Nav Bar
     sincronizarBottomNav(idTela);
 };
-
 // Sincroniza o botão destacado na barra inferior de acordo com a tela atual
 function sincronizarBottomNav(idTela) {
     const botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
@@ -2185,8 +2141,9 @@ window.verificarSeEhPro = function() {
 // Sincroniza o HUD de vidas em todas as telas (Jogo, Trilha e Painel)
 window.atualizarHUDVidasPartida = function() {
     const ehPro = window.verificarSeEhPro();
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
     
-    // Seleciona todos os containers de vidas do app
+    // Seleciona os containers das partidas e da trilha
     const seletores = [
         '#gameplay-hearts-partida',
         '#gameplay-hearts-trilha',
@@ -2200,54 +2157,23 @@ window.atualizarHUDVidasPartida = function() {
             if (!el) return;
             
             if (ehPro) {
-                // Renderiza Vidas Ilimitadas para Plano PRO
                 el.innerHTML = `<span class="icone-vida-glow" style="color: #38bdf8; font-weight: 900; font-size: 18px; display: inline-flex; align-items: center; gap: 4px;">💎 ∞</span>`;
             } else {
-                // Renderiza Corações para Plano Free
+                // Renderiza exatamente 5 corações (cheios ou cinzas)
                 const maxVidas = 5;
                 let coracoesHTML = '';
-                const vidasAtuais = typeof window.vidasUsuario !== 'undefined' ? window.vidasUsuario : 5;
                 
                 for (let i = 0; i < maxVidas; i++) {
-                    if (i < vidasAtuais) {
-                        coracoesHTML += `❤️ `;
+                    if (i < saldoVidas) {
+                        coracoesHTML += `<span style="font-size: 18px; margin: 0 1px;">❤️</span>`;
                     } else {
-                        coracoesHTML += `<span style="opacity: 0.3; filter: grayscale(100%);">🖤</span> `;
+                        coracoesHTML += `<span style="opacity: 0.25; filter: grayscale(100%); font-size: 18px; margin: 0 1px;">🖤</span>`;
                     }
                 }
                 el.innerHTML = coracoesHTML.trim();
             }
         });
     });
-};
-
-window.selecionarTipoJogo = function(tipo) {
-    tocarSom('clique');
-    tipoJogoSelecionado = tipo;
-    const btnTreino = document.getElementById('btn-modo-treino');
-    const btnRel = document.getElementById('btn-modo-relampago');
-    const btnInsano = document.getElementById('btn-op-insano');
-
-    if (btnTreino) btnTreino.classList.toggle('selecionado', tipo === 'normal');
-    if (btnRel) btnRel.classList.toggle('selecionado', tipo === 'relampago');
-
-    if (tipo === 'relampago') {
-        if (btnInsano) btnInsano.classList.remove('oculto');
-        if (operacoesSelecionadas.length > 1 && !operacoesSelecionadas.includes('insano')) {
-            operacoesSelecionadas = [operacoesSelecionadas[0] || 'multiplicacao'];
-        }
-    } else {
-        if (btnInsano) btnInsano.classList.add('oculto');
-        if (operacoesSelecionadas.includes('insano')) {
-            operacoesSelecionadas = ['multiplicacao'];
-        }
-    }
-
-    const tituloInstrucao = document.getElementById('titulo-instrucao-operacoes');
-    if (tituloInstrucao) {
-        tituloInstrucao.innerText = (tipo === 'normal') ? "2. ESCOLHA AS OPERAÇÕES:" : "2. ESCOLHA UMA OPERAÇÃO:";
-    }
-    atualizarBotoesOperacaoVisual();
 };
 
 window.selecionarOperacao = function(op) {

@@ -67,12 +67,12 @@
                 </button>
             </div>
 
-            <!-- CENTRO: Pílula PLANO PRO Centralizada (CORRIGIDO) -->
-<div class="header-centro">
-    <span id="badge-status-pro-topo" class="badge-status-pro-topo" onclick="window.abrirTelaCheckoutPremium()" style="cursor: pointer;">
-        💎 PLANO PRO
-    </span>
-</div>
+            <!-- CENTRO: Pílula PLANO PRO Centralizada -->
+            <div class="header-centro">
+                <span id="badge-status-pro-topo" class="badge-status-pro-topo" onclick="window.abrirTelaCheckoutPremium()" style="cursor: pointer;">
+                    💎 PLANO PRO
+                </span>
+            </div>
 
             <!-- DIREITA: Botão de Som -->
             <div class="header-direita">
@@ -89,6 +89,8 @@
         <!-- TELA 1: PAINEL PRINCIPAL DE TREINO -->
         <section id="tela-painel-jogo" class="tela ativo">
             <div class="app-container">
+                
+                <!-- SAUDAÇÃO DO USUÁRIO -->
                 <div class="sub-header-saudacao">
                     <h2 class="user-greeting">
                         Olá, <span id="display-nome-inicial">Estudante</span>! 👋
@@ -100,29 +102,49 @@
                     </div>
                 </div>
 
-                <div class="status-bar-global">
-                    <div class="status-item hud-ofensiva-futurista">
+                <!-- BARRA SUPERIOR DE STATUS (OFENSIVA, VIDAS, TIMER, ADS E RELATÓRIO) -->
+                <div class="status-bar-global" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                    
+                    <!-- 1. Pílula de Ofensiva -->
+                    <div class="status-item hud-ofensiva-futurista" id="pilula-ofensiva-dias">
                         <span class="fogo-animado">🔥</span>
-                        <span class="valor-ofensiva">31</span>
+                        <span class="valor-ofensiva" id="display-ofensiva-dias">31</span>
                     </div>
 
-                    <div class="status-item hud-vida-futurista pro">
-                        <span class="icone-vida-glow">💎</span>
-                        <span class="valor-vida">∞</span>
+                    <!-- 2. Pílula de Vidas -->
+                    <div class="status-item hud-vida-futurista" id="global-hearts-container">
+                        <span class="icone-vida-glow" id="icone-vida-hud">❤️</span>
+                        <span class="valor-vida" id="contador-vidas-texto">5</span>
                     </div>
 
+                    <!-- 3. Timer Regressivo (+1 Vida em 60 min) -->
+                    <div class="status-item pilula-timer-vidas" id="display-timer-vidas" style="display: none;">
+                        <span style="font-size: 13px; color: #f43f5e;">⚡</span>
+                        <span id="timer-contagem-regressiva" style="font-size: 13px; font-weight: 700; color: #cbd5e1;">60:00</span>
+                    </div>
+
+                    <!-- 4. Botão Assistir Vídeo (+1 Vida Extra) -->
+                    <button type="button" class="status-item btn-ganhar-vida-ads" id="btn-assistir-ad-vidas" onclick="if(typeof window.assistirAnuncioPorVida === 'function') window.assistirAnuncioPorVida();" style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                        <span style="font-size: 13px;">📺</span>
+                        <span style="font-size: 13px; font-weight: 800; color: #22c55e;">+1</span>
+                    </button>
+
+                    <!-- 5. Botão de Relatório -->
                     <div class="status-item">
                         <button id="btn-abrir-relatorio" class="btn-relatorio-centro" onclick="window.abrirModalRelatorio(event)">
                             📊 RELATÓRIO
                         </button>
                     </div>
+
                 </div>
 
+                <!-- CARD DICA DO TABY -->
                 <div class="card-painel-container card-taby-mini">
                     <img src="icon144.png" alt="Taby" class="robo-flutuante" onerror="this.onerror=null; this.src='icon144.png';">
                     <div id="painel-dica-taby" class="texto-dica-taby"></div>
                 </div>
 
+                <!-- CONFIGURADOR DO DESAFIO -->
                 <div class="card-painel-container configurador-desafio-box">
                     <span class="section-label">1. MODO DE TREINO:</span>
                     <div class="grid-2-cols">
@@ -161,6 +183,7 @@
                         COMEÇAR DESAFIO 🚀
                     </button>
                 </div>
+
             </div>
         </section>
 
@@ -232,22 +255,18 @@
             </div>
         </section>
 
-        <!-- TELA 4: VISUALIZAÇÃO INTERATIVA DE TABUADAS (UX/UI OTIMIZADO) -->
+        <!-- TELA 4: VISUALIZAÇÃO INTERATIVA DE TABUADAS -->
         <section id="tela-visualizar-tabuadas" class="tela oculto">
             <div class="app-container content-vazia-no-scroll">
-                
-                <!-- 1. BADGE/PÍLULA DE TÍTULO MODERNA NO TOPO -->
                 <div class="badge-header-operacao">
                     <span class="ico-op-header">✖️</span>
                     <h1 id="titulo-tipo-tabuada" class="titulo-pague-neon">TABUADA DE MULTIPLICAÇÃO</h1>
                 </div>
 
-                <!-- 2. CARD CONTAINER COM RESULTADOS -->
                 <div id="resultado-lista-tabuada" class="card-painel-container resultado-tabuada-compacto">
                     <p class="text-center-secondary">Selecione um número abaixo para carregar.</p>
                 </div>
 
-                <!-- 3. CONTROLES INTERATIVOS PRÓXIMOS AO POLEGAR (THUMB ZONE) -->
                 <div class="secao-interativa-thumbzone">
                     <span class="label-instrucao-thumb">SELECIONE O NÚMERO:</span>
                     
@@ -268,7 +287,6 @@
                         ⬅️ Voltar às Operações
                     </button>
                 </div>
-
             </div>
         </section>
 
@@ -313,7 +331,7 @@
             </div>
         </section>
 
-        <!-- TELA 6: SEÇÃO EDUCATIVA & INFORMATIVA (SEO ISOLADO) -->
+        <!-- TELA 6: SEÇÃO EDUCATIVA -->
         <section id="tela-educativo" class="tela oculto">
             <div class="app-container scrollable-internal">
                 <section class="container-educativo-ui">
@@ -397,15 +415,12 @@
             </div>
         </section>
 
-        <!-- TELA DE JOGO ATUALIZADA (HUD EM PÍLULA NEON + TABY HARMONIZADO) -->
+        <!-- TELA DE JOGO -->
         <section id="tela-jogo" class="tela oculto espaco-sideral-bg">
             <div class="estrelas-container"></div>
             <div class="app-container content-z2">
-                
-                <!-- HUD de Progresso e Vidas Unificado em Pílula Neon -->
                 <div class="header-partida-hud">
                     <div class="hud-pilula-gameplay">
-                        <!-- Contador de Questões -->
                         <div class="hud-item-gameplay">
                             <span class="hud-label-ico">🎯</span>
                             <span id="contador-perguntas" class="hud-valor-destaque">1/10</span>
@@ -413,14 +428,12 @@
 
                         <div class="hud-divisor-line"></div>
 
-                        <!-- Vidas / Status PRO -->
                         <div class="hud-item-gameplay">
                             <span id="gameplay-hearts-partida" class="hud-vidas-glow">
                                 <span class="gem-glow">💎</span> <span class="infinity-symbol">∞</span>
                             </span>
                         </div>
 
-                        <!-- Cronômetro (Visível apenas no Modo Relâmpago) -->
                         <div id="container-cronometro" class="hud-item-gameplay oculto">
                             <div class="hud-divisor-line"></div>
                             <span class="hud-label-ico">⏱️</span>
@@ -430,14 +443,11 @@
                 </div>
 
                 <div class="card-painel-container text-center">
-                    
-                    <!-- MASCOTE E BALÃO AGRUPADOS E ALINHADOS -->
                     <div class="taby-gameplay-dica">
                         <img src="taby.png" alt="Taby" onerror="this.onerror=null; this.src='icon144.png';">
                         <span>Calcule com atenção! ⚡</span>
                     </div>
 
-                    <!-- Equação do Jogo -->
                     <div id="conta-container" class="painel-equacao-futurista caixa-equacao-futurista">
                         <span id="fator1">5</span>
                         <span class="sinal" id="sinal-operacao">×</span>
@@ -446,7 +456,6 @@
                         <span class="interrogacao">?</span>
                     </div>
 
-                    <!-- Respostas -->
                     <div id="alternativas-container" class="grid-alternativas-2x2">
                         <button onclick="verificarEscolha(0)" id="alt-0" class="btn-resposta-futurista">15</button>
                         <button onclick="verificarEscolha(1)" id="alt-1" class="btn-resposta-futurista">14</button>
@@ -454,7 +463,6 @@
                         <button onclick="verificarEscolha(3)" id="alt-3" class="btn-resposta-futurista">20</button>
                     </div>
 
-                    <!-- Botão de Sair Estilizado via Classe -->
                     <button onclick="confirmarSaidaJogo()" class="btn-desistir-futurista">
                         🚪 Desistir e Sair
                     </button>
@@ -462,12 +470,10 @@
             </div>
         </section>
 
-        <!-- TELA FINAL DE RESULTADOS DO JOGO (HARMONIZADA E FUTURISTA) -->
+        <!-- TELA FINAL DE RESULTADOS DO JOGO -->
         <section id="tela-final" class="tela oculto espaco-sideral-bg">
             <div class="estrelas-container"></div>
             <div class="app-container content-z2 padding-top-10">
-                
-              <!-- CABEÇALHO DINÂMICO UNIFICADO (TABY + FEEDBACK) -->
                 <div class="taby-vitoria-header">
                     <img src="taby.png" alt="Taby" onerror="this.onerror=null; this.src='icon144.png';">
                     <div class="vitoria-textos">
@@ -476,7 +482,6 @@
                     </div>
                 </div>
                 
-                <!-- CARD PAINEL DE MÉTRICAS -->
                 <div class="card-painel-container text-center margin-bottom-12">
                     <div id="nota-final" class="nota-grande-destaque">10/10</div>
                     
@@ -489,7 +494,6 @@
                     <p id="mensagem-envio" class="msg-envio-destaque">Resultados salvos no Ranking! ✅</p>
                 </div>
                 
-                <!-- CONTAINER DE ANÚNCIO ADSENSE -->
                 <div class="adsense-container-box">
                     <ins class="adsbygoogle"
                          style="display:block; width:100%;"
@@ -500,7 +504,6 @@
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
 
-                <!-- STACK DE BOTÕES HARMONIZADOS NEON -->
                 <div class="botoes-pos-partida-stack">
                     <button id="btn-compartilhar-tempo" onclick="compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">
                         📤 Compartilhar meu Tempo ⚡
@@ -514,7 +517,6 @@
                         ⬅️ Voltar ao Painel
                     </button>
                 </div>
-
             </div>
         </section>
 
@@ -613,36 +615,35 @@
 
     </main>
 
-    <!-- BARRA DE NAVEGAÇÃO INFERIOR NATIVA (BOTTOM NAV BAR) -->
-<nav class="bottom-nav-app">
-    <button class="btn-nav-item ativo" onclick="window.irParaPainelJogo(event)">
-        <span class="icon-nav">🎮</span>
-        <span class="label-nav">Treino</span>
-    </button>
-    <button class="btn-nav-item" onclick="window.mostrarTelaTrilha(event)">
-        <span class="icon-nav">🪐</span>
-        <span class="label-nav">Trilha</span>
-    </button>
-    <button class="btn-nav-item" onclick="window.mostrarTelaAprender(event)">
-        <span class="icon-nav">📚</span>
-        <span class="label-nav">Estudo</span>
-    </button>
-    <button class="btn-nav-item" onclick="window.mostrarRanking(event)">
-        <span class="icon-nav">🏆</span>
-        <span class="label-nav">Ranking</span>
-    </button>
-</nav>
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR NATIVA -->
+    <nav class="bottom-nav-app">
+        <button class="btn-nav-item ativo" onclick="window.irParaPainelJogo(event)">
+            <span class="icon-nav">🎮</span>
+            <span class="label-nav">Treino</span>
+        </button>
+        <button class="btn-nav-item" onclick="window.mostrarTelaTrilha(event)">
+            <span class="icon-nav">🪐</span>
+            <span class="label-nav">Trilha</span>
+        </button>
+        <button class="btn-nav-item" onclick="window.mostrarTelaAprender(event)">
+            <span class="icon-nav">📚</span>
+            <span class="label-nav">Estudo</span>
+        </button>
+        <button class="btn-nav-item" onclick="window.mostrarRanking(event)">
+            <span class="icon-nav">🏆</span>
+            <span class="label-nav">Ranking</span>
+        </button>
+    </nav>
 
-<!-- ==========================================================
-     MODAIS E OVERLAYS ISOLADOS (FILHOS DIRETO DO BODY)
-     ========================================================== -->
+</div>
 
-<!-- 1. MODAL DE EDIÇÃO DE PERFIL REORGANIZADO -->
+<!-- MODAIS E OVERLAYS ISOLADOS -->
+
+<!-- 1. MODAL DE EDIÇÃO DE PERFIL -->
 <div id="form-perfil-modal" class="modal-overlay-ui oculto display-none">  
     <div class="card-painel-container">        
         <h3 id="titulo-form-perfil" class="titulo-edicao-perfil">Editar Perfil</h3>
 
-        <!-- SEÇÃO 2: DADOS DA CONTA -->
         <div class="secao-info-conta-ui">
             <div class="linha-info-conta">
                 <span class="label-info-ui">📧 E-mail:</span>
@@ -654,7 +655,6 @@
             </div>
         </div>
 
-        <!-- SEÇÃO 1: EDIÇÃO DE PERFIL -->
         <div class="campo-grupo-ui">
             <label class="label-input-ui">Nome do Jogador(a):</label>
             <input type="text" id="input-nome-perfil" placeholder="Ex: Odilon" maxlength="15" class="input-futurista margin-bottom-0">
@@ -704,15 +704,11 @@
 
         <hr class="divisor-secao-ui">
 
-        
-
-          <!-- RODAPÉ DE CONFIRMAÇÃO DO FORMULÁRIO -->
         <div class="acoes-form-row margin-top-12">
             <button type="button" onclick="window.salvarPerfil(event);" class="btn-salvar-perfil-ui">SALVAR</button>
             <button type="button" onclick="window.fecharEdicaoPerfil();" class="btn-cancelar-perfil-ui">CANCELAR</button>
         </div>
 
-        <!-- SEÇÃO 3: AÇÕES FINAIS E CONFIRMAÇÃO NO RODAPÉ -->
         <div class="secao-exclusao-perfil">
             <button type="button" id="btn-acao-logout" onclick="window.fazerLogout()" class="btn-logout-conta-ui">
                 🚪 Sair da Conta
@@ -724,7 +720,6 @@
         </div>      
     </div>
 </div>
-
 
 <!-- 2. POP-UP DE CORTE DE FOTO -->
 <div id="modal-corte-foto" class="modal-overlay-ui oculto">
@@ -1118,7 +1113,7 @@
     </div>
 </div>
 
-<!-- 7. MODAL DE CONFIRMAÇÃO DE SEGURANÇA E REAUTENTICAÇÃO -->
+<!-- 7. MODAL DE CONFIRMAÇÃO DE SEGURANÇA -->
 <div id="modal-confirmar-exclusao-seguranca" class="modal-overlay-ui oculto display-none">
     <div class="card-painel-container modal-seguranca-box">
         
@@ -1152,32 +1147,31 @@
 
 <!-- SCRIPT DE GERENCIAMENTO DAS ABAS NAV E MODAIS INSTITUCIONAIS -->
 <script>
-    // Função auxiliar para garantir sincronia do plano em qualquer interação
     function sincronizarPlanoSeDisponivel() {
         if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
             window.sincronizarInterfaceGlobalPlano();
         }
     }
 
-    // Gerenciador Global da Barra de Navegação Inferior (Bottom Nav)
     window.navegarAbaNav = function(idTelaAlvo, btnElement) {
-        if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-        
-        // Esconde todas as telas principais da área de conteúdo
-        var telas = document.querySelectorAll('.app-content-area > .tela');
-        telas.forEach(function(t) {
-            t.classList.add('oculto');
-            t.classList.remove('ativo');
-        });
+        if (typeof window.mudarTela === 'function') {
+            window.mudarTela(idTelaAlvo);
+        } else {
+            var telas = document.querySelectorAll('.app-content-area > .tela');
+            telas.forEach(function(t) {
+                t.classList.add('oculto');
+                t.classList.remove('ativo');
+                t.style.display = 'none';
+            });
 
-        // Mostra a tela alvo
-        var telaDestino = document.getElementById(idTelaAlvo);
-        if (telaDestino) {
-            telaDestino.classList.remove('oculto');
-            telaDestino.classList.add('ativo');
+            var telaDestino = document.getElementById(idTelaAlvo);
+            if (telaDestino) {
+                telaDestino.classList.remove('oculto');
+                telaDestino.classList.add('ativo');
+                telaDestino.style.display = 'block';
+            }
         }
 
-        // Atualiza a pílula ativa na Bottom Nav
         var botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
         botoesNav.forEach(function(b) {
             b.classList.remove('ativo');
@@ -1186,7 +1180,6 @@
             btnElement.classList.add('ativo');
         }
 
-        // Garante que a interface e os badges reflitam o plano correto ao mudar de aba
         sincronizarPlanoSeDisponivel();
     };
 
@@ -1228,27 +1221,7 @@
         }
     };
 
-    // DELEGAÇÃO GLOBAL DE EVENTOS UNIFICADA (Evita listeners duplicados)
-    document.addEventListener('click', function(e) {
-        var target = e.target;
-        if (!target) return;
-
-        // Fechamento de Modais Institucionais
-        if (target.id === 'btn-fechar-privacidade' || target.closest('#btn-fechar-privacidade')) {
-            window.fecharModalPrivacidade();
-        }
-        if (target.id === 'btn-fechar-sobre' || target.closest('#btn-fechar-sobre')) {
-            window.fecharModalSobre();
-        }
-
-        // Se abrir a edição de perfil por qualquer elemento HTML, força a sincronização do badge imediatamente
-        if (target.closest('#btn-perfil-header, #header-foto-perfil, .btn-perfil-avatar, .badge-editar-perfil, [onclick*="abrirEdicaoPerfil"]')) {
-            sincronizarPlanoSeDisponivel();
-        }
-    });
-
     document.addEventListener('DOMContentLoaded', function() {
-        // Sincronização inicial do plano logo após o carregamento da DOM da página
         sincronizarPlanoSeDisponivel();
     });
 </script>

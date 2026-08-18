@@ -752,80 +752,82 @@ body {
 }
 
 /* ==========================================================
-   CARROSSEL HORIZONTAL DE AVATARES (EDITAR PERFIL)
+   CARROSSEL DE AVATARES EXPANDIDO E LIMPO
    ========================================================== */
 
-.carrossel-avatares-wrapper {
+#form-perfil-modal .secao-galeria-perfil {
+    margin: 16px 0;
+    width: 100%;
+}
+
+/* Indicador visual de rolagem suave nas extremidades */
+#form-perfil-modal .carrossel-avatares-wrapper {
     position: relative;
-    display: flex;
-    align-items: center;
     width: 100%;
-    margin: 8px 0;
+    overflow: hidden;
 }
 
-.carrossel-track-ui {
+#form-perfil-modal .carrossel-track-ui {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    padding: 6px 2px;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 4px;
     width: 100%;
-    scrollbar-width: none;
 }
 
-.carrossel-track-ui::-webkit-scrollbar {
+/* Esconde a barra de rolagem */
+#form-perfil-modal .carrossel-track-ui::-webkit-scrollbar {
     display: none;
 }
 
-.carrossel-track-ui .card-avatar-slot {
-    flex: 0 0 62px;
-    width: 62px;
-    height: 62px;
-    aspect-ratio: 1 / 1;
+/* Ampliação da Moldura dos Avatares (68px) */
+#form-perfil-modal .card-avatar-slot {
+    min-width: 68px;
+    height: 68px;
     border-radius: 50%;
-    background: #0f172a;
     border: 2px solid rgba(255, 255, 255, 0.15);
+    background: #1e293b;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    position: relative;
-    clip-path: circle(50% at 50% 50%);
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.carrossel-track-ui .card-avatar-slot.selecionado {
-    border: 3px solid #38bdf8;
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
-}
-
-.carrossel-track-ui .card-avatar-slot img {
+/* Garante o enquadramento sem achatar/espremer */
+#form-perfil-modal .card-avatar-slot img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.btn-nav-carrossel {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1.5px solid rgba(56, 189, 248, 0.5);
-    color: #38bdf8;
-    width: 28px;
-    height: 28px;
     border-radius: 50%;
-    font-size: 14px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
 }
 
-.btn-nav-carrossel.prev { left: -6px; }
-.btn-nav-carrossel.next { right: -6px; }
+/* Destaque para o avatar selecionado */
+#form-perfil-modal .card-avatar-slot.selecionado {
+    border-color: #38bdf8;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+    transform: scale(1.06);
+}
+
+/* Card especial de Adicionar (+) */
+#form-perfil-modal .btn-add-foto-slot {
+    flex-direction: column;
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    border: 2px dashed rgba(56, 189, 248, 0.4);
+    background: rgba(30, 41, 59, 0.5);
+}
+
+#form-perfil-modal .icone-add-circulo {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
 
 /* ==========================================================
    OVERLAYS E MODAIS (FILHOS DIRETO DO BODY)
@@ -1141,4 +1143,836 @@ span.oculto,
     border-color: #38bdf8;
     color: #ffffff;
     box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+/* ==========================================================
+   ESTILIZAÇÃO DO MODAL DE RELATÓRIO (#modal-relatorio)
+   ========================================================== */
+
+#modal-relatorio .card-relatorio-ui {
+    background: #0f172a;
+    border: 1.5px solid #38bdf8;
+    border-radius: 20px;
+    padding: 18px 14px;
+    color: #e2e8f0;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+}
+
+/* Header do Modal */
+#modal-relatorio .modal-header-relatorio {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+#modal-relatorio .btn-fechar-modal {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Foto do Aluno e Info */
+#modal-relatorio .perfil-relatorio-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+#modal-relatorio .foto-perfil-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #38bdf8;
+}
+
+/* Seletor de Perfil */
+#modal-relatorio .seletor-dependente-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+#modal-relatorio .select-futurista-ui {
+    width: 100%;
+    background: #1e293b;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+/* Abas de Navegação do Relatório */
+#modal-relatorio .abas-relatorio-nav {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    width: 100%;
+}
+
+#modal-relatorio .btn-aba-ui {
+    flex: 1;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    border-radius: 10px;
+    padding: 8px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#modal-relatorio .btn-aba-ui.ativo {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+/* Grid de Métricas 2x2 */
+#modal-relatorio .grid-metricas-relatorio {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+#modal-relatorio .card-metrica-item {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+}
+
+#modal-relatorio .icone-metrica {
+    font-size: 18px;
+}
+
+#modal-relatorio .metrica-info {
+    display: flex;
+    flex-direction: column;
+}
+
+#modal-relatorio .valor-metrica {
+    font-size: 13px;
+    font-weight: 800;
+    color: #38bdf8;
+}
+
+#modal-relatorio .label-metrica {
+    font-size: 9.5px;
+    color: #94a3b8;
+}
+
+/* Tabela Pedagógica */
+#modal-relatorio .secao-detalhamento-op {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#modal-relatorio .tabela-pedagogica-ui {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+#modal-relatorio .tabela-pedagogica-ui th,
+#modal-relatorio .tabela-pedagogica-ui td {
+    padding: 6px 4px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#modal-relatorio .tabela-pedagogica-ui th {
+    color: #38bdf8;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   ESTILIZAÇÃO DA TELA MODO ESTUDO (#tela-aprender)
+   ========================================================== */
+
+/* Botões de Operação do Modo Estudo */
+#tela-aprender .btn-op-estudo {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1.5px solid rgba(56, 189, 248, 0.3);
+    color: #cbd5e1;
+    border-radius: 14px;
+    padding: 14px 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#tela-aprender .btn-op-estudo:hover {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Padronização do Botão Voltar ao Painel */
+#tela-aprender .btn-voltar-futurista {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 20px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    border-radius: 14px;
+    color: #e2e8f0;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#tela-aprender .btn-voltar-futurista:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+/* ==========================================================
+   VISUALIZAÇÃO DE TABUADAS (#tela-visualizar-tabuadas - ZERO SCROLL)
+   ========================================================== */
+
+#tela-visualizar-tabuadas .content-vazia-no-scroll {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding-bottom: 2px;
+}
+
+/* Badge Header do Título */
+#tela-visualizar-tabuadas .badge-header-operacao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 10px;
+    padding: 4px 12px;
+    margin: 0 auto 4px auto;
+    backdrop-filter: blur(8px);
+}
+
+#tela-visualizar-tabuadas .titulo-pague-neon {
+    font-size: 12px;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 0.5px;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* Card Container da Lista Ajustado */
+#tela-visualizar-tabuadas .resultado-tabuada-compacto,
+#tela-visualizar-tabuadas .resultado-tabuada-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1.5px solid rgba(56, 189, 248, 0.3);
+    border-radius: 14px;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    backdrop-filter: blur(8px);
+}
+
+/* Lista Única Vertical Compacta */
+.lista-tabuada-1col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    gap: 3px;
+    width: 100%;
+}
+
+/* Linhas com Fonte de 14px e Padding Otimizado */
+.item-linha-tabuada-enxuta {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+.item-linha-tabuada-enxuta b {
+    color: #38bdf8;
+    margin-left: 6px;
+    font-size: 16px;
+}
+
+/* Área dos Seletores Inferiores (Thumb Zone) */
+#tela-visualizar-tabuadas .secao-interativa-thumbzone {
+    width: 100%;
+}
+
+#tela-visualizar-tabuadas .label-instrucao-thumb {
+    font-size: 10px;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 3px;
+    text-align: center;
+}
+
+/* Grid Numérico a 100% da Largura */
+#tela-visualizar-tabuadas .grid-num-tabuada {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+    width: 100%;
+}
+
+/* Botões Numéricos Levemente Mais Enxutos */
+#tela-visualizar-tabuadas .btn-num-tabuada {
+    width: 100%;
+    background: #1e293b;
+    border: 1.5px solid #38bdf8;
+    color: #38bdf8;
+    border-radius: 10px;
+    padding: 8px 0;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#tela-visualizar-tabuadas .btn-num-tabuada:hover,
+#tela-visualizar-tabuadas .btn-num-tabuada.ativo,
+#tela-visualizar-tabuadas .btn-num-tabuada.selecionado {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Botão Voltar às Operações Compacto */
+#tela-visualizar-tabuadas .btn-voltar-futurista {
+    width: 100%;
+    padding: 10px 16px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    border-radius: 12px;
+    color: #e2e8f0;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#tela-visualizar-tabuadas .btn-voltar-futurista:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+/* ==========================================================
+   REFORMA COMPLETA DO MODAL DE PERFIL (#form-perfil-modal)
+   ========================================================== */
+
+#form-perfil-modal .card-painel-container {
+    background: #0f172a;
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+/* Título e Grupos */
+#form-perfil-modal .titulo-edicao-perfil {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+#form-perfil-modal .label-input-ui {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Input do Nome Estilizado */
+#form-perfil-modal .input-futurista {
+    width: 100%;
+    background: #1e293b;
+    border: 1.5px solid rgba(56, 189, 248, 0.3);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+#form-perfil-modal .input-futurista:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+/* Galeria e Carrossel de Avatares */
+#form-perfil-modal .secao-galeria-perfil {
+    margin: 16px 0;
+    width: 100%;
+}
+
+#form-perfil-modal .carrossel-avatares-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+#form-perfil-modal .carrossel-track-ui {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 4px;
+    width: 100%;
+}
+
+/* Esconde a barra de rolagem */
+#form-perfil-modal .carrossel-track-ui::-webkit-scrollbar {
+    display: none;
+}
+
+/* Moldura Ampliada dos Avatares (68px) */
+#form-perfil-modal .card-avatar-slot {
+    position: relative;
+    min-width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#form-perfil-modal .card-avatar-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+#form-perfil-modal .card-avatar-slot.selecionado {
+    border-color: #38bdf8;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+    transform: scale(1.06);
+}
+
+/* ==========================================================
+   CORREÇÃO DO BOTÃO DELETAR (CIRCULAR PERFEITO)
+   ========================================================== */
+
+#form-perfil-modal div.card-avatar-slot.is-custom,
+.card-avatar-slot.is-custom {
+    position: relative;
+    overflow: visible;
+}
+
+#form-perfil-modal .btn-deletar-foto-custom,
+.btn-deletar-foto-custom {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: #ef4444;
+    border: 2px solid #0f172a;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 99;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+#form-perfil-modal .btn-deletar-foto-custom:hover,
+.btn-deletar-foto-custom:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+#form-perfil-modal .btn-deletar-foto-custom:hover {
+    background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%);
+    transform: scale(1.15);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.9), 0 3px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Card Especial de Adicionar Foto (+) */
+#form-perfil-modal .btn-add-foto-slot {
+    flex-direction: column;
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    border: 2px dashed rgba(56, 189, 248, 0.4);
+    background: rgba(30, 41, 59, 0.5);
+}
+
+#form-perfil-modal .icone-add-circulo {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+/* Botões Principais (Salvar / Cancelar) */
+#form-perfil-modal .acoes-form-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+#form-perfil-modal .btn-salvar-perfil-ui {
+    flex: 1;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border: 1px solid #38bdf8;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+#form-perfil-modal .btn-cancelar-perfil-ui {
+    flex: 1;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Seção Inferior: Sair e Excluir */
+#form-perfil-modal .secao-exclusao-perfil {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-logout-conta-ui {
+    width: 100%;
+    padding: 10px;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 12px;
+    color: #38bdf8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-logout-conta-ui:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #ffffff;
+}
+
+.btn-excluir-conta-acao {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.7;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 4px;
+}
+
+.btn-excluir-conta-acao:hover {
+    opacity: 1;
+    color: #f87171;
+}
+
+/* ==========================================================
+   ESTILIZAÇÃO DO BALÃO DE AVISO DE LIMITE
+   ========================================================== */
+
+#form-perfil-modal .secao-galeria-perfil {
+    position: relative;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.balao-alerta-limite {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1.5px solid #ef4444;
+    color: #fca5a5;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin-top: 10px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.balao-alerta-limite.exibir {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================
+   CARROSSEL COM SETAS INTERNAS HARMONIOSAS E SEM CORTE
+   ========================================================== */
+/* ==========================================================
+   EFEITO DE BORDAS SUAVES (FADE NEON) NO CARROSSEL
+   ========================================================== */
+
+#form-perfil-modal .secao-galeria-perfil {
+    position: relative;
+    margin: 16px 0;
+    width: 100%;
+}
+
+#form-perfil-modal .carrossel-avatares-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 30px; /* Área para as setas flutuarem */
+    box-sizing: border-box;
+}
+
+/* Trilho com Máscara Gradiente de Transparência nas Pontas */
+#form-perfil-modal .carrossel-track-ui {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 4px;
+    width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    /* Suaviza o corte do avatar nas bordas esquerda e direita */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+
+#form-perfil-modal .carrossel-track-ui::-webkit-scrollbar {
+    display: none;
+}
+
+/* Setas Neon com Área Protegida */
+#form-perfil-modal .btn-carrossel-seta {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #38bdf8;
+    font-size: 18px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 30;
+    padding: 0;
+    margin: 0;
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+    transition: transform 0.2s ease, filter 0.2s ease, color 0.2s ease;
+}
+
+#form-perfil-modal .btn-carrossel-seta:hover {
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.2);
+    filter: drop-shadow(0 0 10px #38bdf8);
+}
+
+#form-perfil-modal .btn-carrossel-seta:active {
+    transform: translateY(-50%) scale(0.9);
+}
+
+#form-perfil-modal .btn-carrossel-seta.esquerda {
+    left: 4px;
+}
+
+#form-perfil-modal .btn-carrossel-seta.direita {
+    right: 4px;
+}
+
+/* ==========================================================
+   PADRONIZAÇÃO DAS ALÇAS DO CROPPER (USANDO ESPECIFICIDADE)
+   ========================================================== */
+
+/* Padroniza todas as alças azuis como pequenos círculos idênticos */
+#modal-corte-foto .cropper-container .cropper-crop-box .cropper-point {
+    width: 8px;
+    height: 8px;
+    background-color: #38bdf8;
+    border-radius: 50%;
+    opacity: 0.85;
+}
+
+/* Corrige o tamanho desproporcional da alça Sudeste (inferior direita) */
+#modal-corte-foto .cropper-container .cropper-crop-box .cropper-point.point-se {
+    width: 8px;
+    height: 8px;
+    background-color: #38bdf8;
+    border-radius: 50%;
+    opacity: 0.85;
+}
+
+/* Esconde a pseudo-caixa interna de dimensionamento se existir */
+#modal-corte-foto .cropper-container .cropper-crop-box .cropper-point.point-se::before {
+    display: none;
+}
+
+/* ==========================================================
+   CARD DE INFORMAÇÕES DA CONTA (E-MAIL E PLANO)
+   ========================================================== */
+
+#form-perfil-modal .divisor-secao-ui {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 16px 0;
+    width: 100%;
+}
+
+#form-perfil-modal .secao-info-conta-ui {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0 12px 0;
+    box-sizing: border-box;
+}
+
+#form-perfil-modal .linha-info-conta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    gap: 8px;
+}
+
+#form-perfil-modal .label-info-ui {
+    color: #94a3b8;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#form-perfil-modal .valor-info-ui {
+    color: #f8fafc;
+    font-weight: 700;
+    font-size: 13px;
+    word-break: break-all;
+}
+
+#form-perfil-modal .badge-plano-ui {
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================
+   AJUSTE DE HIERARQUIA E ESPAÇAMENTO DO MODAL DE EDIÇÃO
+   ========================================================== */
+
+#form-perfil-modal .margin-top-12 {
+    margin-top: 16px;
+}
+
+#form-perfil-modal .secao-exclusao-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
 }

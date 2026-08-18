@@ -15,7 +15,7 @@
     <meta name="description" content="Aprenda matemática, pratique tabuada e dispute o ranking online de forma divertida e rápida!">
 
     <!-- CSS do Projeto -->
-    <link rel="stylesheet" href="css/style.css?v=3.9">
+    <link rel="stylesheet" href="css/style.css?v=5.0">
 
     <!-- Configurações PWA & Mobile Nativo -->
     <meta name="theme-color" content="#070a12">
@@ -67,10 +67,12 @@
                 </button>
             </div>
 
-            <!-- CENTRO: Pílula PLANO PRO Centralizada -->
-            <div class="header-centro">
-                <span class="badge-status-pro-topo">💎 PLANO PRO</span>
-            </div>
+            <!-- CENTRO: Pílula PLANO PRO Centralizada (CORRIGIDO) -->
+<div class="header-centro">
+    <span id="badge-status-pro-topo" class="badge-status-pro-topo" onclick="window.abrirTelaCheckoutPremium()" style="cursor: pointer;">
+        💎 PLANO PRO
+    </span>
+</div>
 
             <!-- DIREITA: Botão de Som -->
             <div class="header-direita">
@@ -110,7 +112,7 @@
                     </div>
 
                     <div class="status-item">
-                        <button id="btn-abrir-relatorio" class="btn-relatorio-centro">
+                        <button id="btn-abrir-relatorio" class="btn-relatorio-centro" onclick="window.abrirModalRelatorio(event)">
                             📊 RELATÓRIO
                         </button>
                     </div>
@@ -230,30 +232,43 @@
             </div>
         </section>
 
-        <!-- TELA 4: VISUALIZAÇÃO INTERATIVA DE TABUADAS -->
+        <!-- TELA 4: VISUALIZAÇÃO INTERATIVA DE TABUADAS (UX/UI OTIMIZADO) -->
         <section id="tela-visualizar-tabuadas" class="tela oculto">
-            <div class="app-container">
-                <h1 id="titulo-tipo-tabuada" class="titulo-secao-app">Tabuada</h1>
-                <p class="subtitulo-secao-app">Toque em um número para ver a lista:</p>
-
-                <div class="grid-num-tabuada">
-                    <button id="btn-num-1" type="button" onclick="window.gerarListaTabuada(1, event)" class="btn-num-tabuada">1</button>
-                    <button id="btn-num-2" type="button" onclick="window.gerarListaTabuada(2, event)" class="btn-num-tabuada">2</button>
-                    <button id="btn-num-3" type="button" onclick="window.gerarListaTabuada(3, event)" class="btn-num-tabuada">3</button>
-                    <button id="btn-num-4" type="button" onclick="window.gerarListaTabuada(4, event)" class="btn-num-tabuada">4</button>
-                    <button id="btn-num-5" type="button" onclick="window.gerarListaTabuada(5, event)" class="btn-num-tabuada">5</button>
-                    <button id="btn-num-6" type="button" onclick="window.gerarListaTabuada(6, event)" class="btn-num-tabuada">6</button>
-                    <button id="btn-num-7" type="button" onclick="window.gerarListaTabuada(7, event)" class="btn-num-tabuada">7</button>
-                    <button id="btn-num-8" type="button" onclick="window.gerarListaTabuada(8, event)" class="btn-num-tabuada">8</button>
-                    <button id="btn-num-9" type="button" onclick="window.gerarListaTabuada(9, event)" class="btn-num-tabuada">9</button>
-                    <button id="btn-num-10" type="button" onclick="window.gerarListaTabuada(10, event)" class="btn-num-tabuada">10</button>
+            <div class="app-container content-vazia-no-scroll">
+                
+                <!-- 1. BADGE/PÍLULA DE TÍTULO MODERNA NO TOPO -->
+                <div class="badge-header-operacao">
+                    <span class="ico-op-header">✖️</span>
+                    <h1 id="titulo-tipo-tabuada" class="titulo-pague-neon">TABUADA DE MULTIPLICAÇÃO</h1>
                 </div>
 
-                <div id="resultado-lista-tabuada" class="card-painel-container resultado-tabuada-box">
-                    <p class="text-center-secondary">Selecione um número acima para carregar a tabuada.</p>
+                <!-- 2. CARD CONTAINER COM RESULTADOS -->
+                <div id="resultado-lista-tabuada" class="card-painel-container resultado-tabuada-compacto">
+                    <p class="text-center-secondary">Selecione um número abaixo para carregar.</p>
                 </div>
 
-                <button type="button" onclick="window.mostrarTelaAprender()" class="btn-voltar-futurista">⬅️ Voltar às Operações</button>
+                <!-- 3. CONTROLES INTERATIVOS PRÓXIMOS AO POLEGAR (THUMB ZONE) -->
+                <div class="secao-interativa-thumbzone">
+                    <span class="label-instrucao-thumb">SELECIONE O NÚMERO:</span>
+                    
+                    <div class="grid-num-tabuada">
+                        <button id="btn-num-1" type="button" onclick="window.gerarListaTabuada(1, event)" class="btn-num-tabuada">1</button>
+                        <button id="btn-num-2" type="button" onclick="window.gerarListaTabuada(2, event)" class="btn-num-tabuada">2</button>
+                        <button id="btn-num-3" type="button" onclick="window.gerarListaTabuada(3, event)" class="btn-num-tabuada">3</button>
+                        <button id="btn-num-4" type="button" onclick="window.gerarListaTabuada(4, event)" class="btn-num-tabuada">4</button>
+                        <button id="btn-num-5" type="button" onclick="window.gerarListaTabuada(5, event)" class="btn-num-tabuada">5</button>
+                        <button id="btn-num-6" type="button" onclick="window.gerarListaTabuada(6, event)" class="btn-num-tabuada">6</button>
+                        <button id="btn-num-7" type="button" onclick="window.gerarListaTabuada(7, event)" class="btn-num-tabuada">7</button>
+                        <button id="btn-num-8" type="button" onclick="window.gerarListaTabuada(8, event)" class="btn-num-tabuada">8</button>
+                        <button id="btn-num-9" type="button" onclick="window.gerarListaTabuada(9, event)" class="btn-num-tabuada">9</button>
+                        <button id="btn-num-10" type="button" onclick="window.gerarListaTabuada(10, event)" class="btn-num-tabuada">10</button>
+                    </div>
+
+                    <button type="button" onclick="window.mostrarTelaAprender()" class="btn-voltar-futurista">
+                        ⬅️ Voltar às Operações
+                    </button>
+                </div>
+
             </div>
         </section>
 
@@ -622,27 +637,37 @@
      MODAIS E OVERLAYS ISOLADOS (FILHOS DIRETO DO BODY)
      ========================================================== -->
 
-<!-- 1. MODAL DE EDIÇÃO DE PERFIL -->
-<div id="form-perfil-modal" class="modal-overlay-ui oculto display-none">
-    <div class="card-painel-container">
+<!-- 1. MODAL DE EDIÇÃO DE PERFIL REORGANIZADO -->
+<div id="form-perfil-modal" class="modal-overlay-ui oculto display-none">  
+    <div class="card-painel-container">        
         <h3 id="titulo-form-perfil" class="titulo-edicao-perfil">Editar Perfil</h3>
 
+        <!-- SEÇÃO 2: DADOS DA CONTA -->
+        <div class="secao-info-conta-ui">
+            <div class="linha-info-conta">
+                <span class="label-info-ui">📧 E-mail:</span>
+                <span id="display-email-conta" class="valor-info-ui">carregando...</span>
+            </div>
+            <div class="linha-info-conta">
+                <span class="label-info-ui">⭐ Plano:</span>
+                <span id="display-plano-conta" class="badge-plano-ui">FREE</span>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 1: EDIÇÃO DE PERFIL -->
         <div class="campo-grupo-ui">
             <label class="label-input-ui">Nome do Jogador(a):</label>
             <input type="text" id="input-nome-perfil" placeholder="Ex: Odilon" maxlength="15" class="input-futurista margin-bottom-0">
         </div>
 
         <div class="secao-galeria-perfil">
-            <div class="header-galeria-row">
-                <span class="label-input-ui">Escolha seu Avatar:</span>
-                <span id="contador-fotos-galeria" class="badge-contador-fotos">0/6 fotos</span>
-            </div>
+            <label class="label-input-ui">Escolha seu Avatar:</label>
 
             <div class="carrossel-avatares-wrapper">
-                <button type="button" class="btn-nav-carrossel prev" onclick="window.rolarCarrosselAvatares(-1)" title="Anterior">‹</button>
-                
+                <button type="button" class="btn-carrossel-seta esquerda" onclick="window.rolarCarrosselAvatares(-1)" aria-label="Anterior">❮</button>
+
                 <div id="grid-galeria-avatares" class="carrossel-track-ui">
-                    <div id="btn-card-add-foto" class="card-avatar-slot btn-add-foto-slot" onclick="document.getElementById('input-upload-galeria').click()">
+                    <div id="btn-card-add-foto" class="card-avatar-slot btn-add-foto-slot" onclick="if(typeof window.solicitarAdicionarFoto === 'function'){ window.solicitarAdicionarFoto(event); } else { document.getElementById('input-upload-galeria').click(); }">
                         <div class="icone-add-circulo">➕</div>
                         <span>Adicionar</span>
                     </div>
@@ -667,32 +692,39 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn-nav-carrossel next" onclick="window.rolarCarrosselAvatares(1)" title="Próximo">›</button>
+                <button type="button" class="btn-carrossel-seta direita" onclick="window.rolarCarrosselAvatares(1)" aria-label="Próximo">❯</button>
             </div>
 
             <input type="file" id="input-upload-galeria" accept="image/*" onchange="window.carregarFotoParaAjuste(event)" class="display-none">
             
-            <p id="aviso-limite-fotos" class="aviso-limite-texto oculto">
+            <div id="balao-aviso-limite" class="balao-alerta-limite oculto">
                 ⚠️ Limite de 6 fotos atingido! Para adicionar uma nova, exclua uma foto da sua galeria.
-            </p>
+            </div>
         </div>
 
-        <div class="acoes-form-row">
+        <hr class="divisor-secao-ui">
+
+        
+
+          <!-- RODAPÉ DE CONFIRMAÇÃO DO FORMULÁRIO -->
+        <div class="acoes-form-row margin-top-12">
             <button type="button" onclick="window.salvarPerfil(event);" class="btn-salvar-perfil-ui">SALVAR</button>
             <button type="button" onclick="window.fecharEdicaoPerfil();" class="btn-cancelar-perfil-ui">CANCELAR</button>
         </div>
 
+        <!-- SEÇÃO 3: AÇÕES FINAIS E CONFIRMAÇÃO NO RODAPÉ -->
         <div class="secao-exclusao-perfil">
-            <button type="button" id="btn-acao-excluir-perfil" onclick="window.solicitarExclusaoPerfil()" class="btn-excluir-acao display-none">
-                🗑️ Excluir Este Perfil
+            <button type="button" id="btn-acao-logout" onclick="window.fazerLogout()" class="btn-logout-conta-ui">
+                🚪 Sair da Conta
             </button>
 
             <button type="button" id="btn-acao-excluir-conta" onclick="window.abrirModalConfirmacaoExclusao('conta')" class="btn-excluir-conta-acao">
-                ⚠️ Encerrar e Excluir Conta Completa
+                ⚠️ Excluir Conta
             </button>
-        </div>
+        </div>      
     </div>
 </div>
+
 
 <!-- 2. POP-UP DE CORTE DE FOTO -->
 <div id="modal-corte-foto" class="modal-overlay-ui oculto">
@@ -1120,6 +1152,13 @@
 
 <!-- SCRIPT DE GERENCIAMENTO DAS ABAS NAV E MODAIS INSTITUCIONAIS -->
 <script>
+    // Função auxiliar para garantir sincronia do plano em qualquer interação
+    function sincronizarPlanoSeDisponivel() {
+        if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+            window.sincronizarInterfaceGlobalPlano();
+        }
+    }
+
     // Gerenciador Global da Barra de Navegação Inferior (Bottom Nav)
     window.navegarAbaNav = function(idTelaAlvo, btnElement) {
         if (typeof window.tocarSom === 'function') window.tocarSom('clique');
@@ -1146,6 +1185,9 @@
         if (btnElement) {
             btnElement.classList.add('ativo');
         }
+
+        // Garante que a interface e os badges reflitam o plano correto ao mudar de aba
+        sincronizarPlanoSeDisponivel();
     };
 
     window.abrirModalSobre = function(e) { 
@@ -1186,22 +1228,28 @@
         }
     };
 
-    // DELEGAÇÃO GLOBAL DE EVENTOS
+    // DELEGAÇÃO GLOBAL DE EVENTOS UNIFICADA (Evita listeners duplicados)
     document.addEventListener('click', function(e) {
-        if (e.target && e.target.id === 'btn-fechar-privacidade') {
+        var target = e.target;
+        if (!target) return;
+
+        // Fechamento de Modais Institucionais
+        if (target.id === 'btn-fechar-privacidade' || target.closest('#btn-fechar-privacidade')) {
             window.fecharModalPrivacidade();
         }
-        if (e.target && e.target.id === 'btn-fechar-sobre') {
+        if (target.id === 'btn-fechar-sobre' || target.closest('#btn-fechar-sobre')) {
             window.fecharModalSobre();
+        }
+
+        // Se abrir a edição de perfil por qualquer elemento HTML, força a sincronização do badge imediatamente
+        if (target.closest('#btn-perfil-header, #header-foto-perfil, .btn-perfil-avatar, .badge-editar-perfil, [onclick*="abrirEdicaoPerfil"]')) {
+            sincronizarPlanoSeDisponivel();
         }
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        var btnFechaSobre = document.getElementById('btn-fechar-sobre');
-        var btnFechaPriv = document.getElementById('btn-fechar-privacidade');
-        
-        if (btnFechaSobre) btnFechaSobre.onclick = window.fecharModalSobre;
-        if (btnFechaPriv) btnFechaPriv.onclick = window.fecharModalPrivacidade;
+        // Sincronização inicial do plano logo após o carregamento da DOM da página
+        sincronizarPlanoSeDisponivel();
     });
 </script>
 
@@ -1210,7 +1258,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <!-- SCRIPT PRINCIPAL -->
-<script type="module" src="js/app.js?v=5.7"></script>
+<script type="module" src="js/app.js?v=6.2"></script>
 
 </body>
 </html>

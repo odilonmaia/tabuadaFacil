@@ -407,7 +407,7 @@ onAuthStateChanged(auth, async (user) => {
         window.carregarOuCriarPerfilPrincipal(user.uid, primeiroNome, user.email, fotoGoogle);
 
         const perfilAtivoSalvo = localStorage.getItem('perfil_ativo_id') || localStorage.getItem('tabuada_perfil_ativo');
-        const planoAtual = localStorage.getItem('usuario_plano') || 'gratis';
+        const planoAtual = window.obterPlanoAtivo();
         const perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
 
         if (perfilAtivoSalvo) {
@@ -535,6 +535,90 @@ async function reautenticarResponsavel(senhaDigitada = null) {
 // 4. GERENCIAMENTO DE PERFIL, GALERIA E AVATARES
 // =========================================================================
 //#region [4] PERFIS, GALERIA E AVATARES
+
+/* ==========================================================
+   GERENCIADOR CENTRALIZADOR DE PLANO E PRIVILÉGIOS (SSOT)
+   ========================================================== */
+
+// 1. Retorna o plano ativo verificado ('gratis', 'pro' ou 'premium')
+window.obterPlanoAtivo = function() {
+    const perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
+    const planoSalvo = localStorage.getItem('usuario_plano') || perfilAtivo.plano || 'gratis';
+    return planoSalvo.toLowerCase();
+};
+
+// 2. Define o plano e propaga para TODO o aplicativo
+window.definirPlanoAtivo = function(novoPlano) {
+    const planoTratado = (novoPlano || 'gratis').toLowerCase();
+    
+    // Atualiza armazenamento local
+    localStorage.setItem('usuario_plano', planoTratado);
+    
+    let perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
+    perfilAtivo.plano = planoTratado;
+    localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
+
+    // Re-sincroniza toda a interface do app
+    window.sincronizarInterfaceGlobalPlano();
+};
+
+// 3. Atualiza botões, pílulas, anúncios e vidas em tempo real
+window.sincronizarInterfaceGlobalPlano = function() {
+    // 1. Obtém o plano atual pela SSOT
+    let plano = 'free';
+    if (typeof window.obterPlanoAtivo === 'function') {
+        plano = window.obterPlanoAtivo();
+    } else {
+        const perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
+        plano = localStorage.getItem('usuario_plano') || perfilAtivo.plano || 'free';
+    }
+    plano = String(plano).toLowerCase().trim();
+
+    const ehPago = (plano === 'pro' || plano === 'premium');
+
+    // 2. ATUALIZA A PÍLULA DA TELA INICIAL / DASHBOARD (Topo)
+    // Seleciona diretamente pela classe real ou ID do seu HTML
+    const elTopo = document.getElementById('badge-status-pro-topo') || 
+                   document.querySelector('.badge-status-pro-topo') ||
+                   document.getElementById('btn-plano-topo');
+
+    if (elTopo) {
+        if (ehPago) {
+            const icone = (plano === 'pro') ? '💎' : '👑';
+            elTopo.innerHTML = `${icone} PLANO ${plano.toUpperCase()}`;
+            elTopo.style.borderColor = (plano === 'pro') ? '#38bdf8' : '#ffd700';
+            elTopo.style.color = (plano === 'pro') ? '#38bdf8' : '#ffd700';
+            elTopo.style.background = (plano === 'pro') ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 215, 0, 0.15)';
+        } else {
+            elTopo.innerHTML = '⚡ SEJA PRO';
+            elTopo.style.borderColor = '#94a3b8';
+            elTopo.style.color = '#94a3b8';
+            elTopo.style.background = 'rgba(148, 163, 184, 0.15)';
+        }
+    }
+
+    // 3. ATUALIZA O ÍCONE E QUANTIDADE DE VIDAS
+    const elVidasTexto = document.getElementById('contador-vidas-texto') || document.querySelector('.qtd-vidas');
+    if (elVidasTexto) {
+        if (ehPago) {
+            elVidasTexto.innerText = '∞';
+        } else {
+            const vidasAtuais = localStorage.getItem('tabuada_vidas_atuais') || '5';
+            elVidasTexto.innerText = vidasAtuais;
+        }
+    }
+
+    // 4. ATUALIZA A PÍLULA NO MODAL DE EDITAR PERFIL
+    const elPlanoModal = document.getElementById('display-plano-conta');
+    if (elPlanoModal) {
+        elPlanoModal.innerText = ehPago ? plano.toUpperCase() : 'FREE';
+        elPlanoModal.style.borderColor = ehPago ? (plano === 'pro' ? '#38bdf8' : '#ffd700') : '#94a3b8';
+        elPlanoModal.style.color = ehPago ? (plano === 'pro' ? '#38bdf8' : '#ffd700') : '#94a3b8';
+        elPlanoModal.style.background = ehPago ? (plano === 'pro' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 215, 0, 0.15)') : 'rgba(148, 163, 184, 0.15)';
+    }
+};
+
+
 window.carregarOuCriarPerfilPrincipal = function(uid, nomePadrao, email, fotoGoogle = null) {
     let perfilAtivo = null;
     
@@ -549,7 +633,7 @@ window.carregarOuCriarPerfilPrincipal = function(uid, nomePadrao, email, fotoGoo
 
     if (!perfilAtivo) {
         const perfilIdPadrao = 'prf_' + Date.now() + '_main';
-        const planoAtual = localStorage.getItem('usuario_plano') || 'gratis';
+        const planoAtual = window.obterPlanoAtivo();
 
         perfilAtivo = {
             id: perfilIdPadrao,
@@ -580,7 +664,7 @@ window.carregarOuCriarPerfilPrincipal = function(uid, nomePadrao, email, fotoGoo
     }
 
     if (perfilAtivo.plano) {
-        localStorage.setItem('usuario_plano', perfilAtivo.plano);
+        window.definirPlanoAtivo(perfilAtivo.plano);
     }
 
     let perfis = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
@@ -609,7 +693,7 @@ window.atualizarHeaderPerfilAtivo = function() {
     }
 };
 
-window.abrirEdicaoPerfil = function() {
+window.abrirEdicaoPerfil = async function() {
     if (typeof window.tocarSom === 'function') {
         window.tocarSom('clique');
     }
@@ -617,23 +701,39 @@ window.abrirEdicaoPerfil = function() {
     const modalForm = document.getElementById('form-perfil-modal');
     const perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
 
+    // 1. Descobre o plano REAL ativo pela SSOT (função global ou localStorage)
+    let planoAtual = 'free';
+    if (typeof window.obterPlanoAtivo === 'function') {
+        planoAtual = window.obterPlanoAtivo();
+    } else {
+        planoAtual = localStorage.getItem('usuario_plano') || perfilAtivo.plano || 'free';
+    }
+    planoAtual = String(planoAtual).toLowerCase();
+
+    // 2. Preenche os dados básicos no formulário
     const inputNome = document.getElementById('input-nome-perfil');
-    if (inputNome) {
-        inputNome.value = perfilAtivo.nome || '';
+    if (inputNome) inputNome.value = perfilAtivo.nome || '';
+
+    const elEmail = document.getElementById('display-email-conta');
+    if (elEmail) {
+        const user = (typeof auth !== 'undefined' && auth && auth.currentUser) ? auth.currentUser : null;
+        elEmail.innerText = (user && user.email) ? user.email : (perfilAtivo.email || 'Conta Local');
     }
 
-    window.avatarSelecionadoAtual = perfilAtivo.fotoUrlPersonalizada || perfilAtivo.fotoUrl || 'taby.png';
+    // 3. FORÇA A ATUALIZAÇÃO DA PÍLULA DO MODAL (Resolve o "FREE")
+    const elPlanoModal = document.getElementById('display-plano-conta');
+    if (elPlanoModal) {
+        const ehPago = (planoAtual === 'pro' || planoAtual === 'premium');
+        elPlanoModal.innerText = ehPago ? planoAtual.toUpperCase() : 'FREE';
+        elPlanoModal.style.borderColor = ehPago ? (planoAtual === 'pro' ? '#38bdf8' : '#ffd700') : '#94a3b8';
+        elPlanoModal.style.color = ehPago ? (planoAtual === 'pro' ? '#38bdf8' : '#ffd700') : '#94a3b8';
+        elPlanoModal.style.background = ehPago ? 'rgba(56, 189, 248, 0.15)' : 'rgba(148, 163, 184, 0.15)';
+    }
 
+    // 4. Exibe o modal na tela
     if (modalForm) {
         modalForm.classList.remove('oculto');
         modalForm.style.setProperty('display', 'block', 'important');
-        modalForm.style.setProperty('position', 'fixed', 'important');
-        modalForm.style.setProperty('top', '50%', 'important');
-        modalForm.style.setProperty('left', '50%', 'important');
-        modalForm.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-        modalForm.style.setProperty('z-index', '999999', 'important');
-        modalForm.style.setProperty('background', '#0f172a', 'important');
-        modalForm.style.setProperty('box-shadow', '0 0 40px rgba(0,0,0,0.8), 0 0 0 3000px rgba(7, 10, 18, 0.92)', 'important');
     }
 
     if (typeof window.renderizarGaleriaPerfil === 'function') {
@@ -823,7 +923,7 @@ window.abrirTelaSelecaoPerfis = function() {
 
 window.tentarAdicionarNovoPerfil = function() {
     let perfis = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
-    const planoAtual = localStorage.getItem('usuario_plano') || 'gratis';
+    const planoAtual = window.obterPlanoAtivo();
 
     if (planoAtual !== 'premium' && perfis.length >= 1) {
         if (document.getElementById('modal-paywall-planos')) {
@@ -970,10 +1070,6 @@ window.abrirFormEditarPerfil = function(idPerfil, nomeAtual, skinAtual) {
     }
 };
 
-window.abrirEdicaoPerfilUnico = function() {
-    window.abrirEdicaoPerfil();
-};
-
 window.uploadFotoPerfilEditar = function(event) {
     const arquivo = event.target.files[0];
     if (!arquivo) return;
@@ -1018,7 +1114,7 @@ window.uploadFotoPerfilEditar = function(event) {
 window.selecionarSkinForm = function(skinKey, imgSrc, el) {
     const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
     const perfil = perfilStr ? JSON.parse(perfilStr) : {};
-    const planoAtivo = localStorage.getItem('usuario_plano') || 'gratis';
+    const planoAtivo = window.obterPlanoAtivo();
 
     const tabyObj = CATALOGO_TABY.find(t => t.id === skinKey);
 
@@ -1054,6 +1150,49 @@ window.selecionarSkinForm = function(skinKey, imgSrc, el) {
     }
 };
 
+/* FUNÇÕES DE VALIDAÇÃO DO UPLOAD E EXIBIÇÃO DO BALÃO */
+window.solicitarAdicionarFoto = function(event) {
+    if (event && event.stopPropagation) {
+        event.stopPropagation();
+    }
+
+    const qtdFotos = Array.isArray(window.galeriaFotosUsuario) ? window.galeriaFotosUsuario.length : 0;
+
+    if (qtdFotos >= 6) {
+        if (typeof window.exibirBalaoLimiteFotos === 'function') {
+            window.exibirBalaoLimiteFotos();
+        } else {
+            alert("⚠️ Limite de 6 fotos atingido! Exclua uma foto para adicionar outra.");
+        }
+        return;
+    }
+
+    const inputUpload = document.getElementById("input-upload-galeria");
+    if (inputUpload) {
+        inputUpload.click();
+    } else {
+        console.warn("Input #input-upload-galeria não encontrado.");
+    }
+};
+
+window.exibirBalaoLimiteFotos = function() {
+    const balao = document.getElementById("balao-aviso-limite");
+    if (!balao) return;
+
+    balao.classList.remove("oculto");
+    balao.classList.add("exibir");
+
+    if (window.timeoutBalaoLimite) {
+        clearTimeout(window.timeoutBalaoLimite);
+    }
+
+    window.timeoutBalaoLimite = setTimeout(() => {
+        balao.classList.remove("exibir");
+        setTimeout(() => balao.classList.add("oculto"), 300);
+    }, 4000);
+};
+
+/* RENDERIZAÇÃO DA GALERIA ATUALIZADA */
 window.renderizarGaleriaPerfil = function() {
     const grid = document.getElementById("grid-galeria-avatares");
     const btnAdd = document.getElementById("btn-card-add-foto");
@@ -1081,12 +1220,12 @@ window.renderizarGaleriaPerfil = function() {
     if (Array.isArray(window.galeriaFotosUsuario)) {
         window.galeriaFotosUsuario.forEach((fotoUrl, index) => {
             const slot = document.createElement("div");
-            slot.className = `card-avatar-slot ${window.avatarSelecionadoAtual === fotoUrl ? 'selecionado' : ''}`;
+            slot.className = `card-avatar-slot is-custom ${window.avatarSelecionadoAtual === fotoUrl ? 'selecionado' : ''}`;
             slot.onclick = () => window.selecionarAvatarSlot(fotoUrl, slot);
 
             slot.innerHTML = `
                 <img src="${fotoUrl}" alt="Foto ${index + 1}">
-                <button class="btn-excluir-foto-slot" onclick="event.stopPropagation(); window.excluirFotoGaleria(${index});" aria-label="Excluir Foto" title="Excluir Foto">&times;</button>
+                <button class="btn-deletar-foto-custom" onclick="event.stopPropagation(); window.excluirFotoGaleria(${index});" aria-label="Excluir Foto" title="Excluir Foto">✕</button>
             `;
             grid.appendChild(slot);
         });
@@ -1138,6 +1277,7 @@ window.excluirFotoGaleria = function(index) {
     }
 };
 
+/* CROPPER COM MÁSCARA CIRCULAR E BOTÃO DE FECHAR REDONDO */
 window.carregarFotoParaAjuste = function(event) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -1160,28 +1300,26 @@ window.carregarFotoParaAjuste = function(event) {
         }
 
         modal.className = "";
-        modal.style.cssText = `
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(7, 10, 18, 0.95) !important;
-            backdrop-filter: blur(8px) !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            align-items: center !important;
-            z-index: 999999 !important;
-            padding: 16px !important;
-            box-sizing: border-box !important;
-        `;
+        modal.style.position = "fixed";
+        modal.style.top = "0";
+        modal.style.left = "0";
+        modal.style.width = "100vw";
+        modal.style.height = "100vh";
+        modal.style.background = "rgba(7, 10, 18, 0.95)";
+        modal.style.backdropFilter = "blur(8px)";
+        modal.style.display = "flex";
+        modal.style.flexDirection = "column";
+        modal.style.justifyContent = "center";
+        modal.style.alignItems = "center";
+        modal.style.zIndex = "999999";
+        modal.style.padding = "16px";
+        modal.style.boxSizing = "border-box";
 
         modal.innerHTML = `
             <div style="width: 100%; max-width: 380px; background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 20px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
                     <h4 style="margin: 0; color: #38bdf8; font-size: 15px; font-weight: 800;">✂️ Ajustar Foto de Perfil</h4>
-                    <button onclick="window.fecharModalCorte()" style="background: rgba(255,255,255,0.1); border: none; color: #94a3b8; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center;">✕</button>
+                    <button onclick="window.fecharModalCorte()" style="background: rgba(255,255,255,0.1); border: none; color: #94a3b8; width: 28px; height: 28px; min-width: 28px; min-height: 28px; aspect-ratio: 1 / 1; flex-shrink: 0; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;">✕</button>
                 </div>
                 <div style="width: 100%; height: 50vh; max-height: 320px; min-height: 200px; overflow: hidden; position: relative; background: #000; border-radius: 12px;">
                     <img id="img-crop-target" src="${e.target.result}" style="max-width: 100%; max-height: 100%; display: block;">
@@ -1210,14 +1348,21 @@ window.carregarFotoParaAjuste = function(event) {
             autoCropArea: 0.85, 
             responsive: true,
             restore: true,
-            guides: true,
+            guides: false,
             center: true,
             highlight: false,
             background: false,
             dragMode: 'move', 
             ready: function () {
-                const container = this.cropper.container;
-                if (container) container.classList.add('cropper-circular');
+                const cropperViewBox = this.cropper.cropBox.querySelector('.cropper-view-box');
+                const cropperFace = this.cropper.cropBox.querySelector('.cropper-face');
+                if (cropperViewBox) {
+                    cropperViewBox.style.borderRadius = '50%';
+                    cropperViewBox.style.outline = '2px solid #38bdf8';
+                }
+                if (cropperFace) {
+                    cropperFace.style.borderRadius = '50%';
+                }
             }
         });
     };
@@ -1238,7 +1383,7 @@ window.confirmarCorteFoto = async function() {
 
         if (btnSalvar) {
             btnSalvar.disabled = true;
-            btnSalvar.innerText = "ENVIANDO NUVEM... ⏳";
+            btnSalvar.innerText = "ENVIANDO... ⏳";
             btnSalvar.style.opacity = "0.7";
         }
 
@@ -1353,13 +1498,41 @@ window.fecharModalCorte = function() {
     }
 };
 
+/* NAVEGAÇÃO DO CARROSSEL VIA BOTÕES DE SETA */
 window.rolarCarrosselAvatares = function(direcao) {
     const track = document.getElementById("grid-galeria-avatares");
     if (!track) return;
 
-    const distancia = 170 * direcao;
+    const distancia = 180 * direcao;
     track.scrollBy({ left: distancia, behavior: 'smooth' });
 };
+
+/* SUPORTE PARA ARRASTAR O CARROSSEL USANDO O MOUSE EM DESKTOPS */
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById("grid-galeria-avatares");
+    if (!track) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    track.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+    });
+
+    track.addEventListener('mouseleave', () => { isDown = false; });
+    track.addEventListener('mouseup', () => { isDown = false; });
+
+    track.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        track.scrollLeft = scrollLeft - walk;
+    });
+});
 
 function garantirPerfilIdUnico(perfil) {
     if (!perfil) return null;
@@ -1420,7 +1593,6 @@ window.removerFotoGaleria = async function(urlFoto) {
     }
 };
 //#endregion
-
 
 // =========================================================================
 // 5. NAVEGAÇÃO E PAINEL INICIAL DO JOGO
@@ -1499,8 +1671,8 @@ window.irParaPainelJogo = function(e) {
     if (typeof window.atualizarHeaderPerfilAtivo === 'function') window.atualizarHeaderPerfilAtivo();
     if (typeof carregarCuriosidadesDiarias === 'function') carregarCuriosidadesDiarias();
     if (typeof atualizarMinhasPosicoesRanking === 'function') atualizarMinhasPosicoesRanking();
-    if (typeof window.atualizarIndicadoresPlanoUsuario === 'function') {
-        window.atualizarIndicadoresPlanoUsuario();
+    if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+        window.sincronizarInterfaceGlobalPlano();
     }
     if (typeof window.atualizarOfensivaUsuario === 'function') {
         window.atualizarOfensivaUsuario();
@@ -1734,8 +1906,8 @@ function renderizarMapaTrilha() {
     let html = "";
     let faseAnteriorDominada = true; 
     
-    const planoSalvo = localStorage.getItem('usuario_plano');
-    const ehUsuarioPremium = (planoSalvo === 'pro' || planoSalvo === 'premium' || localStorage.getItem('usuario_is_premium') === 'true') || 
+    const planoSalvo = window.obterPlanoAtivo();
+    const ehUsuarioPremium = (planoSalvo === 'pro' || planoSalvo === 'premium') || 
                             (typeof dadosTrilhaUsuario !== 'undefined' && dadosTrilhaUsuario?.ehPremium || false);
 
     FASES_TRILHA.forEach((fase, idx) => {
@@ -2006,19 +2178,8 @@ window.abrirDiarioDeBordoTaby = function() {
 
 // Checagem robusta e absoluta do status PRO do usuário
 window.verificarSeEhPro = function() {
-    // 1. Variáveis globais explícitas
-    if (window.usuarioEhPro === true || window.ehPro === true) return true;
-
-    // 2. Validações no perfil atual
-    const p = window.perfilAtual || {};
-    if (p.ehPro === true || p.ehPro === 'true' || p.isPro === true || p.isPro === 'true') return true;
-    if (p.plano && typeof p.plano === 'string' && p.plano.toLowerCase() !== 'free') return true;
-
-    // 3. Validação pelo selo/pílula visual no topo da tela (se existir no DOM)
-    const badgePro = document.querySelector('.badge-status-pro-topo, #badge-status-pro-topo');
-    if (badgePro && badgePro.innerText && badgePro.innerText.toUpperCase().includes('PRO')) return true;
-
-    return false;
+    const plano = window.obterPlanoAtivo();
+    return (plano === 'pro' || plano === 'premium');
 };
 
 // Sincroniza o HUD de vidas em todas as telas (Jogo, Trilha e Painel)
@@ -2301,7 +2462,7 @@ function executarCarregamentoJogoReal() {
     respondendoTravado = false;
 
     window.mudarTela('tela-jogo');
-    window.atualizarHUDVidasPartida(); // Força a renderização do HUD assim que abre a tela de jogo
+    window.atualizarHUDVidasPartida();
 
     if (tipoJogoSelecionado === 'relampago') {
         iniciarCronometro();
@@ -2522,21 +2683,7 @@ async function finalizarJogo() {
         console.warn("Erro ao salvar estatísticas da partida local:", e);
     }
 
-    // VERIFICAÇÃO REFORÇADA SE O USUÁRIO É PRO/PREMIUM
-    const planoSalvo = (localStorage.getItem('usuario_plano') || '').toLowerCase();
-    const tipoPlanoSalvo = (localStorage.getItem('usuario_tipo_plano') || '').toLowerCase();
-    const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    const ehProFlag = localStorage.getItem('usuario_is_pro') === 'true';
-
-    // Checa se a badge de PRO no header está ativa no DOM
-    const badgeTopoPro = document.querySelector('.badge-status-pro-topo');
-    const visivelProNoTopo = badgeTopoPro && !badgeTopoPro.classList.contains('oculto') && getComputedStyle(badgeTopoPro).display !== 'none';
-
-    const ehPago = (
-        planoSalvo === 'pro' || planoSalvo === 'premium' || 
-        tipoPlanoSalvo === 'pro' || tipoPlanoSalvo === 'premium_familia' || 
-        ehPremiumFlag || ehProFlag || visivelProNoTopo
-    );
+    const ehPago = window.verificarSeEhPro();
 
     let ganhouVidaBonus = false;
     let limiteDiarioAtingido = false;
@@ -2653,7 +2800,6 @@ async function finalizarJogo() {
     const dataHoje = new Date().toLocaleDateString('pt-BR');
     const operacaoSalvar = operacoesSelecionadas.length === 1 ? operacoesSelecionadas[0] : (operacoesSelecionadas.includes('insano') ? 'insano' : 'multiplicacao');
 
-    // AJUSTE DE FEEDBACK PEDAGÓGICO DINÂMICO
     const elTituloFeedback = document.getElementById('titulo-feedback-final');
     const elSubtituloFeedback = document.getElementById('subtitulo-feedback-final');
 
@@ -2677,7 +2823,6 @@ async function finalizarJogo() {
     if (elNotaFin) elNotaFin.innerText = `${acertos}/${totalPerguntas}`;
     if (elPctFin) elPctFin.innerText = `${porcentagemAcertos}%`;
 
-    // TRATAMENTO DA MENSAGEM DE BÔNUS (LIMPAGEM TOTAL PARA CONTA PRO)
     if (elBadgeVida) {
         if (!ehPago) {
             if (ganhouVidaBonus) {
@@ -2694,7 +2839,6 @@ async function finalizarJogo() {
                 elBadgeVida.style.display = 'none';
             }
         } else {
-            // Garante que para usuários PRO a tag permaneça vazia e oculta
             elBadgeVida.innerText = "";
             elBadgeVida.classList.add('oculto');
             elBadgeVida.style.display = 'none';
@@ -3159,9 +3303,7 @@ const TEMPO_REGENERACAO_MS = 60 * 60 * 1000;
 let intervaloTimerVida = null;
 
 function verificarERegenerarVidas() {
-    const planoSalvo = localStorage.getItem('usuario_plano');
-    const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    if (planoSalvo === 'pro' || planoSalvo === 'premium' || ehPremiumFlag) return;
+    if (window.verificarSeEhPro()) return;
 
     const dataHojeStr = new Date().toLocaleDateString('pt-BR');
     let ultimaDataReset = localStorage.getItem('usuario_data_reset_vidas');
@@ -3198,11 +3340,8 @@ function atualizarDisplayTimerVidas() {
     const elTimer = document.getElementById('display-timer-vidas');
     if (!elTimer) return;
 
-    const planoSalvo = localStorage.getItem('usuario_plano');
-    const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    
     let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-    if (planoSalvo === 'pro' || planoSalvo === 'premium' || ehPremiumFlag || saldoVidas > 0) {
+    if (window.verificarSeEhPro() || saldoVidas > 0) {
         elTimer.style.display = 'none';
         return;
     }
@@ -3237,9 +3376,7 @@ function atualizarDisplayTimerVidas() {
 })();
 
 window.consumirVidaParaEntrar = function() {
-    const planoSalvo = localStorage.getItem('usuario_plano');
-    const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    if (planoSalvo === 'pro' || planoSalvo === 'premium' || ehPremiumFlag) return true;
+    if (window.verificarSeEhPro()) return true;
 
     let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
 
@@ -3270,23 +3407,14 @@ window.consumirVidaParaEntrar = function() {
 };
 
 window.atualizarInterfaceVidas = function() {
-    const planoSalvo = localStorage.getItem('usuario_plano'); 
-    const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    let tipoPlano = null;
-
-    if (planoSalvo === 'pro' || planoSalvo === 'premium') {
-        tipoPlano = planoSalvo;
-    } else if (ehPremiumFlag) {
-        tipoPlano = 'premium';
-    }
-
-    const ehPago = (tipoPlano !== null);
+    const plano = window.obterPlanoAtivo();
+    const ehPago = window.verificarSeEhPro();
 
     const badgeTopo = document.getElementById('badge-plano-topo');
     if (badgeTopo) {
         if (ehPago) {
             badgeTopo.style.display = 'inline-flex';
-            if (tipoPlano === 'pro') {
+            if (plano === 'pro') {
                 badgeTopo.innerText = 'PRO 💎';
                 badgeTopo.className = 'badge-plano-topo badge-estilo-pro';
             } else {
@@ -3314,7 +3442,7 @@ window.atualizarInterfaceVidas = function() {
         if (!container) return;
 
         if (ehPago) {
-            if (tipoPlano === 'pro') {
+            if (plano === 'pro') {
                 container.innerHTML = `
                     <div class="hud-vida-futurista pro">
                         <span class="icone-vida-glow">💎</span>
@@ -3350,9 +3478,7 @@ window.atualizarInterfaceVidas = function() {
 };
 
 window.atualizarEstadoBotoesModo = function() {
-    const planoSalvo = localStorage.getItem('usuario_plano');
-    const ehPremiumFlag = localStorage.getItem('usuario_is_premium') === 'true';
-    const ehPago = (planoSalvo === 'pro' || planoSalvo === 'premium' || ehPremiumFlag);
+    const ehPago = window.verificarSeEhPro();
 
     const btnTrilha = document.getElementById('btn-modo-trilha');
     const btnTreino = document.getElementById('btn-modo-treino');
@@ -3407,7 +3533,7 @@ window.abrirTelaCheckoutPremium = function() {
 };
 
 window.fecharPaywall = function() {
-    if (typeof tocarSom === 'function') {
+    if (typeof window.tocarSom === 'function') {
         tocarSom('clique');
     }
     const paywall = document.getElementById('modal-paywall-planos');
@@ -3467,11 +3593,7 @@ window.processarPagamento = function(tipoPlano) {
         localStorage.setItem('usuario_data_assinatura', dataAgora.toString());
 
         if (ehPro) {
-            localStorage.setItem('usuario_plano', 'pro');
-            localStorage.setItem('usuario_tipo_plano', 'pro');
-            localStorage.setItem('usuario_is_premium', 'true');
-            localStorage.removeItem('usuario_is_premium_familia');
-            
+            window.definirPlanoAtivo('pro');
             if (typeof dadosTrilhaUsuario !== 'undefined') {
                 dadosTrilhaUsuario.plano = 'pro';
                 dadosTrilhaUsuario.ehPremium = true;
@@ -3479,10 +3601,7 @@ window.processarPagamento = function(tipoPlano) {
 
             alert(`🎉 Pagamento do ${planoNome} aprovado com sucesso!\n\nVidas ilimitadas e acesso total à Trilha liberados!`);
         } else {
-            localStorage.setItem('usuario_plano', 'premium');
-            localStorage.setItem('usuario_tipo_plano', 'premium_familia');
-            localStorage.setItem('usuario_is_premium', 'true');
-            localStorage.setItem('usuario_is_premium_familia', 'true');
+            window.definirPlanoAtivo('premium');
 
             if (typeof dadosTrilhaUsuario !== 'undefined') {
                 dadosTrilhaUsuario.plano = 'premium';
@@ -3494,11 +3613,8 @@ window.processarPagamento = function(tipoPlano) {
 
         window.fecharPaywall();
 
-        if (typeof window.atualizarIndicadoresPlanoUsuario === 'function') {
-            window.atualizarIndicadoresPlanoUsuario();
-        }
-        if (typeof window.atualizarInterfaceVidas === 'function') {
-            window.atualizarInterfaceVidas();
+        if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+            window.sincronizarInterfaceGlobalPlano();
         }
         if (typeof renderizarMapaTrilha === 'function') {
             renderizarMapaTrilha();
@@ -3588,7 +3704,7 @@ window.abrirTelaGerenciarPlano = function() {
     const modalExistente = document.getElementById('modal-gerenciar-plano');
     if (modalExistente) modalExistente.remove();
 
-    const planoAtual = localStorage.getItem('usuario_plano') || 'gratis';
+    const planoAtual = window.obterPlanoAtivo();
     const dataAssinaturaStr = localStorage.getItem('usuario_data_assinatura');
     let diasRestantes = 0;
     let dataValidadeTexto = "Sua conta é Gratuita";
@@ -3770,7 +3886,7 @@ window.abrirModalPaywallComFoco = function(aba) {
 };
 
 window.atualizarVisibilidadePainelPais = function() {
-    const planoAtual = localStorage.getItem('usuario_plano');
+    const planoAtual = window.obterPlanoAtivo();
     const ehPremiumFamilia = planoAtual === 'premium' || localStorage.getItem('usuario_is_premium_familia') === 'true';
 
     const btnPainelPais = document.getElementById('btn-painel-pais');
@@ -3780,93 +3896,7 @@ window.atualizarVisibilidadePainelPais = function() {
 };
 
 window.atualizarIndicadoresPlanoUsuario = function() {
-    const planoAtual = localStorage.getItem('usuario_plano') || 
-                       (typeof dadosTrilhaUsuario !== 'undefined' && dadosTrilhaUsuario?.plano) || 
-                       'gratis';
-
-    const avatarContainer = document.getElementById('container-avatar-perfil');
-    if (avatarContainer) {
-        avatarContainer.classList.remove('moldura-perfil-pro', 'moldura-perfil-premium');
-        if (planoAtual === 'pro') {
-            avatarContainer.classList.add('moldura-perfil-pro');
-        } else if (planoAtual === 'premium') {
-            avatarContainer.classList.add('moldura-perfil-premium');
-        }
-    }
-
-    const elPilulaPlanoTopo = document.getElementById('pilula-badge-plano-topo');
-    if (elPilulaPlanoTopo) {
-        if (planoAtual === 'pro') {
-            elPilulaPlanoTopo.innerHTML = `PRO 💎`;
-            elPilulaPlanoTopo.style.background = "linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(3, 105, 161, 0.4) 100%)";
-            elPilulaPlanoTopo.style.border = "1.5px solid #38bdf8";
-            elPilulaPlanoTopo.style.color = "#38bdf8";
-            elPilulaPlanoTopo.style.boxShadow = "0 0 10px rgba(56, 189, 248, 0.3)";
-            elPilulaPlanoTopo.style.margin = "0 8px";
-            elPilulaPlanoTopo.style.display = "inline-flex";
-        } else if (planoAtual === 'premium') {
-            elPilulaPlanoTopo.innerHTML = `PREMIUM 👑`;
-            elPilulaPlanoTopo.style.background = "linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(180, 83, 9, 0.4) 100%)";
-            elPilulaPlanoTopo.style.border = "1.5px solid #fbbf24";
-            elPilulaPlanoTopo.style.color = "#fbbf24";
-            elPilulaPlanoTopo.style.boxShadow = "0 0 10px rgba(251, 191, 36, 0.3)";
-            elPilulaPlanoTopo.style.margin = "0 8px";
-            elPilulaPlanoTopo.style.display = "inline-flex";
-        } else {
-            elPilulaPlanoTopo.style.display = "none";
-        }
-    }
-
-    const elBadgeNome = document.getElementById('badge-plano-nome');
-    if (elBadgeNome) elBadgeNome.style.display = 'none';
-
-    const elBannerUpgrade = document.getElementById('banner-upgrade-painel');
-    if (elBannerUpgrade) {
-        if (planoAtual === 'pro' || planoAtual === 'premium') {
-            elBannerUpgrade.style.display = "none";
-        } else {
-            elBannerUpgrade.innerHTML = `👑 SEJA PREMIUM — VIDAS ILIMITADAS ✨`;
-            elBannerUpgrade.onclick = function() { window.abrirModalPaywallComFoco('pro'); };
-            elBannerUpgrade.style.display = "inline-flex";
-        }
-    }
-
-    const elPilulaVidas = document.getElementById('pilula-vidas-status');
-    if (elPilulaVidas) {
-        if (planoAtual === 'pro') {
-            elPilulaVidas.innerHTML = `<span style="color: #38bdf8; font-weight: 800; display: flex; align-items: center; gap: 4px;">💎 ∞</span>`;
-            elPilulaVidas.style.borderColor = "#38bdf8";
-            elPilulaVidas.style.boxShadow = "0 0 10px rgba(56, 189, 248, 0.3)";
-        } else if (planoAtual === 'premium') {
-            elPilulaVidas.innerHTML = `<span style="color: #fbbf24; font-weight: 800; display: flex; align-items: center; gap: 4px;">👑 ∞</span>`;
-            elPilulaVidas.style.borderColor = "#fbbf24";
-            elPilulaVidas.style.boxShadow = "0 0 10px rgba(251, 191, 36, 0.3)";
-        }
-    }
-
-    const elTimerVidas = document.getElementById('display-timer-vidas');
-    if (elTimerVidas) {
-        if (planoAtual === 'pro') {
-            elTimerVidas.innerHTML = `Faça seu upgrade 👑`;
-            elTimerVidas.style.display = 'inline-flex';
-            elTimerVidas.style.alignItems = 'center';
-            elTimerVidas.style.justifyContent = 'center';
-            elTimerVidas.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%)';
-            elTimerVidas.style.border = '1px solid #f59e0b';
-            elTimerVidas.style.color = '#fbbf24';
-            elTimerVidas.style.borderRadius = '20px';
-            elTimerVidas.style.padding = '6px 14px';
-            elTimerVidas.style.fontSize = '12px';
-            elTimerVidas.style.fontWeight = '800';
-            elTimerVidas.style.cursor = 'pointer';
-            elTimerVidas.style.boxShadow = '0 0 12px rgba(245, 158, 11, 0.2)';
-            elTimerVidas.onclick = function() { window.abrirTelaCheckoutPremium(); };
-        } else if (planoAtual === 'premium') {
-            elTimerVidas.style.display = 'none';
-        } else {
-            elTimerVidas.onclick = null;
-        }
-    }
+    window.sincronizarInterfaceGlobalPlano();
 };
 //#endregion
 
@@ -3875,34 +3905,21 @@ window.atualizarIndicadoresPlanoUsuario = function() {
 // 11. RELATÓRIO PEDAGÓGICO E CHART.JS
 // =========================================================================
 //#region [11] RELATÓRIO PEDAGÓGICO
-window.abrirModalRelatorio = function() {
-    const modalRelatorio = document.getElementById('modal-relatorio');
-    if (!modalRelatorio) return;
-
-    const planoAtual = localStorage.getItem('usuario_plano') || 
-                       (typeof dadosTrilhaUsuario !== 'undefined' && dadosTrilhaUsuario?.plano) || 
-                       'gratis';
-
-    const seletorDependenteBox = modalRelatorio.querySelector('.seletor-dependente-box');
-
-    if (seletorDependenteBox) {
-        if (planoAtual === 'premium' || planoAtual === 'familia') {
-            seletorDependenteBox.style.display = 'block';
-        } else {
-            seletorDependenteBox.style.display = 'none';
+window.abrirModalRelatorio = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+    
+    const modal = document.getElementById('modal-relatorio');
+    if (modal) {
+        modal.classList.remove('oculto', 'display-none');
+        modal.style.display = 'flex';
+        
+        if (typeof window.carregarDadosRelatorio === 'function') {
+            window.carregarDadosRelatorio();
         }
     }
-
-    if (typeof window.atualizarCabecalhoRelatorioLimpo === 'function') {
-        window.atualizarCabecalhoRelatorioLimpo();
-    }
-
-    if (typeof window.carregarEstatisticasReaisRelatorio === 'function') {
-        window.carregarEstatisticasReaisRelatorio();
-    }
-
-    modalRelatorio.style.display = 'flex';
 };
+
 
 window.atualizarCabecalhoRelatorioLimpo = function() {
     const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
@@ -4374,7 +4391,7 @@ window.gerarListaTabuada = function(num, evt) {
     if (typeof window.tocarSom === 'function') window.tocarSom('clique');
 
     const botoesNum = document.querySelectorAll('.grid-num-tabuada button, .btn-num-tabuada');
-    botoesNum.forEach(btn => btn.classList.remove('selecionado'));
+    botoesNum.forEach(btn => btn.classList.remove('ativo', 'selecionado'));
 
     let btnClicado = document.getElementById(`btn-num-${num}`);
     if (!btnClicado && evt && evt.currentTarget) {
@@ -4382,20 +4399,16 @@ window.gerarListaTabuada = function(num, evt) {
     }
 
     if (btnClicado) {
-        btnClicado.classList.add('selecionado');
+        btnClicado.classList.add('ativo');
     }
 
     const opAtual = window.tipoTabuadaEstudo || 'multiplicacao';
 
-    let html = `
-        <h3 style="text-align:center; margin-bottom:14px; color:#38bdf8; font-size: 20px; font-weight: 800; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
-            Tabuada do ${num}
-        </h3>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-    `;
-    
+    let html = `<div class="lista-tabuada-1col">`;
+
     for (let i = 1; i <= 10; i++) {
         let operacaoTexto = "";
+        
         if (opAtual === 'multiplicacao') {
             operacaoTexto = `${num} × ${i} = <b>${num * i}</b>`;
         } else if (opAtual === 'divisao') {
@@ -4406,10 +4419,11 @@ window.gerarListaTabuada = function(num, evt) {
             operacaoTexto = `${num + i} - ${num} = <b>${i}</b>`;
         }
 
-        html += `<div class="item-tabuada-card" style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; color: #fff;">${operacaoTexto}</div>`;
+        html += `<div class="item-linha-tabuada-enxuta">${operacaoTexto}</div>`;
     }
-    html += `</div>`;
     
+    html += `</div>`;
+
     const elRes = document.getElementById('resultado-lista-tabuada');
     if (elRes) elRes.innerHTML = html;
 };
@@ -4637,7 +4651,7 @@ window.solicitarExclusaoPerfil = function() {
 window.atualizarVisibilidadeBotoesExclusao = function() {
     const btnExcluirPerfil = document.getElementById('btn-acao-excluir-perfil');
     const perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
-    const planoAtual = localStorage.getItem('usuario_plano');
+    const planoAtual = window.obterPlanoAtivo();
     
     const ehPlanoFamilia = planoAtual === 'premium' || perfisLocais.length > 1;
 
@@ -4653,7 +4667,6 @@ window.atualizarVisibilidadeBotoesExclusao = function() {
 // =========================================================================
 //#region [14] ÁUDIO E EFEITOS
 
-// Declaração segura e global das variáveis do sistema de som
 if (typeof window.somAtivado === 'undefined') {
     window.somAtivado = true;
 }
@@ -4663,7 +4676,7 @@ if (typeof window.somElementoGlobal === 'undefined') {
 }
 
 window.tocarSom = function(tipo) {
-    if (!window.somAtivado) return; // Se mutado, encerra imediatamente
+    if (!window.somAtivado) return;
     
     let urlAudio = "";
     if (tipo === 'clique') urlAudio = "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3";
@@ -4692,14 +4705,11 @@ window.toggleSom = function(e) {
         if (typeof e.stopPropagation === 'function') e.stopPropagation();
     }
 
-    // 1. Alterna o estado global e salva no localStorage
     window.somAtivado = !window.somAtivado;
     localStorage.setItem('tabuada_som_ativado', window.somAtivado);
 
-    // 2. Busca SEMPRE o elemento correto no DOM sem depender de e.currentTarget
     const btnSom = document.getElementById('btn-som-global') || document.querySelector('.btn-som-moderno');
 
-    // 3. Aplica o áudio e a classe visual
     if (!window.somAtivado) {
         if (window.somElementoGlobal) {
             try {
@@ -4821,6 +4831,7 @@ window.addEventListener('beforeinstallprompt', e => {
     eventoInstalacao = e; 
 });
 
+// Listener global de cliques genéricos
 document.addEventListener('click', function(event) {
     const botaoClicado = event.target.closest('button, .btn, [role="button"]');
     const eBotaoSom = event.target.closest('#btn-som-global, #btn-toggle-som, [onclick*="toggleSom"], .btn-som-topo, .btn-som-moderno');
@@ -4859,6 +4870,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderizarGaleriaPerfil();
     }
     
+    // Disparador centralizado para abertura do modal de perfil com Garantia de SSOT
     const dispararAberturaPerfil = (e) => {
         if (e) {
             e.preventDefault();
@@ -4866,6 +4878,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (typeof window.tocarSom === 'function') window.tocarSom('clique');
         
+        // Executa a abertura correspondente
         if (typeof window.abrirEdicaoPerfil === 'function') {
             window.abrirEdicaoPerfil();
         } else if (typeof window.abrirEdicaoPerfilUnico === 'function') {
@@ -4877,8 +4890,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.style.setProperty('display', 'block', 'important');
             }
         }
+
+        // CORREÇÃO-CHAVE: Força a sincronização dos badges (Dashboard e Modal) na abertura
+        if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+            window.sincronizarInterfaceGlobalPlano();
+        }
     };
 
+    // Delegação de cliques para botões de perfil
     document.addEventListener('click', (e) => {
         const elementoClicado = e.target.closest('#btn-perfil-header, #header-foto-perfil, .btn-perfil-avatar, .badge-editar-perfil, .icon-editar-perfil, [onclick*="abrirEdicaoPerfil"]');
         
@@ -4935,34 +4954,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    setTimeout(() => {
-        if (typeof verificarERegenerarVidas === 'function') {
-            verificarERegenerarVidas();
-        }
-        
-        if (typeof window.atualizarIndicadoresPlanoUsuario === 'function') {
-            window.atualizarIndicadoresPlanoUsuario();
-        }
+    // Inicialização imediata de estados de Plano e Vidas sem setTimeout crítico
+    if (typeof verificarERegenerarVidas === 'function') {
+        verificarERegenerarVidas();
+    }
+    
+    if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+        window.sincronizarInterfaceGlobalPlano();
+    }
 
-        if (typeof window.atualizarInterfaceVidas === 'function') {
-            window.atualizarInterfaceVidas();
-        }
-        
-        if (typeof carregarCuriosidadesDiarias === 'function') {
-            carregarCuriosidadesDiarias();
-        }
+    if (typeof carregarCuriosidadesDiarias === 'function') {
+        carregarCuriosidadesDiarias();
+    }
 
-        const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
-        if (perfilStr) {
-            const perfilObj = JSON.parse(perfilStr);
-            if (typeof window.atualizarInterfacePerfil === 'function') {
-                window.atualizarInterfacePerfil(perfilObj);
-            }
-            if (typeof window.atualizarHeaderPerfilAtivo === 'function') {
-                window.atualizarHeaderPerfilAtivo();
-            }
+    const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
+    if (perfilStr) {
+        const perfilObj = JSON.parse(perfilStr);
+        if (typeof window.atualizarInterfacePerfil === 'function') {
+            window.atualizarInterfacePerfil(perfilObj);
         }
-    }, 150);
+        if (typeof window.atualizarHeaderPerfilAtivo === 'function') {
+            window.atualizarHeaderPerfilAtivo();
+        }
+    }
 });
 //#endregion
 
@@ -4971,12 +4985,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // 16. GERENCIADOR CENTRAL DE ANÚNCIOS (ADSENSE + ADMOB)
 // =========================================================================
 window.AdsManager = {
-    // Detecta se a aplicação está rodando dentro do App Android (TWA/WebView Nativa)
     isNativeApp: function() {
         return typeof window.AndroidApp !== 'undefined';
     },
 
-    // Exibe anúncio Intersticial (transição de tela/fim de partida)
     exibirIntersticial: function(callbackPosAnuncio) {
         if (this.isNativeApp()) {
             window.AndroidApp.mostrarIntersticialAdMob();
@@ -4984,7 +4996,6 @@ window.AdsManager = {
         if (callbackPosAnuncio) callbackPosAnuncio();
     },
 
-    // Exibe anúncio Recompensado (ganhar +1 vida)
     exibirRecompensado: function(onSucesso, onFalha) {
         if (this.isNativeApp()) {
             window.onAnuncioRecompensadoConcluido = function() {
@@ -4992,13 +5003,10 @@ window.AdsManager = {
             };
             window.AndroidApp.mostrarRecompensadoAdMob();
         } else {
-            // Fallback Web: Executa a simulação visual de vídeo de 5s para o navegador
             this.simularAnuncioWeb(onSucesso);
         }
     },
 
-    // Simulação visual para navegadores Desktop/Mobile Web
-  // Simulação visual para navegadores Desktop/Mobile Web
     simularAnuncioWeb: function(onSucesso) {
         const modalExistente = document.getElementById('modal-simulacao-video');
         if (modalExistente) modalExistente.remove();
@@ -5021,7 +5029,6 @@ window.AdsManager = {
 
         document.body.appendChild(modal);
 
-        // Animação da barra e callback
         let progresso = 0;
         const intervalo = setInterval(() => {
             progresso += 2;
@@ -5034,4 +5041,5 @@ window.AdsManager = {
                 if (typeof onSucesso === 'function') onSucesso();
             }
         }, 100);
-    },}
+    }
+};

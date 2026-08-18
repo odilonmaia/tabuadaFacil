@@ -618,17 +618,21 @@ window.sincronizarInterfaceGlobalPlano = function() {
         }
     }
 
-    // 3. EXIBE OU OCULTA ELEMENTOS DO MODO FREE
-    const elTimer = document.getElementById('display-timer-vidas');
+    // 3. REGRA DE SUBSTITUIÇÃO: VÍDEO vs RELATÓRIO
     const btnVideo = document.getElementById('btn-assistir-ad-vidas');
+    const btnRelatorio = document.getElementById('btn-abrir-relatorio');
+    const elTimer = document.getElementById('display-timer-vidas');
 
     if (ehPago) {
-        if (elTimer) elTimer.style.display = 'none';
+        // Modo PAGO: Esconde Vídeo/Timer e Exibe Relatório
         if (btnVideo) btnVideo.style.display = 'none';
+        if (elTimer) elTimer.style.display = 'none';
+        if (btnRelatorio) btnRelatorio.style.display = 'inline-flex';
     } else {
-        // Exibe o timer se as vidas forem menores que 5
-        if (elTimer) elTimer.style.display = (saldoVidas < 5) ? 'inline-flex' : 'none';
+        // Modo FREE: Exibe Vídeo/Timer e Esconde Relatório
         if (btnVideo) btnVideo.style.display = 'inline-flex';
+        if (elTimer) elTimer.style.display = (saldoVidas < 5) ? 'inline-flex' : 'none';
+        if (btnRelatorio) btnRelatorio.style.display = 'none';
     }
 
     // 4. PÍLULA NO MODAL EDITAR PERFIL
@@ -1563,7 +1567,6 @@ window.removerFotoGaleria = async function(urlFoto) {
 //#region [5] NAVEGAÇÃO E PAINEL INICIAL
 
 // ROTEADOR CENTRALIZADO E SEGURO DE TELAS (COM SINCRONIZAÇÃO AUTOMÁTICA DA BOTTOM NAV)
-// Substitua o trecho da função window.mudarTela (por volta da linha 860) por este:
 window.mudarTela = function(idTela) {
     if (typeof window.tocarSom === 'function') {
         window.tocarSom('clique');
@@ -1597,6 +1600,7 @@ window.mudarTela = function(idTela) {
 
     sincronizarBottomNav(idTela);
 };
+
 // Sincroniza o botão destacado na barra inferior de acordo com a tela atual
 function sincronizarBottomNav(idTela) {
     const botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
@@ -2138,9 +2142,10 @@ window.verificarSeEhPro = function() {
     return (plano === 'pro' || plano === 'premium');
 };
 
-// Sincroniza o HUD de vidas em todas as telas (Jogo, Trilha e Painel)
+// Sincroniza o HUD de vidas em todas as telas com padrão idêntico à tela inicial
 window.atualizarHUDVidasPartida = function() {
     const ehPro = window.verificarSeEhPro();
+    const plano = window.obterPlanoAtivo();
     const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
     
     // Seleciona os containers das partidas e da trilha
@@ -2157,20 +2162,20 @@ window.atualizarHUDVidasPartida = function() {
             if (!el) return;
             
             if (ehPro) {
-                el.innerHTML = `<span class="icone-vida-glow" style="color: #38bdf8; font-weight: 900; font-size: 18px; display: inline-flex; align-items: center; gap: 4px;">💎 ∞</span>`;
+                const icone = (plano === 'pro') ? '💎' : '👑';
+                el.className = `status-item hud-vida-futurista ${plano}`;
+                el.innerHTML = `
+                    <span class="icone-vida-glow">${icone}</span>
+                    <span class="valor-vida">∞</span>
+                `;
             } else {
-                // Renderiza exatamente 5 corações (cheios ou cinzas)
-                const maxVidas = 5;
-                let coracoesHTML = '';
-                
-                for (let i = 0; i < maxVidas; i++) {
-                    if (i < saldoVidas) {
-                        coracoesHTML += `<span style="font-size: 18px; margin: 0 1px;">❤️</span>`;
-                    } else {
-                        coracoesHTML += `<span style="opacity: 0.25; filter: grayscale(100%); font-size: 18px; margin: 0 1px;">🖤</span>`;
-                    }
-                }
-                el.innerHTML = coracoesHTML.trim();
+                const classeCritica = saldoVidas <= 1 ? 'critico' : '';
+                el.className = `status-item hud-vida-futurista ${classeCritica}`;
+                el.setAttribute('title', `${saldoVidas} Vidas Disponíveis`);
+                el.innerHTML = `
+                    <span class="icone-vida-glow pulse">❤️</span>
+                    <span class="valor-vida">${saldoVidas}</span>
+                `;
             }
         });
     });
@@ -2216,7 +2221,10 @@ function iniciarCronometro() {
     const elCron = document.getElementById('cronometro-jogo');
     const elCont = document.getElementById('container-cronometro');
     if (elCron) elCron.innerText = "0:00.0";
-    if (elCont) elCont.classList.remove('oculto');
+    if (elCont) {
+        elCont.classList.remove('oculto');
+        elCont.style.display = 'inline-flex';
+    }
     if (intervaloCronometro) clearInterval(intervaloCronometro);
     intervaloCronometro = setInterval(() => {
         let ms = Date.now() - tempoInicioMillis;
@@ -2231,7 +2239,10 @@ function pararCronometro() {
     if (intervaloCronometro) clearInterval(intervaloCronometro);
     intervaloCronometro = null;
     const elCont = document.getElementById('container-cronometro');
-    if (elCont) elCont.classList.add('oculto');
+    if (elCont) {
+        elCont.classList.add('oculto');
+        elCont.style.display = 'none';
+    }
 }
 
 function gerarOpcoesInteligentes(num1, num2, resultadoCorreto, operacao) {
@@ -2390,10 +2401,20 @@ function executarCarregamentoJogoReal() {
     window.mudarTela('tela-jogo');
     window.atualizarHUDVidasPartida();
 
+    // Controle do Cronômetro: Visível APENAS no Modo Relâmpago
+    const elContCronometro = document.getElementById('container-cronometro');
     if (tipoJogoSelecionado === 'relampago') {
+        if (elContCronometro) {
+            elContCronometro.classList.remove('oculto');
+            elContCronometro.style.display = 'inline-flex';
+        }
         iniciarCronometro();
     } else {
         pararCronometro();
+        if (elContCronometro) {
+            elContCronometro.classList.add('oculto');
+            elContCronometro.style.display = 'none';
+        }
     }
 
     gerarPergunta();
@@ -3264,11 +3285,11 @@ function verificarERegenerarVidas() {
 
 function atualizarDisplayTimerVidas() {
     const elTimer = document.getElementById('display-timer-vidas');
-    if (!elTimer) return;
+    const elTimerModal = document.getElementById('tempo-restante-modal-sem-vidas');
 
     let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
     if (window.verificarSeEhPro() || saldoVidas > 0) {
-        elTimer.style.display = 'none';
+        if (elTimer) elTimer.style.display = 'none';
         return;
     }
 
@@ -3286,8 +3307,18 @@ function atualizarDisplayTimerVidas() {
         const minStr = String(minutos).padStart(2, '0');
         const segStr = String(segundos).padStart(2, '0');
 
-        elTimer.innerHTML = `<span style="font-size: 11px;">+1 ❤️</span> ${minStr}:${segStr}`;
-        elTimer.style.display = 'inline-flex';
+        const tempoFormatado = `${minStr}:${segStr}`;
+
+        // Atualiza na barra superior do painel
+        if (elTimer) {
+            elTimer.innerHTML = `<span style="font-size: 11px;">⏳</span> ${tempoFormatado}`;
+            elTimer.style.display = 'inline-flex';
+        }
+
+        // Atualiza ao vivo dentro do Modal de Vidas Esgotadas (se estiver aberto)
+        if (elTimerModal) {
+            elTimerModal.innerText = tempoFormatado;
+        }
     } else {
         verificarERegenerarVidas();
     }
@@ -3336,67 +3367,32 @@ window.atualizarInterfaceVidas = function() {
     const plano = window.obterPlanoAtivo();
     const ehPago = window.verificarSeEhPro();
 
+    // Regra de Substituição dos Botões no Painel
+    const btnVideo = document.getElementById('btn-assistir-ad-vidas');
+    const btnRelatorio = document.getElementById('btn-abrir-relatorio');
+
+    if (ehPago) {
+        if (btnVideo) btnVideo.style.display = 'none';
+        if (btnRelatorio) btnRelatorio.style.display = 'inline-flex';
+    } else {
+        if (btnVideo) btnVideo.style.display = 'inline-flex';
+        if (btnRelatorio) btnRelatorio.style.display = 'none';
+    }
+
+    // Atualiza Badge do Topo
     const badgeTopo = document.getElementById('badge-plano-topo');
     if (badgeTopo) {
         if (ehPago) {
             badgeTopo.style.display = 'inline-flex';
-            if (plano === 'pro') {
-                badgeTopo.innerText = 'PRO 💎';
-                badgeTopo.className = 'badge-plano-topo badge-estilo-pro';
-            } else {
-                badgeTopo.innerText = 'PREMIUM 👑';
-                badgeTopo.className = 'badge-plano-topo badge-estilo-premium';
-            }
+            badgeTopo.innerText = (plano === 'pro') ? 'PRO 💎' : 'PREMIUM 👑';
+            badgeTopo.className = `badge-plano-topo badge-estilo-${plano}`;
         } else {
             badgeTopo.style.display = 'none';
         }
     }
 
-    document.querySelectorAll('.btn-mais-vidas, .btn-ganhar-vida-ads').forEach(btn => {
-        if (btn) btn.style.display = ehPago ? 'none' : 'inline-flex';
-    });
-
-    const containersVidas = [
-        document.getElementById('global-hearts-container'),
-        document.getElementById('coracoes-container'),
-        document.getElementById('gameplay-hearts-trilha'),
-        document.getElementById('gameplay-hearts-partida'),
-        document.getElementById('vidas-display-jogo')
-    ];
-
-    containersVidas.forEach(container => {
-        if (!container) return;
-
-        if (ehPago) {
-            if (plano === 'pro') {
-                container.innerHTML = `
-                    <div class="hud-vida-futurista pro">
-                        <span class="icone-vida-glow">💎</span>
-                        <span class="valor-vida">∞</span>
-                    </div>`;
-            } else {
-                container.innerHTML = `
-                    <div class="hud-vida-futurista premium">
-                        <span class="icone-vida-glow">👑</span>
-                        <span class="valor-vida">∞</span>
-                    </div>`;
-            }
-        } else {
-            const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-            const classeCritica = saldoVidas <= 1 ? 'critico' : '';
-
-            container.innerHTML = `
-                <div class="hud-vida-futurista ${classeCritica}" title="${saldoVidas} Vidas Disponíveis">
-                    <span class="icone-vida-glow pulse">❤️</span>
-                    <span class="valor-vida">${saldoVidas}</span>
-                </div>`;
-
-            const btnProTopo = document.getElementById('btn-banner-pro-topo');
-            if (btnProTopo) {
-                btnProTopo.style.display = ehPago ? 'none' : 'inline-flex';
-            }
-        }
-    });
+    // Atualiza Containers de Vidas Padronizados
+    window.atualizarHUDVidasPartida();
 
     if (typeof window.atualizarEstadoBotoesModo === 'function') {
         window.atualizarEstadoBotoesModo();
@@ -3450,7 +3446,7 @@ window.atualizarEstadoBotoesModo = function() {
 };
 
 window.abrirTelaCheckoutPremium = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const paywall = document.getElementById('modal-paywall-planos');
     if (paywall) {
         paywall.classList.remove('oculto');
@@ -3482,7 +3478,7 @@ if (modalPaywall) {
 }
 
 window.processarPagamento = function(tipoPlano) {
-    tocarSom('conquista');
+    if (typeof tocarSom === 'function') tocarSom('conquista');
     
     let planoNome = 'Plano PRO 💎';
     let valor = 'R$ 9,90';
@@ -3552,69 +3548,113 @@ window.processarPagamento = function(tipoPlano) {
 };
 
 window.assistirAnuncioPorVida = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
 
-    window.AdsManager.exibirRecompensado(
-        function() {
-            let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-            saldoVidas += 1;
-            localStorage.setItem('usuario_vidas', saldoVidas.toString());
-            
-            if (typeof window.atualizarInterfaceVidas === 'function') {
-                window.atualizarInterfaceVidas();
+    if (window.AdsManager && typeof window.AdsManager.exibirRecompensado === 'function') {
+        window.AdsManager.exibirRecompensado(
+            function() {
+                let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+                saldoVidas += 1;
+                localStorage.setItem('usuario_vidas', saldoVidas.toString());
+                
+                if (typeof window.atualizarInterfaceVidas === 'function') {
+                    window.atualizarInterfaceVidas();
+                }
+                if (typeof tocarSom === 'function') {
+                    tocarSom('conquista');
+                }
+                alert("🎉 Parabéns! Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
+            },
+            function() {
+                console.log("Anúncio premiado não concluído ou indisponível.");
             }
-            if (typeof tocarSom === 'function') {
-                tocarSom('conquista');
-            }
-            alert("🎉 Parabéns! Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
-        },
-        function() {
-            console.log("Anúncio premiado não concluído ou indisponível.");
-        }
-    );
+        );
+    } else {
+        // Fallback para testes locais sem AdSense
+        let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+        saldoVidas += 1;
+        localStorage.setItem('usuario_vidas', saldoVidas.toString());
+        if (typeof window.atualizarInterfaceVidas === 'function') window.atualizarInterfaceVidas();
+        alert("🎉 Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
+    }
 };
 
+/* ==========================================================
+   MODAL REDESENHADO DE VIDAS ESGOTADAS
+   ========================================================== */
 window.exibirModalVidasEsgotadasTaby = function() {
-    tocarSom('erro');
+    if (typeof tocarSom === 'function') tocarSom('erro');
 
     const modalExistente = document.getElementById('modal-vidas-esgotadas');
     if (modalExistente) modalExistente.remove();
 
     const proximaVidaTimestamp = parseInt(localStorage.getItem('usuario_proxima_vida_timestamp') || '0', 10);
     const agora = Date.now();
-    let tempoRestanteTexto = "1 hora";
+    let tempoRestanteTexto = "15:00";
 
     if (proximaVidaTimestamp > agora) {
         const ms = proximaVidaTimestamp - agora;
-        const min = Math.ceil(ms / 60000);
-        tempoRestanteTexto = `${min} min`;
+        const min = Math.floor(ms / 60000);
+        const seg = Math.floor((ms % 60000) / 1000);
+        tempoRestanteTexto = `${String(min).padStart(2, '0')}:${String(seg).padStart(2, '0')}`;
     }
 
     const modal = document.createElement('div');
     modal.id = 'modal-vidas-esgotadas';
     modal.className = 'paywall-overlay';
+    modal.style.cssText = `
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 100vw !important; height: 100vh !important;
+        background: rgba(7, 10, 18, 0.92) !important;
+        backdrop-filter: blur(10px) !important;
+        display: flex !important; justify-content: center !important; align-items: center !important;
+        z-index: 99999 !important; padding: 16px !important; box-sizing: border-box !important;
+    `;
 
     modal.innerHTML = `
-        <div class="card-painel-container" style="max-width: 390px; text-align: center; border: 2px solid #ef4444; background: #0f172a; border-radius: 24px; padding: 24px; animation: popInModal 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-            <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-animado" style="width: 80px; height: 80px; margin-bottom: 10px; object-fit: contain;">
+        <div style="position: relative; width: 380px; max-width: 92vw; background: #0f172a; border: 1.5px solid rgba(239, 68, 68, 0.5); border-radius: 24px; padding: 24px 18px 20px 18px; box-sizing: border-box; color: #fff; text-align: center; box-shadow: 0 0 30px rgba(239, 68, 68, 0.25), 0 20px 50px rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; align-items: center; gap: 14px;">
             
-            <h3 style="color: #ef4444; font-size: 20px; margin-bottom: 6px; font-weight: 900;">Ops! Suas Vidas Acabaram 💔</h3>
-            
-            <p style="color: #e2e8f0; font-size: 13.5px; line-height: 1.5; margin-bottom: 18px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                Sua dedicação é incrível! Próxima vida grátis em: <b style="color: #fbbf24;">⏱️ ${tempoRestanteTexto}</b>.<br>
-                Escolha como deseja continuar:
-            </p>
+            <!-- BOTÃO DE FECHAR (X) -->
+            <button onclick="document.getElementById('modal-vidas-esgotadas').remove()" aria-label="Fechar" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #94a3b8; font-size: 18px; font-weight: 800; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                ✕
+            </button>
 
+            <!-- MASCOTE -->
+            <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6)); margin-top: 4px;">
+            
+            <!-- TÍTULO -->
+            <h3 style="color: #ef4444; font-size: 19px; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);">
+                Ops! Suas Vidas Acabaram 💔
+            </h3>
+            
+            <!-- CARD DE INFORMAÇÕES COM CRONÔMETRO AO VIVO -->
+            <div style="background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 12px 14px; width: 100%; box-sizing: border-box;">
+                <p style="color: #cbd5e1; font-size: 12.5px; line-height: 1.4; margin: 0 0 4px 0;">
+                    Sua dedicação é incrível! Próxima vida grátis em: 
+                    <span>⏳</span>
+                    <b id="tempo-restante-modal-sem-vidas" style="color: #fde047; font-family: monospace; font-size: 14px; font-weight: 900; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6);">${tempoRestanteTexto}</b>
+                </p>
+                <p style="color: #94a3b8; font-size: 11px; margin: 0;">Escolha como deseja continuar:</p>
+            </div>
+
+            <!-- BOTÕES DE AÇÃO -->
             <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button onclick="document.getElementById('modal-vidas-esgotadas').remove(); window.assistirAnuncioPorVida();" class="btn-mais-vidas" style="width: 100%; padding: 12px; font-size: 14px; border-radius: 12px; justify-content: center;">
-                    🎬 Assistir Vídeo (+1 Vida Grátis)
+                
+                <!-- 1. VÍDEO (VERDE NEON) -->
+                <button onclick="document.getElementById('modal-vidas-esgotadas').remove(); window.assistirAnuncioPorVida();" style="width: 100%; min-height: 46px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.4) 100%); border: 1.5px solid #10b981; border-radius: 14px; color: #34d399; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);">
+                    <span>🎬</span>
+                    <span>Assistir Vídeo (+1 Vida Grátis)</span>
                 </button>
 
-                <button onclick="document.getElementById('modal-vidas-esgotadas').remove(); window.abrirTelaCheckoutPremium();" class="btn-comecar-desafio" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; border-color: #fbbf24 !important;">
-                    👑 SEJA PRO/PREMIUM (VIDAS ILIMITADAS)
+                <!-- 2. SEJA PRO/PREMIUM (LARANJA/DOURADO NEON) -->
+                <button onclick="document.getElementById('modal-vidas-esgotadas').remove(); window.abrirTelaCheckoutPremium();" style="width: 100%; min-height: 46px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); border: 1.5px solid #fbbf24; border-radius: 14px; color: #ffffff; font-size: 12px; font-weight: 900; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);">
+                    <span>👑</span>
+                    <span>SEJA PRO/PREMIUM (VIDAS ILIMITADAS)</span>
                 </button>
 
-                <button onclick="document.getElementById('modal-vidas-esgotadas').remove();" style="background: transparent; border: none; color: #94a3b8; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 6px;">
+                <!-- 3. AGUARDAR REGENERAÇÃO -->
+                <button onclick="document.getElementById('modal-vidas-esgotadas').remove();" style="background: transparent; border: none; color: #94a3b8; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px; text-decoration: underline; text-underline-offset: 4px;">
                     Aguardar tempo de regeneração
                 </button>
             </div>
@@ -3625,7 +3665,7 @@ window.exibirModalVidasEsgotadasTaby = function() {
 };
 
 window.abrirTelaGerenciarPlano = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
 
     const modalExistente = document.getElementById('modal-gerenciar-plano');
     if (modalExistente) modalExistente.remove();
@@ -3781,19 +3821,19 @@ window.processarPagamentoSelecionado = function() {
 };
 
 window.abrirModalComparativo = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const modalComp = document.getElementById('modal-comparativo-planos');
     if (modalComp) modalComp.style.display = 'flex';
 };
 
 window.fecharModalComparativo = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const modalComp = document.getElementById('modal-comparativo-planos');
     if (modalComp) modalComp.style.display = 'none';
 };
 
 window.fecharModalComparativoEVoltarAosPlanos = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     
     const comp = document.getElementById('modal-comparativo-planos');
     if (comp) comp.style.display = 'none';
@@ -3803,7 +3843,7 @@ window.fecharModalComparativoEVoltarAosPlanos = function() {
 };
 
 window.abrirModalPaywallComFoco = function(aba) {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const paywall = document.getElementById('modal-paywall-planos');
     if (paywall) {
         paywall.style.display = 'flex';
@@ -3825,7 +3865,6 @@ window.atualizarIndicadoresPlanoUsuario = function() {
     window.sincronizarInterfaceGlobalPlano();
 };
 //#endregion
-
 
 // =========================================================================
 // 11. RELATÓRIO PEDAGÓGICO E CHART.JS

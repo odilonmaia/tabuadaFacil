@@ -15,7 +15,7 @@
     <meta name="description" content="Aprenda matemática, pratique tabuada e dispute o ranking online de forma divertida e rápida!">
 
     <!-- CSS do Projeto -->
-    <link rel="stylesheet" href="css/style.css?v=5.0">
+    <link rel="stylesheet" href="css/style.css?v=5.2">
 
     <!-- Configurações PWA & Mobile Nativo -->
     <meta name="theme-color" content="#070a12">
@@ -102,40 +102,37 @@
                     </div>
                 </div>
 
-                <!-- BARRA SUPERIOR DE STATUS (OFENSIVA, VIDAS, TIMER, ADS E RELATÓRIO) -->
-                <div class="status-bar-global" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
-                    
-                    <!-- 1. Pílula de Ofensiva -->
+                <!-- BARRA DE STATUS GLOBAL COMPACTA E HARMONIZADA -->
+                <div class="status-bar-global">
+                    <!-- 1. OFENSIVA -->
                     <div class="status-item hud-ofensiva-futurista" id="pilula-ofensiva-dias">
                         <span class="fogo-animado">🔥</span>
-                        <span class="valor-ofensiva" id="display-ofensiva-dias">31</span>
+                        <span class="valor-ofensiva" id="contador-ofensiva-texto">0</span>
                     </div>
 
-                    <!-- 2. Pílula de Vidas -->
-                    <div class="status-item hud-vida-futurista" id="global-hearts-container">
-                        <span class="icone-vida-glow" id="icone-vida-hud">❤️</span>
+                    <!-- 2. VIDAS -->
+                    <div class="status-item hud-vida-futurista" id="global-hearts-container" title="Vidas Disponíveis">
+                        <span class="icone-vida-glow pulse" id="icone-vida-hud">❤️</span>
                         <span class="valor-vida" id="contador-vidas-texto">5</span>
                     </div>
 
-                    <!-- 3. Timer Regressivo (+1 Vida em 60 min) -->
-                    <div class="status-item pilula-timer-vidas" id="display-timer-vidas" style="display: none;">
-                        <span style="font-size: 13px; color: #f43f5e;">⚡</span>
-                        <span id="timer-contagem-regressiva" style="font-size: 13px; font-weight: 700; color: #cbd5e1;">60:00</span>
+                    <!-- 3. CRONÔMETRO DE REGENERAÇÃO DE VIDAS (FREE) -->
+                    <div class="status-item hud-timer-futurista" id="display-timer-vidas" style="display: none;">
+                        <span class="icone-timer">⏳</span>
+                        <span class="valor-timer" id="tempo-restante-vida">--:--</span>
                     </div>
 
-                    <!-- 4. Botão Assistir Vídeo (+1 Vida Extra) -->
-                    <button type="button" class="status-item btn-ganhar-vida-ads" id="btn-assistir-ad-vidas" onclick="if(typeof window.assistirAnuncioPorVida === 'function') window.assistirAnuncioPorVida();" style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
-                        <span style="font-size: 13px;">📺</span>
-                        <span style="font-size: 13px; font-weight: 800; color: #22c55e;">+1</span>
+                    <!-- 4. ASSISTIR VÍDEO (FREE) -->
+                    <button type="button" class="status-item btn-ganhar-vida-ads btn-video-neon" id="btn-assistir-ad-vidas" onclick="if(typeof window.assistirAnuncioPorVida === 'function') window.assistirAnuncioPorVida();">
+                        <span class="icone-video-neon">📺</span>
+                        <span class="texto-video-neon">+1 VIDA</span>
                     </button>
 
-                    <!-- 5. Botão de Relatório -->
-                    <div class="status-item">
-                        <button id="btn-abrir-relatorio" class="btn-relatorio-centro" onclick="window.abrirModalRelatorio(event)">
-                            📊 RELATÓRIO
-                        </button>
-                    </div>
-
+                    <!-- 5. RELATÓRIO PEDAGÓGICO (EXCLUSIVO PRO/PREMIUM) -->
+                    <button type="button" class="status-item btn-relatorio-centro" id="btn-abrir-relatorio" onclick="if(typeof window.abrirModalRelatorio === 'function') window.abrirModalRelatorio();" style="display: none;">
+                        <span>📊</span>
+                        <span>RELATÓRIO</span>
+                    </button>
                 </div>
 
                 <!-- CARD DICA DO TABY -->
@@ -419,28 +416,33 @@
         <section id="tela-jogo" class="tela oculto espaco-sideral-bg">
             <div class="estrelas-container"></div>
             <div class="app-container content-z2">
-                <div class="header-partida-hud">
-                    <div class="hud-pilula-gameplay">
-                        <div class="hud-item-gameplay">
-                            <span class="hud-label-ico">🎯</span>
-                            <span id="contador-perguntas" class="hud-valor-destaque">1/10</span>
-                        </div>
+                <!-- HEADER DA PARTIDA COM PÍLULAS PADRONIZADAS -->
+<div class="header-partida-hud">
+    <div class="hud-pilula-gameplay">
+        <!-- 1. CONTADOR DE PERGUNTAS -->
+        <div class="hud-item-gameplay">
+            <span class="hud-label-ico">🎯</span>
+            <span id="contador-perguntas" class="hud-valor-destaque">1/10</span>
+        </div>
 
-                        <div class="hud-divisor-line"></div>
+        <div class="hud-divisor-line"></div>
 
-                        <div class="hud-item-gameplay">
-                            <span id="gameplay-hearts-partida" class="hud-vidas-glow">
-                                <span class="gem-glow">💎</span> <span class="infinity-symbol">∞</span>
-                            </span>
-                        </div>
+        <!-- 2. VIDAS PADRÃO GLOBAIS (PÍLULA COM NÚMERO EXATO DE VIDAS OU INFINITO) -->
+        <div class="hud-item-gameplay">
+            <div id="gameplay-hearts-partida" class="status-item hud-vida-futurista">
+                <span class="icone-vida-glow pulse">❤️</span>
+                <span class="valor-vida" id="contador-vidas-texto">5</span>
+            </div>
+        </div>
 
-                        <div id="container-cronometro" class="hud-item-gameplay oculto">
-                            <div class="hud-divisor-line"></div>
-                            <span class="hud-label-ico">⏱️</span>
-                            <span id="cronometro-jogo" class="hud-valor-destaque">0:00.0</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- 3. CRONÔMETRO (OCULTO NO MODO TREINO / VISÍVEL NO MODO RELÂMPAGO) -->
+        <div id="container-cronometro" class="hud-item-gameplay oculto" style="display: none;">
+            <div class="hud-divisor-line"></div>
+            <span class="hud-label-ico">⏱️</span>
+            <span id="cronometro-jogo" class="hud-valor-destaque">0:00.0</span>
+        </div>
+    </div>
+</div>
 
                 <div class="card-painel-container text-center">
                     <div class="taby-gameplay-dica">
@@ -639,6 +641,55 @@
 
 <!-- MODAIS E OVERLAYS ISOLADOS -->
 
+<!-- MODAL DE VIDAS ESGOTADAS -->
+<div id="modal-sem-vidas" class="modal-overlay-ui oculto">
+    <div class="card-modal-vidas-esgotadas">
+        
+        <!-- BOTÃO DE FECHAR (X) -->
+        <button type="button" class="btn-fechar-x-modal" onclick="if(typeof window.fecharModalSemVidas === 'function') window.fecharModalSemVidas(); else document.getElementById('modal-sem-vidas').classList.add('oculto');" aria-label="Fechar">
+            ✖
+        </button>
+
+        <!-- MASCOTE -->
+        <img src="icon144.png" alt="Taby" class="robo-flutuante-modal" onerror="this.onerror=null; this.src='icon144.png';">
+
+        <!-- TÍTULO -->
+        <h2 class="titulo-vidas-esgotadas">
+            Ops! Suas Vidas Acabaram 💔
+        </h2>
+
+        <!-- CARD INFORMATIVO COM CRONÔMETRO -->
+        <div class="card-info-regeneracao">
+            <p class="texto-info-vidas">
+                Sua dedicação é incrível! Próxima vida grátis em: 
+                <span class="icone-timer-modal">⏳</span>
+                <b id="tempo-restante-modal-sem-vidas" class="tempo-destaque-neon">15:00</b>
+            </p>
+            <p class="subtexto-info-vidas">Escolha como deseja continuar:</p>
+        </div>
+
+        <!-- AÇÕES -->
+        <div class="stack-botoes-sem-vidas">
+            <!-- 1. ASSISTIR VÍDEO (VERDE NEON) -->
+            <button type="button" class="btn-assistir-video-modal" id="btn-modal-ad-vida" onclick="if(typeof window.assistirAnuncioPorVida === 'function') window.assistirAnuncioPorVida();">
+                <span>🎬</span>
+                <span>Assistir Vídeo (+1 Vida Grátis)</span>
+            </button>
+
+            <!-- 2. BECOME PRO/PREMIUM (DOURADO/LARANJA NEON) -->
+            <button type="button" class="btn-seja-pro-modal" onclick="if(typeof window.abrirPaywall === 'function') window.abrirPaywall();">
+                <span>👑</span>
+                <span>SEJA PRO/PREMIUM (VIDAS ILIMITADAS)</span>
+            </button>
+        </div>
+
+        <!-- BOTAO FECHAR / AGUARDAR -->
+        <button type="button" class="btn-aguardar-regeneracao" onclick="if(typeof window.fecharModalSemVidas === 'function') window.fecharModalSemVidas(); else document.getElementById('modal-sem-vidas').classList.add('oculto');">
+            Aguardar tempo de regeneração
+        </button>
+    </div>
+</div>
+
 <!-- 1. MODAL DE EDIÇÃO DE PERFIL -->
 <div id="form-perfil-modal" class="modal-overlay-ui oculto display-none">  
     <div class="card-painel-container">        
@@ -747,7 +798,7 @@
         <div class="modal-header-relatorio">
             <div class="titulo-relatorio-box">
                 <span class="badge-tag-relatorio">📊 PAINEL PEDAGÓGICO</span>
-                <h2>Relatório de Desempenho</h2>
+                 alienation<h2>Relatório de Desempenho</h2>
             </div>
             <button class="btn-fechar-modal" onclick="window.fecharModalRelatorio()">✖</button>
         </div>

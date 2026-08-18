@@ -291,8 +291,8 @@ body {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-top: 1.5px solid rgba(56, 189, 248, 0.3);
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     padding: 6px 4px max(6px, env(safe-area-inset-bottom)) 4px;
     z-index: 1000;
     box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5);
@@ -392,18 +392,48 @@ body {
     100% { transform: translateY(2px) rotate(-1deg); }
 }
 
-/* BARRA DE STATUS GLOBAL DO PAINEL */
+/* ==========================================================
+   BARRA DE STATUS GLOBAL E HARMONIZADA DO PAINEL
+   ========================================================== */
+
+/* Envelopamento justo e centralizado no container */
+.app-container .status-bar-global,
 .status-bar-global {
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    gap: 6px;
-    width: 100%;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content; /* Faz a borda abraçar APENAS os botões visíveis */
+    max-width: 100%;
+    margin: 0 auto;
     background: rgba(15, 23, 42, 0.75);
     border: 1.5px solid rgba(56, 189, 248, 0.3);
-    border-radius: 18px;
-    padding: 6px 10px;
+    border-radius: 20px;
+    padding: 6px 12px;
     backdrop-filter: blur(8px);
+    box-sizing: border-box;
+}
+
+/* Regra de altura e espaçamento simétrico para os itens */
+.app-container .status-bar-global .status-item,
+.app-container .status-bar-global .hud-ofensiva-futurista,
+.app-container .status-bar-global .hud-vida-futurista,
+.app-container .status-bar-global .btn-video-neon,
+.app-container .status-bar-global .btn-relatorio-centro {
+    height: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 0 10px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+    font-size: 12px;
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .status-item {
@@ -413,27 +443,16 @@ body {
 }
 
 .btn-relatorio-centro {
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.35) 100%) !important;
-    border: 1.5px solid #38bdf8 !important;
-    color: #38bdf8 !important;
-    padding: 6px 10px;
-    border-radius: 16px;
-    font-size: 11px;
-    font-weight: 800;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.35) 100%);
+    border: 1.5px solid #38bdf8;
+    color: #38bdf8;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    white-space: nowrap;
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
 }
 
 .hud-ofensiva-futurista {
     background: rgba(249, 115, 22, 0.12);
     border: 1px solid rgba(249, 115, 22, 0.4);
-    padding: 5px 10px;
-    border-radius: 16px;
 }
 
 .valor-ofensiva {
@@ -453,19 +472,54 @@ body {
 }
 
 .hud-vida-futurista {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
     background: rgba(15, 23, 42, 0.85);
     border: 1px solid rgba(56, 189, 248, 0.4);
-    border-radius: 16px;
-    padding: 5px 10px;
 }
 
 .hud-vida-futurista .valor-vida {
     font-size: 12px;
     font-weight: 900;
     color: #38bdf8;
+}
+
+/* BOTÃO DE VÍDEO NEON VERDE HARMONIZADO */
+.btn-video-neon {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.25) 100%);
+    border: 1px solid #10b981;
+    color: #34d399;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    animation: pulsoNeonVerde 2s infinite alternate;
+}
+
+.btn-video-neon:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.45);
+}
+
+.btn-video-neon:active {
+    transform: scale(0.97);
+}
+
+.icone-video-neon {
+    font-size: 13px;
+    line-height: 1;
+    filter: drop-shadow(0 0 3px #10b981);
+}
+
+.texto-video-neon {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: #6ee7b7;
+    text-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+}
+
+@keyframes pulsoNeonVerde {
+    0% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.2); }
+    100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.45); }
 }
 
 /* BOTÕES GERAIS E GRIDS */
@@ -590,28 +644,27 @@ button {
    ========================================================== */
 
 #tela-trilha {
-    overflow-x: hidden !important;
+    overflow-x: hidden;
     padding-bottom: 20px;
 }
 
-/* Redimensionamento e limite compacto do Taby na Trilha */
 #tela-trilha .balao-taby-container img,
 #balao-taby-trilha img,
 .img-taby-mini {
-    width: 60px !important;
-    height: 60px !important;
-    max-width: 60px !important;
-    max-height: 60px !important;
+    width: 60px;
+    height: 60px;
+    max-width: 60px;
+    max-height: 60px;
     object-fit: contain;
     flex-shrink: 0;
 }
 
 #tela-trilha > .app-container > img,
 #tela-trilha img.robo-flutuante {
-    width: 80px !important;
-    height: 80px !important;
-    max-width: 80px !important;
-    max-height: 80px !important;
+    width: 80px;
+    height: 80px;
+    max-width: 80px;
+    max-height: 80px;
     margin: 0 auto 10px auto;
 }
 
@@ -622,10 +675,10 @@ button {
     margin: 10px auto 14px auto;
     padding: 10px 16px;
     min-height: 50px;
-    background: rgba(15, 23, 42, 0.85) !important;
-    border: 1.5px solid rgba(52, 211, 153, 0.5) !important;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1.5px solid rgba(52, 211, 153, 0.5);
     border-radius: 16px;
-    color: #ffffff !important;
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -638,7 +691,7 @@ button {
 
 .btn-diario-bordo:hover {
     transform: translateY(-2px);
-    border-color: #34d399 !important;
+    border-color: #34d399;
     box-shadow: 0 0 22px rgba(52, 211, 153, 0.4);
 }
 
@@ -676,9 +729,9 @@ button {
 #mapa-trilha-container::-webkit-scrollbar,
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-    width: 0px !important;
-    height: 0px !important;
-    display: none !important;
+    width: 0px;
+    height: 0px;
+    display: none;
 }
 
 .tela, 
@@ -686,8 +739,8 @@ body::-webkit-scrollbar {
 #mapa-trilha-container,
 html,
 body {
-    -ms-overflow-style: none !important;
-    scrollbar-width: none !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 /* ==========================================================
@@ -760,7 +813,6 @@ body {
     width: 100%;
 }
 
-/* Indicador visual de rolagem suave nas extremidades */
 #form-perfil-modal .carrossel-avatares-wrapper {
     position: relative;
     width: 100%;
@@ -777,12 +829,10 @@ body {
     width: 100%;
 }
 
-/* Esconde a barra de rolagem */
 #form-perfil-modal .carrossel-track-ui::-webkit-scrollbar {
     display: none;
 }
 
-/* Ampliação da Moldura dos Avatares (68px) */
 #form-perfil-modal .card-avatar-slot {
     min-width: 68px;
     height: 68px;
@@ -798,7 +848,6 @@ body {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Garante o enquadramento sem achatar/espremer */
 #form-perfil-modal .card-avatar-slot img {
     width: 100%;
     height: 100%;
@@ -806,14 +855,12 @@ body {
     border-radius: 50%;
 }
 
-/* Destaque para o avatar selecionado */
 #form-perfil-modal .card-avatar-slot.selecionado {
     border-color: #38bdf8;
     box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
     transform: scale(1.06);
 }
 
-/* Card especial de Adicionar (+) */
 #form-perfil-modal .btn-add-foto-slot {
     flex-direction: column;
     font-size: 10px;
@@ -828,9 +875,8 @@ body {
     margin-bottom: 2px;
 }
 
-
 /* ==========================================================
-   OVERLAYS E MODAIS (FILHOS DIRETO DO BODY)
+   OVERLAYS E MODAIS
    ========================================================== */
 
 .modal-overlay-ui,
@@ -893,19 +939,19 @@ body {
 /* CLASSES UTILITÁRIAS DE SUPORTE */
 .text-center { text-align: center; }
 .text-blue { color: #38bdf8; }
-.margin-bottom-0 { margin-bottom: 0 !important; }
-.margin-bottom-12 { margin-bottom: 12px !important; }
-.margin-top-10 { margin-top: 10px !important; }
-.margin-top-12 { margin-top: 12px !important; }
-.margin-top-15 { margin-top: 15px !important; }
+.margin-bottom-0 { margin-bottom: 0; }
+.margin-bottom-12 { margin-bottom: 12px; }
+.margin-top-10 { margin-top: 10px; }
+.margin-top-12 { margin-top: 12px; }
+.margin-top-15 { margin-top: 15px; }
 .display-none { display: none; }
-.display-none-important { display: none !important; }
 .flex-align-center-gap { display: flex; align-items: center; gap: 10px; }
 .flex-justify-center { display: flex; justify-content: center; }
 
 /* ==========================================================
-   REGRA DE OCULTAÇÃO GLOBAL (AO FINAL DA CASCATA)
+   REGRA DE OCULTAÇÃO GLOBAL
    ========================================================== */
+
 .oculto,
 body .oculto,
 div.oculto,
@@ -914,14 +960,13 @@ button.oculto,
 span.oculto,
 .modal-overlay-ui.oculto,
 .paywall-overlay.oculto {
-    display: none !important;
+    display: none;
 }
 
 /* ==========================================================
-   TELA DE JOGO (#tela-jogo) - ESPECIFICIDADE SEM !IMPORTANT
+   TELA DE JOGO (#tela-jogo)
    ========================================================== */
 
-/* 1. Botão Desistir e Sair com Tema Dark/Futurista */
 #tela-jogo .btn-desistir-futurista {
     background: rgba(239, 68, 68, 0.12);
     border: 1.5px solid rgba(239, 68, 68, 0.4);
@@ -945,22 +990,19 @@ span.oculto,
     color: #ffffff;
 }
 
-/* 2. Ocultar Barra Inferior durante a Partida */
 .bottom-nav-app.oculto-na-partida {
     display: none;
 }
 
-/* 3. Container do Taby + Balão alinhados e colados */
 #tela-jogo .taby-gameplay-dica {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px; /* Garante aproximação da ponta do balão ao Taby */
-    width: auto; /* Impede a expansão e o afastamento lateral */
+    gap: 6px;
+    width: auto;
     margin: 0 auto 12px auto;
 }
 
-/* 4. Mascote Taby em tamanho proporcional dentro do gameplay */
 #tela-jogo .taby-gameplay-dica img {
     width: 44px;
     height: 44px;
@@ -971,7 +1013,6 @@ span.oculto,
     filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
 }
 
-/* 5. Balão de Fala Futurista */
 #tela-jogo .taby-gameplay-dica span {
     position: relative;
     background: rgba(15, 23, 42, 0.85);
@@ -985,7 +1026,6 @@ span.oculto,
     white-space: nowrap;
 }
 
-/* 6. Indicador Triangular da Ponta do Balão */
 #tela-jogo .taby-gameplay-dica span::before {
     content: '';
     position: absolute;
@@ -1000,7 +1040,7 @@ span.oculto,
 }
 
 /* ==========================================================
-   HUD GAMEPLAY (PÍLULA NEON TOPO DO JOGO)
+   HUD GAMEPLAY
    ========================================================== */
 
 #tela-jogo .header-partida-hud {
@@ -1048,7 +1088,6 @@ span.oculto,
     letter-spacing: 0.5px;
 }
 
-/* Brilho e Destaque no Ícone de Diamante/Vidas */
 #tela-jogo .hud-vidas-glow {
     display: flex;
     align-items: center;
@@ -1072,7 +1111,6 @@ span.oculto,
    TELA FINAL FUTURISTA (#tela-final)
    ========================================================== */
 
-/* Cabeçalho Unificado Taby + Título */
 #tela-final .taby-vitoria-header {
     display: flex;
     align-items: center;
@@ -1114,7 +1152,6 @@ span.oculto,
     margin: 2px 0 0 0;
 }
 
-/* Stack de Botões Padronizados */
 #tela-final .botoes-pos-partida-stack {
     width: 100%;
     display: flex;
@@ -1123,7 +1160,6 @@ span.oculto,
     margin-top: 14px;
 }
 
-/* Botão Secundário de Voltar com Estilo Sci-Fi Neon */
 #tela-final .btn-voltar-futurista {
     width: 100%;
     padding: 14px 20px;
@@ -1160,7 +1196,6 @@ span.oculto,
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
 }
 
-/* Header do Modal */
 #modal-relatorio .modal-header-relatorio {
     display: flex;
     justify-content: space-between;
@@ -1176,7 +1211,6 @@ span.oculto,
     cursor: pointer;
 }
 
-/* Foto do Aluno e Info */
 #modal-relatorio .perfil-relatorio-header {
     display: flex;
     align-items: center;
@@ -1193,7 +1227,6 @@ span.oculto,
     border: 1.5px solid #38bdf8;
 }
 
-/* Seletor de Perfil */
 #modal-relatorio .seletor-dependente-box {
     display: flex;
     flex-direction: column;
@@ -1213,7 +1246,6 @@ span.oculto,
     font-size: 12px;
 }
 
-/* Abas de Navegação do Relatório */
 #modal-relatorio .abas-relatorio-nav {
     display: flex;
     gap: 6px;
@@ -1240,7 +1272,6 @@ span.oculto,
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
-/* Grid de Métricas 2x2 */
 #modal-relatorio .grid-metricas-relatorio {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1279,7 +1310,6 @@ span.oculto,
     color: #94a3b8;
 }
 
-/* Tabela Pedagógica */
 #modal-relatorio .secao-detalhamento-op {
     width: 100%;
     overflow-x: auto;
@@ -1308,7 +1338,6 @@ span.oculto,
    ESTILIZAÇÃO DA TELA MODO ESTUDO (#tela-aprender)
    ========================================================== */
 
-/* Botões de Operação do Modo Estudo */
 #tela-aprender .btn-op-estudo {
     background: rgba(30, 41, 59, 0.85);
     border: 1.5px solid rgba(56, 189, 248, 0.3);
@@ -1335,7 +1364,6 @@ span.oculto,
     transform: translateY(-2px);
 }
 
-/* Padronização do Botão Voltar ao Painel */
 #tela-aprender .btn-voltar-futurista {
     width: 100%;
     margin-top: 12px;
@@ -1358,7 +1386,7 @@ span.oculto,
 }
 
 /* ==========================================================
-   VISUALIZAÇÃO DE TABUADAS (#tela-visualizar-tabuadas - ZERO SCROLL)
+   VISUALIZAÇÃO DE TABUADAS (#tela-visualizar-tabuadas)
    ========================================================== */
 
 #tela-visualizar-tabuadas .content-vazia-no-scroll {
@@ -1369,7 +1397,6 @@ span.oculto,
     padding-bottom: 2px;
 }
 
-/* Badge Header do Título */
 #tela-visualizar-tabuadas .badge-header-operacao {
     display: inline-flex;
     align-items: center;
@@ -1392,7 +1419,6 @@ span.oculto,
     text-transform: uppercase;
 }
 
-/* Card Container da Lista Ajustado */
 #tela-visualizar-tabuadas .resultado-tabuada-compacto,
 #tela-visualizar-tabuadas .resultado-tabuada-box {
     flex: 1;
@@ -1407,7 +1433,6 @@ span.oculto,
     backdrop-filter: blur(8px);
 }
 
-/* Lista Única Vertical Compacta */
 .lista-tabuada-1col {
     display: flex;
     flex-direction: column;
@@ -1417,7 +1442,6 @@ span.oculto,
     width: 100%;
 }
 
-/* Linhas com Fonte de 14px e Padding Otimizado */
 .item-linha-tabuada-enxuta {
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(56, 189, 248, 0.22);
@@ -1438,7 +1462,6 @@ span.oculto,
     font-size: 16px;
 }
 
-/* Área dos Seletores Inferiores (Thumb Zone) */
 #tela-visualizar-tabuadas .secao-interativa-thumbzone {
     width: 100%;
 }
@@ -1453,7 +1476,6 @@ span.oculto,
     text-align: center;
 }
 
-/* Grid Numérico a 100% da Largura */
 #tela-visualizar-tabuadas .grid-num-tabuada {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -1462,7 +1484,6 @@ span.oculto,
     width: 100%;
 }
 
-/* Botões Numéricos Levemente Mais Enxutos */
 #tela-visualizar-tabuadas .btn-num-tabuada {
     width: 100%;
     background: #1e293b;
@@ -1487,7 +1508,6 @@ span.oculto,
     transform: translateY(-1px);
 }
 
-/* Botão Voltar às Operações Compacto */
 #tela-visualizar-tabuadas .btn-voltar-futurista {
     width: 100%;
     padding: 10px 16px;
@@ -1509,7 +1529,7 @@ span.oculto,
 }
 
 /* ==========================================================
-   REFORMA COMPLETA DO MODAL DE PERFIL (#form-perfil-modal)
+   MODAL DE PERFIL (#form-perfil-modal)
    ========================================================== */
 
 #form-perfil-modal .card-painel-container {
@@ -1522,7 +1542,6 @@ span.oculto,
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
-/* Título e Grupos */
 #form-perfil-modal .titulo-edicao-perfil {
     font-size: 18px;
     font-weight: 800;
@@ -1539,7 +1558,6 @@ span.oculto,
     margin-bottom: 6px;
 }
 
-/* Input do Nome Estilizado */
 #form-perfil-modal .input-futurista {
     width: 100%;
     background: #1e293b;
@@ -1557,66 +1575,6 @@ span.oculto,
     border-color: #38bdf8;
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
-
-/* Galeria e Carrossel de Avatares */
-#form-perfil-modal .secao-galeria-perfil {
-    margin: 16px 0;
-    width: 100%;
-}
-
-#form-perfil-modal .carrossel-avatares-wrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-}
-
-#form-perfil-modal .carrossel-track-ui {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding: 8px 4px;
-    width: 100%;
-}
-
-/* Esconde a barra de rolagem */
-#form-perfil-modal .carrossel-track-ui::-webkit-scrollbar {
-    display: none;
-}
-
-/* Moldura Ampliada dos Avatares (68px) */
-#form-perfil-modal .card-avatar-slot {
-    position: relative;
-    min-width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    background: #1e293b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#form-perfil-modal .card-avatar-slot img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-#form-perfil-modal .card-avatar-slot.selecionado {
-    border-color: #38bdf8;
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
-    transform: scale(1.06);
-}
-
-/* ==========================================================
-   CORREÇÃO DO BOTÃO DELETAR (CIRCULAR PERFEITO)
-   ========================================================== */
 
 #form-perfil-modal div.card-avatar-slot.is-custom,
 .card-avatar-slot.is-custom {
@@ -1655,32 +1613,11 @@ span.oculto,
 
 #form-perfil-modal .btn-deletar-foto-custom:hover,
 .btn-deletar-foto-custom:hover {
-    background: #dc2626;
-    transform: scale(1.1);
-}
-
-#form-perfil-modal .btn-deletar-foto-custom:hover {
     background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%);
     transform: scale(1.15);
     box-shadow: 0 0 12px rgba(239, 68, 68, 0.9), 0 3px 8px rgba(0, 0, 0, 0.8);
 }
 
-/* Card Especial de Adicionar Foto (+) */
-#form-perfil-modal .btn-add-foto-slot {
-    flex-direction: column;
-    font-size: 10px;
-    font-weight: 700;
-    color: #94a3b8;
-    border: 2px dashed rgba(56, 189, 248, 0.4);
-    background: rgba(30, 41, 59, 0.5);
-}
-
-#form-perfil-modal .icone-add-circulo {
-    font-size: 16px;
-    margin-bottom: 2px;
-}
-
-/* Botões Principais (Salvar / Cancelar) */
 #form-perfil-modal .acoes-form-row {
     display: flex;
     gap: 10px;
@@ -1712,13 +1649,13 @@ span.oculto,
     cursor: pointer;
 }
 
-/* Seção Inferior: Sair e Excluir */
 #form-perfil-modal .secao-exclusao-perfil {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-top: 14px;
+    margin-bottom: 12px;
     padding-top: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -1760,16 +1697,6 @@ span.oculto,
     color: #f87171;
 }
 
-/* ==========================================================
-   ESTILIZAÇÃO DO BALÃO DE AVISO DE LIMITE
-   ========================================================== */
-
-#form-perfil-modal .secao-galeria-perfil {
-    position: relative;
-    margin: 16px 0;
-    width: 100%;
-}
-
 .balao-alerta-limite {
     background: rgba(239, 68, 68, 0.15);
     border: 1.5px solid #ef4444;
@@ -1792,29 +1719,6 @@ span.oculto,
     transform: translateY(0);
 }
 
-/* ==========================================================
-   CARROSSEL COM SETAS INTERNAS HARMONIOSAS E SEM CORTE
-   ========================================================== */
-/* ==========================================================
-   EFEITO DE BORDAS SUAVES (FADE NEON) NO CARROSSEL
-   ========================================================== */
-
-#form-perfil-modal .secao-galeria-perfil {
-    position: relative;
-    margin: 16px 0;
-    width: 100%;
-}
-
-#form-perfil-modal .carrossel-avatares-wrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding: 0 30px; /* Área para as setas flutuarem */
-    box-sizing: border-box;
-}
-
-/* Trilho com Máscara Gradiente de Transparência nas Pontas */
 #form-perfil-modal .carrossel-track-ui {
     display: flex;
     gap: 12px;
@@ -1825,17 +1729,10 @@ span.oculto,
     width: 100%;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    
-    /* Suaviza o corte do avatar nas bordas esquerda e direita */
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
     mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 
-#form-perfil-modal .carrossel-track-ui::-webkit-scrollbar {
-    display: none;
-}
-
-/* Setas Neon com Área Protegida */
 #form-perfil-modal .btn-carrossel-seta {
     position: absolute;
     top: 50%;
@@ -1877,20 +1774,8 @@ span.oculto,
     right: 4px;
 }
 
-/* ==========================================================
-   PADRONIZAÇÃO DAS ALÇAS DO CROPPER (USANDO ESPECIFICIDADE)
-   ========================================================== */
-
-/* Padroniza todas as alças azuis como pequenos círculos idênticos */
-#modal-corte-foto .cropper-container .cropper-crop-box .cropper-point {
-    width: 8px;
-    height: 8px;
-    background-color: #38bdf8;
-    border-radius: 50%;
-    opacity: 0.85;
-}
-
-/* Corrige o tamanho desproporcional da alça Sudeste (inferior direita) */
+/* CROPPER JS ALÇAS */
+#modal-corte-foto .cropper-container .cropper-crop-box .cropper-point,
 #modal-corte-foto .cropper-container .cropper-crop-box .cropper-point.point-se {
     width: 8px;
     height: 8px;
@@ -1899,15 +1784,11 @@ span.oculto,
     opacity: 0.85;
 }
 
-/* Esconde a pseudo-caixa interna de dimensionamento se existir */
 #modal-corte-foto .cropper-container .cropper-crop-box .cropper-point.point-se::before {
     display: none;
 }
 
-/* ==========================================================
-   CARD DE INFORMAÇÕES DA CONTA (E-MAIL E PLANO)
-   ========================================================== */
-
+/* CARD INFORMAÇÕES DA CONTA */
 #form-perfil-modal .divisor-secao-ui {
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -1962,17 +1843,360 @@ span.oculto,
     letter-spacing: 0.5px;
 }
 
-/* ==========================================================
-   AJUSTE DE HIERARQUIA E ESPAÇAMENTO DO MODAL DE EDIÇÃO
-   ========================================================== */
-
 #form-perfil-modal .margin-top-12 {
     margin-top: 16px;
 }
 
-#form-perfil-modal .secao-exclusao-perfil {
+/* Estilo harmonizado para o Cronômetro */
+.app-container .status-bar-global .hud-timer-futurista,
+.hud-timer-futurista {
+    height: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 0 10px;
+    border-radius: 16px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(234, 179, 8, 0.4);
+    color: #fde047;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    box-sizing: border-box;
+}
+
+.hud-timer-futurista .icone-timer {
+    font-size: 12px;
+}
+
+.hud-timer-futurista .valor-timer {
+    font-family: monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================
+   MODAL FUTURISTA DE VIDAS ESGOTADAS
+   ========================================================== */
+
+/* Container Principal do Card */
+.card-modal-vidas-esgotadas {
+    background: #0f172a;
+    border: 1.5px solid rgba(239, 68, 68, 0.5);
+    border-radius: 24px;
+    padding: 24px 18px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.25), 0 20px 50px rgba(0, 0, 0, 0.9);
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.robo-flutuante-modal {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6));
+    animation: flutuarEBrilhar 3.5s ease-in-out infinite alternate;
+}
+
+.titulo-vidas-esgotadas {
+    font-size: 20px;
+    font-weight: 900;
+    color: #ef4444;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    margin: 0;
+}
+
+/* Card de Regeneração Interno */
+.card-info-regeneracao {
+    background: rgba(30, 41, 59, 0.75);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    padding: 12px 14px;
+    width: 100%;
+}
+
+.texto-info-vidas {
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+
+.tempo-destaque-neon {
+    color: #fde047;
+    font-family: monospace;
+    font-size: 15px;
+    font-weight: 900;
+    text-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
+    margin-left: 4px;
+}
+
+.subtexto-info-vidas {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Stack de Botões de Ação */
+.stack-botoes-sem-vidas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* 1. Botão Assistir Vídeo Neon Verde */
+.btn-assistir-video-modal {
+    width: 100%;
+    min-height: 48px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.35) 100%);
+    border: 1.5px solid #10b981;
+    border-radius: 14px;
+    color: #34d399;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
-    margin-bottom: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-assistir-video-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.5);
+    color: #ffffff;
+}
+
+/* 2. Botão Seja PRO / Premium */
+.btn-seja-pro-modal {
+    width: 100%;
+    min-height: 48px;
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    border: 1.5px solid #fbbf24;
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-seja-pro-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px rgba(251, 191, 36, 0.6);
+}
+
+.icone-btn-modal {
+    font-size: 16px;
+}
+
+/* Botão de Fechar / Aguardar */
+.btn-aguardar-regeneracao {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color 0.2s ease;
+    min-height: auto;
+}
+
+.btn-aguardar-regeneracao:hover {
+    color: #e2e8f0;
+}
+
+/* ==========================================================
+   ESTILIZAÇÃO UNIFICADA E ABSOLUTA: MODAL VIDAS ESGOTADAS
+   ========================================================== */
+
+/* 1. MOLDURA DO CARD */
+#modal-sem-vidas .card-modal-vidas-esgotadas,
+#modal-vidas-esgotadas .card-modal-vidas-esgotadas,
+#modal-sem-vidas > div,
+.modal-overlay-ui .card-modal-vidas-esgotadas {
+    position: relative;
+    background: #0f172a;
+    border: 1.5px solid rgba(239, 68, 68, 0.5);
+    border-radius: 24px;
+    padding: 24px 18px 20px 18px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.25), 0 20px 50px rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-sizing: border-box;
+}
+
+/* 2. BOTÃO FECHAR (X) NO CANTO SUPERIOR RIGHT */
+#modal-sem-vidas .btn-fechar-x-modal,
+#modal-sem-vidas .btn-fechar-modal,
+.card-modal-vidas-esgotadas .btn-fechar-x-modal {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+    min-height: auto;
+    z-index: 20;
+}
+
+#modal-sem-vidas .btn-fechar-x-modal:hover,
+#modal-sem-vidas .btn-fechar-modal:hover {
+    color: #ef4444;
+    transform: scale(1.15);
+}
+
+/* 3. CARD DE INFORMAÇÕES E CRONÔMETRO */
+#modal-sem-vidas .card-info-regeneracao,
+#modal-sem-vidas div[class*="card-info"],
+#modal-sem-vidas div:has(> #tempo-restante-modal-sem-vidas) {
+    background: rgba(30, 41, 59, 0.75);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    padding: 12px 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#modal-sem-vidas .texto-info-vidas,
+#modal-sem-vidas p {
+    font-size: 12.5px;
+    color: #cbd5e1;
+    line-height: 1.4;
+    margin: 0 0 4px 0;
+}
+
+#modal-sem-vidas .tempo-destaque-neon,
+#modal-sem-vidas b[id*="tempo"],
+#modal-sem-vidas span[id*="tempo"] {
+    color: #fde047;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 900;
+    text-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
+}
+
+/* 4. BOTÃO 1: ASSISTIR VÍDEO (+1 VIDA) - FORÇANDO VERDE NEON */
+#modal-sem-vidas button[onclick*="assistir"],
+#modal-sem-vidas .btn-assistir-video-modal,
+#btn-modal-ad-vida {
+    width: 100%;
+    min-height: 46px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.4) 100%);
+    border: 1.5px solid #10b981;
+    border-radius: 14px;
+    color: #34d399;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#modal-sem-vidas button[onclick*="assistir"]:hover,
+#modal-sem-vidas .btn-assistir-video-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px rgba(52, 211, 153, 0.5);
+    color: #ffffff;
+}
+
+/* 5. BOTÃO 2: SEJA PRO / PREMIUM - LARANJA / DOURADO NEON */
+#modal-sem-vidas button[onclick*="Paywall"],
+#modal-sem-vidas button[onclick*="paywall"],
+#modal-sem-vidas .btn-seja-pro-modal {
+    width: 100%;
+    min-height: 46px;
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    border: 1.5px solid #fbbf24;
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#modal-sem-vidas button[onclick*="Paywall"]:hover,
+#modal-sem-vidas .btn-seja-pro-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 22px rgba(251, 191, 36, 0.6);
+}
+
+/* 6. LINK/BOTÃO INFERIOR AGUARDAR REGENERAÇÃO */
+#modal-sem-vidas .btn-aguardar-regeneracao,
+#modal-sem-vidas button:last-child {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    box-shadow: none;
+    min-height: auto;
+}
+
+/* Ajuste fino do HUD de gameplay para pílula unificada */
+.header-partida-hud .hud-vida-futurista {
+    background: transparent;
+    border: none;
+    padding: 0;
+    height: auto;
+    min-height: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.header-partida-hud .hud-vida-futurista .valor-vida {
+    font-size: 13px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+/* Oculta o divisor de linha quando o cronômetro estiver oculto */
+#container-cronometro.oculto {
+    display: none !important;
 }

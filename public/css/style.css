@@ -571,12 +571,29 @@ button {
     box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
 }
 
+/* ==========================================================
+   CONFIGURADOR DO DESAFIO & MODO INSANO
+   ========================================================== */
+
+/* 1. MODO INSANO (LARGURA TOTAL E RESPIRO INTERNO) */
 .btn-insano-destaque {
     background: rgba(127, 29, 29, 0.6);
     border: 1.5px solid #ef4444;
     color: #fca5a5;
     font-weight: 800;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 52px;
+    height: 52px;
+    padding: 0 42px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 14px;
+    transition: all 0.2s ease;
 }
 
 .btn-insano-destaque.selecionado {
@@ -586,6 +603,58 @@ button {
     box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
 }
 
+/* 2. PADRONIZAÇÃO DOS BOTÕES DO GRID (TREINO, RELÂMPAGO E OPERAÇÕES) */
+.configurador-desafio-box .grid-2-cols button.btn-modo,
+.configurador-desafio-box .grid-2-cols button.btn-op-redesign {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 52px;
+    height: 52px;
+    padding: 0 32px 0 16px;
+    box-sizing: border-box;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* Destaque visual quando selecionado */
+.configurador-desafio-box .grid-2-cols button.btn-modo.selecionado,
+.configurador-desafio-box .grid-2-cols button.btn-op-redesign.selecionado {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+}
+
+/* 3. ÍCONE DE INFORMAÇÃO (i) UNIFICADO E ISOLADO */
+.btn-info-ico {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+}
+
+/* 4. PROTEÇÃO PARA OCULTAR ELEMENTOS COM ALTA ESPECIFICIDADE */
+.configurador-desafio-box .oculto,
+.oculto {
+    display: none;
+}
+
+/* 5. BOTÕES DE AÇÃO DO FLUXO */
 .btn-comecar-desafio {
     width: 100%;
     background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
@@ -599,31 +668,12 @@ button {
     min-height: 48px;
     box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: 12px;
 }
 
 .btn-comecar-desafio:hover {
     transform: translateY(-1px);
     box-shadow: 0 0 22px rgba(56, 189, 248, 0.6);
-}
-
-.btn-info-ico {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #ffffff;
-    font-size: 10px;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
 }
 
 .btn-voltar-futurista {
@@ -2198,5 +2248,5 @@ span.oculto,
 
 /* Oculta o divisor de linha quando o cronômetro estiver oculto */
 #container-cronometro.oculto {
-    display: none !important;
+    display: none;
 }

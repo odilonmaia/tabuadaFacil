@@ -401,12 +401,10 @@ onAuthStateChanged(auth, async (user) => {
 
         const fotoGoogle = user.photoURL || null;
         
-        // Chamada protegida
         if (typeof window.carregarOuCriarPerfilPrincipal === 'function') {
             window.carregarOuCriarPerfilPrincipal(user.uid, primeiroNome, user.email, fotoGoogle);
         }
 
-        // Renderiza o painel principal
         window.irParaPainelJogo();
     } else {
         usuarioAtualLogado = null;
@@ -416,9 +414,7 @@ onAuthStateChanged(auth, async (user) => {
         window.mudarTela('tela-autenticacao');
     }
 });
-        // =========================================================================
-// FUNÇÃO AUXILIAR DE CRIAÇÃO/CARREGAMENTO DE PERFIL PRINCIPAL
-// =========================================================================
+
 window.carregarOuCriarPerfilPrincipal = function(uid, nome, email, fotoUrl) {
     let perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
     let perfilAtivo = perfisLocais.find(p => p.uid === uid || p.id === uid);
@@ -445,6 +441,7 @@ window.carregarOuCriarPerfilPrincipal = function(uid, nome, email, fotoUrl) {
         window.atualizarHeaderPerfilAtivo();
     }
 };
+
 window.fazerLoginGoogle = async function() {
     try {
         const provider = new GoogleAuthProvider();
@@ -547,33 +544,24 @@ async function reautenticarResponsavel(senhaDigitada = null) {
 // =========================================================================
 //#region [4] PERFIS, GALERIA E AVATARES
 
-/* ==========================================================
-   GERENCIADOR CENTRALIZADOR DE PLANO E PRIVILÉGIOS (SSOT)
-   ========================================================== */
-
-// 1. Retorna o plano ativo verificado ('gratis', 'pro' ou 'premium')
 window.obterPlanoAtivo = function() {
     const perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
     const planoSalvo = localStorage.getItem('usuario_plano') || perfilAtivo.plano || 'gratis';
     return planoSalvo.toLowerCase();
 };
 
-// 2. Define o plano e propaga para TODO o aplicativo
 window.definirPlanoAtivo = function(novoPlano) {
     const planoTratado = (novoPlano || 'gratis').toLowerCase();
     
-    // Atualiza armazenamento local
     localStorage.setItem('usuario_plano', planoTratado);
     
     let perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
     perfilAtivo.plano = planoTratado;
     localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
 
-    // Re-sincroniza toda a interface do app
     window.sincronizarInterfaceGlobalPlano();
 };
 
-// 3. Atualiza botões, pílulas, anúncios e vidas em tempo real
 window.sincronizarInterfaceGlobalPlano = function() {
     let plano = 'free';
     if (typeof window.obterPlanoAtivo === 'function') {
@@ -586,7 +574,6 @@ window.sincronizarInterfaceGlobalPlano = function() {
 
     const ehPago = (plano === 'pro' || plano === 'premium');
 
-    // 1. PÍLULA DO TOPO (Header)
     const elTopo = document.getElementById('badge-status-pro-topo') || document.querySelector('.badge-status-pro-topo');
     if (elTopo) {
         if (ehPago) {
@@ -603,7 +590,6 @@ window.sincronizarInterfaceGlobalPlano = function() {
         }
     }
 
-    // 2. ATUALIZA TEXTO E ÍCONE DE VIDAS NA DASHBOARD
     const elIconeVida = document.getElementById('icone-vida-hud');
     const elContadorVidas = document.getElementById('contador-vidas-texto');
     const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
@@ -618,24 +604,20 @@ window.sincronizarInterfaceGlobalPlano = function() {
         }
     }
 
-    // 3. REGRA DE SUBSTITUIÇÃO: VÍDEO vs RELATÓRIO
     const btnVideo = document.getElementById('btn-assistir-ad-vidas');
     const btnRelatorio = document.getElementById('btn-abrir-relatorio');
     const elTimer = document.getElementById('display-timer-vidas');
 
     if (ehPago) {
-        // Modo PAGO: Esconde Vídeo/Timer e Exibe Relatório
         if (btnVideo) btnVideo.style.display = 'none';
         if (elTimer) elTimer.style.display = 'none';
         if (btnRelatorio) btnRelatorio.style.display = 'inline-flex';
     } else {
-        // Modo FREE: Exibe Vídeo/Timer e Esconde Relatório
         if (btnVideo) btnVideo.style.display = 'inline-flex';
         if (elTimer) elTimer.style.display = (saldoVidas < 5) ? 'inline-flex' : 'none';
         if (btnRelatorio) btnRelatorio.style.display = 'none';
     }
 
-    // 4. PÍLULA NO MODAL EDITAR PERFIL
     const elPlanoModal = document.getElementById('display-plano-conta');
     if (elPlanoModal) {
         elPlanoModal.innerText = ehPago ? plano.toUpperCase() : 'FREE';
@@ -644,7 +626,6 @@ window.sincronizarInterfaceGlobalPlano = function() {
         elPlanoModal.style.background = ehPago ? (plano === 'pro' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 215, 0, 0.15)') : 'rgba(148, 163, 184, 0.15)';
     }
 
-    // 5. ATUALIZA CORAÇÕES NA PARTIDA / TRILHA
     if (typeof window.atualizarHUDVidasPartida === 'function') {
         window.atualizarHUDVidasPartida();
     }
@@ -668,7 +649,6 @@ window.abrirEdicaoPerfil = async function() {
     const modalForm = document.getElementById('form-perfil-modal');
     const perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
 
-    // 1. Descobre o plano REAL ativo pela SSOT (função global ou localStorage)
     let planoAtual = 'free';
     if (typeof window.obterPlanoAtivo === 'function') {
         planoAtual = window.obterPlanoAtivo();
@@ -677,7 +657,6 @@ window.abrirEdicaoPerfil = async function() {
     }
     planoAtual = String(planoAtual).toLowerCase();
 
-    // 2. Preenche os dados básicos no formulário
     const inputNome = document.getElementById('input-nome-perfil');
     if (inputNome) inputNome.value = perfilAtivo.nome || '';
 
@@ -687,7 +666,6 @@ window.abrirEdicaoPerfil = async function() {
         elEmail.innerText = (user && user.email) ? user.email : (perfilAtivo.email || 'Conta Local');
     }
 
-    // 3. FORÇA A ATUALIZAÇÃO DA PÍLULA DO MODAL (Resolve o "FREE")
     const elPlanoModal = document.getElementById('display-plano-conta');
     if (elPlanoModal) {
         const ehPago = (planoAtual === 'pro' || planoAtual === 'premium');
@@ -697,10 +675,9 @@ window.abrirEdicaoPerfil = async function() {
         elPlanoModal.style.background = ehPago ? 'rgba(56, 189, 248, 0.15)' : 'rgba(148, 163, 184, 0.15)';
     }
 
-    // 4. Exibe o modal na tela
     if (modalForm) {
         modalForm.classList.remove('oculto');
-        modalForm.style.setProperty('display', 'block', 'important');
+        modalForm.style.display = 'block';
     }
 
     if (typeof window.renderizarGaleriaPerfil === 'function') {
@@ -880,7 +857,7 @@ window.abrirTelaSelecaoPerfis = function() {
     }
 
     if (gridPerfis) {
-        gridPerfis.style.setProperty('display', 'grid', 'important');
+        gridPerfis.style.display = 'grid';
         gridPerfis.style.visibility = 'visible';
         gridPerfis.classList.remove('oculto');
         
@@ -920,7 +897,7 @@ window.tentarAdicionarNovoPerfil = function() {
     if (gridPerfis) gridPerfis.style.display = 'none';
 
     if (formModal) {
-        formModal.style.setProperty('display', 'block', 'important');
+        formModal.style.display = 'block';
         formModal.classList.remove('oculto');
     }
 };
@@ -1029,7 +1006,7 @@ window.abrirFormEditarPerfil = function(idPerfil, nomeAtual, skinAtual) {
     window.selecionarSkinForm(skinParaSelecionar);
 
     if (formModal) {
-        formModal.style.setProperty('display', 'block', 'important');
+        formModal.style.display = 'block';
         formModal.classList.remove('oculto');
     }
     if (typeof window.renderizarGaleriaPerfil === 'function') {
@@ -1117,7 +1094,6 @@ window.selecionarSkinForm = function(skinKey, imgSrc, el) {
     }
 };
 
-/* FUNÇÕES DE VALIDAÇÃO DO UPLOAD E EXIBIÇÃO DO BALÃO */
 window.solicitarAdicionarFoto = function(event) {
     if (event && event.stopPropagation) {
         event.stopPropagation();
@@ -1159,7 +1135,6 @@ window.exibirBalaoLimiteFotos = function() {
     }, 4000);
 };
 
-/* RENDERIZAÇÃO DA GALERIA ATUALIZADA */
 window.renderizarGaleriaPerfil = function() {
     const grid = document.getElementById("grid-galeria-avatares");
     const btnAdd = document.getElementById("btn-card-add-foto");
@@ -1244,7 +1219,6 @@ window.excluirFotoGaleria = function(index) {
     }
 };
 
-/* CROPPER COM MÁSCARA CIRCULAR E BOTÃO DE FECHAR REDONDO */
 window.carregarFotoParaAjuste = function(event) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -1465,7 +1439,6 @@ window.fecharModalCorte = function() {
     }
 };
 
-/* NAVEGAÇÃO DO CARROSSEL VIA BOTÕES DE SETA */
 window.rolarCarrosselAvatares = function(direcao) {
     const track = document.getElementById("grid-galeria-avatares");
     if (!track) return;
@@ -1474,7 +1447,6 @@ window.rolarCarrosselAvatares = function(direcao) {
     track.scrollBy({ left: distancia, behavior: 'smooth' });
 };
 
-/* SUPORTE PARA ARRASTAR O CARROSSEL USANDO O MOUSE EM DESKTOPS */
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.getElementById("grid-galeria-avatares");
     if (!track) return;
@@ -1566,57 +1538,57 @@ window.removerFotoGaleria = async function(urlFoto) {
 // =========================================================================
 //#region [5] NAVEGAÇÃO E PAINEL INICIAL
 
-// ROTEADOR CENTRALIZADO E SEGURO DE TELAS (COM SINCRONIZAÇÃO AUTOMÁTICA DA BOTTOM NAV)
 window.mudarTela = function(idTela) {
     if (typeof window.tocarSom === 'function') {
         window.tocarSom('clique');
     }
 
-    // 1. Oculta todas as telas limpando estilos inline conflitantes
-    document.querySelectorAll('.app-content-area > .tela').forEach(t => {
+    // Esconde todas as telas
+    document.querySelectorAll('.tela, .app-content-area > div').forEach(t => {
         t.classList.remove('ativo');
         t.classList.add('oculto');
         t.style.display = 'none';
     });
 
-    // 2. Oculta modal de perfis se estiver aberto
     const telaPerfis = document.getElementById('tela-selecao-perfis');
     if (telaPerfis && idTela !== 'tela-selecao-perfis') {
         telaPerfis.classList.add('oculto');
         telaPerfis.style.display = 'none';
     }
 
-    // 3. Exibe a tela alvo com o tipo de display correto
+    // Exibe a tela alvo com o estilo correspondente
     const telaAlvo = document.getElementById(idTela);
     if (telaAlvo) {
         telaAlvo.classList.remove('oculto');
         telaAlvo.classList.add('ativo');
         
-        // Mantém o display correto sem quebrar o fluxo interno do container
-        telaAlvo.style.display = 'block';
-        
+        if (idTela === 'tela-jogo' || idTela === 'tela-pre-jogo' || idTela === 'tela-painel-jogo') {
+            telaAlvo.style.display = 'flex';
+            telaAlvo.style.flexDirection = 'column';
+        } else {
+            telaAlvo.style.display = 'block';
+        }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     sincronizarBottomNav(idTela);
 };
 
-// Sincroniza o botão destacado na barra inferior de acordo com a tela atual
 function sincronizarBottomNav(idTela) {
     const botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
     if (!botoesNav || botoesNav.length === 0) return;
 
     botoesNav.forEach(b => b.classList.remove('ativo'));
 
-    // Mapeamento das telas para os botões correspondentes da Bottom Nav
     if (idTela === 'tela-painel-jogo') {
-        botoesNav[0]?.classList.add('ativo'); // Treino
+        botoesNav[0]?.classList.add('ativo');
     } else if (idTela === 'tela-trilha') {
-        botoesNav[1]?.classList.add('ativo'); // Trilha
+        botoesNav[1]?.classList.add('ativo');
     } else if (idTela === 'tela-aprender' || idTela === 'tela-visualizar-tabuadas') {
-        botoesNav[2]?.classList.add('ativo'); // Estudo
+        botoesNav[2]?.classList.add('ativo');
     } else if (idTela === 'tela-ranking') {
-        botoesNav[3]?.classList.add('ativo'); // Ranking
+        botoesNav[3]?.classList.add('ativo');
     }
 }
 
@@ -1954,23 +1926,23 @@ window.abrirModalCuriosidadeEspacial = function(faseObj) {
     const modal = document.createElement('div');
     modal.id = 'modal-curiosidade-trilha';
     modal.style.cssText = `
-        position: fixed !important; 
-        top: 0 !important; 
-        left: 0 !important; 
-        width: 100vw !important; 
-        height: 100vh !important;
-        background: rgba(7, 10, 18, 0.88) !important; 
-        backdrop-filter: blur(8px) !important;
-        display: flex !important; 
-        justify-content: center !important; 
-        align-items: center !important;
-        z-index: 99999 !important; 
-        padding: 16px !important; 
-        box-sizing: border-box !important;
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh;
+        background: rgba(7, 10, 18, 0.88); 
+        backdrop-filter: blur(8px);
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+        z-index: 99999; 
+        padding: 16px; 
+        box-sizing: border-box;
     `;
 
     modal.innerHTML = `
-        <div style="width: 330px !important; max-width: 90vw !important; border: 1.5px solid #38bdf8 !important; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; border-radius: 20px !important; padding: 18px !important; text-align: center !important; box-shadow: 0 0 30px rgba(56, 189, 248, 0.35) !important; box-sizing: border-box !important; margin: auto !important;">
+        <div style="width: 330px; max-width: 90vw; border: 1.5px solid #38bdf8; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 20px; padding: 18px; text-align: center; box-shadow: 0 0 30px rgba(56, 189, 248, 0.35); box-sizing: border-box; margin: auto;">
             <div style="font-size: 42px; margin-bottom: 4px;" class="anim-flutuar">
                 ${faseObj.icone || '🪐'}
             </div>
@@ -2076,23 +2048,23 @@ window.abrirDiarioDeBordoTaby = function() {
     const modal = document.createElement('div');
     modal.id = 'modal-diario-bordo';
     modal.style.cssText = `
-        position: fixed !important; 
-        top: 0 !important; 
-        left: 0 !important; 
-        width: 100vw !important; 
-        height: 100vh !important;
-        background: rgba(7, 10, 18, 0.88) !important; 
-        backdrop-filter: blur(6px) !important;
-        display: flex !important; 
-        justify-content: center !important; 
-        align-items: center !important;
-        z-index: 99999 !important; 
-        padding: 16px !important; 
-        box-sizing: border-box !important;
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh;
+        background: rgba(7, 10, 18, 0.88); 
+        backdrop-filter: blur(6px);
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+        z-index: 99999; 
+        padding: 16px; 
+        box-sizing: border-box;
     `;
 
     modal.innerHTML = `
-        <div id="caixa-diario-conteudo" style="width: 330px !important; max-width: 90vw !important; height: 450px !important; max-height: 80vh !important; border: 1.5px solid #10b981 !important; background: #0f172a !important; border-radius: 20px !important; padding: 14px !important; display: flex !important; flex-direction: column !important; box-shadow: 0 0 30px rgba(16,185,129,0.3) !important; box-sizing: border-box !important; margin: auto !important;">
+        <div id="caixa-diario-conteudo" style="width: 330px; max-width: 90vw; height: 450px; max-height: 80vh; border: 1.5px solid #10b981; background: #0f172a; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(16,185,129,0.3); box-sizing: border-box; margin: auto;">
             <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; flex-shrink: 0;">
                 <h3 style="color: #6ee7b7; font-size: 14px; margin: 0 0 4px 0; font-weight: 900; display: flex; align-items: center; gap: 8px;">
                     <div class="anim-flutuar" style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 5px #34d399);">
@@ -2116,7 +2088,7 @@ window.abrirDiarioDeBordoTaby = function() {
                 </div>
             </div>
 
-            <div style="overflow-y: auto !important; flex: 1 1 auto !important; min-height: 0 !important; padding-right: 4px;" class="container-trilha-scroll">
+            <div style="overflow-y: auto; flex: 1 1 auto; min-height: 0; padding-right: 4px;" class="container-trilha-scroll">
                 ${listaHtml}
             </div>
 
@@ -2136,19 +2108,16 @@ window.abrirDiarioDeBordoTaby = function() {
 // =========================================================================
 //#region [7] MECÂNICA DE JOGO, GERADOR E CRONÔMETRO
 
-// Checagem robusta e absoluta do status PRO do usuário
 window.verificarSeEhPro = function() {
     const plano = window.obterPlanoAtivo();
     return (plano === 'pro' || plano === 'premium');
 };
 
-// Sincroniza o HUD de vidas em todas as telas com padrão idêntico à tela inicial
 window.atualizarHUDVidasPartida = function() {
     const ehPro = window.verificarSeEhPro();
     const plano = window.obterPlanoAtivo();
     const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
     
-    // Seleciona os containers das partidas e da trilha
     const seletores = [
         '#gameplay-hearts-partida',
         '#gameplay-hearts-trilha',
@@ -2179,28 +2148,6 @@ window.atualizarHUDVidasPartida = function() {
             }
         });
     });
-};
-
-window.selecionarOperacao = function(op) {
-    tocarSom('clique');
-
-    if (tipoJogoSelecionado === 'relampago') {
-        operacoesSelecionadas = [op];
-    } else {
-        if (op === 'insano') {
-            operacoesSelecionadas = ['insano'];
-        } else if (operacoesSelecionadas.includes('insano')) {
-            operacoesSelecionadas = [op];
-        } else if (operacoesSelecionadas.includes(op)) {
-            if (operacoesSelecionadas.length > 1) {
-                operacoesSelecionadas = operacoesSelecionadas.filter(item => item !== op);
-            }
-        } else {
-            operacoesSelecionadas.push(op);
-        }
-    }
-
-    atualizarBotoesOperacaoVisual();
 };
 
 function atualizarBotoesOperacaoVisual() {
@@ -2249,15 +2196,16 @@ function gerarOpcoesInteligentes(num1, num2, resultadoCorreto, operacao) {
     const opcoes = new Set();
     opcoes.add(resultadoCorreto);
     let tentativas = 0;
-    while (opcoes.size < 4 && tentativas < 25) {
+
+    while (opcoes.size < 4 && tentativas < 30) {
         tentativas++;
-        let opcaoFalsa;
+        let opcaoFalsa = resultadoCorreto;
         const tipoErro = opcoes.size;
 
         if (operacao === 'multiplicacao') {
             if (tipoErro === 1) opcaoFalsa = num1 + num2;
             else if (tipoErro === 2) opcaoFalsa = resultadoCorreto + (Math.random() < 0.5 ? 1 : -1);
-            else opcaoFalsa = num1 * Math.max(1, num2 + (Math.random() < 0.5 ? 1 : -1));
+            else opcaoFalsa = num1 * Math.max(1, num2 + (Math.random() < 0.5 ? 2 : -2));
         } else if (operacao === 'adicao') {
             if (tipoErro === 1) opcaoFalsa = resultadoCorreto + 1;
             else if (tipoErro === 2) opcaoFalsa = resultadoCorreto - 1;
@@ -2265,19 +2213,27 @@ function gerarOpcoesInteligentes(num1, num2, resultadoCorreto, operacao) {
         } else if (operacao === 'subtracao') {
             if (tipoErro === 1) opcaoFalsa = num1 + num2;
             else if (tipoErro === 2) opcaoFalsa = resultadoCorreto + 1;
-            else opcaoFalsa = resultadoCorreto - 1;
+            else opcaoFalsa = Math.max(0, resultadoCorreto - 1);
         } else if (operacao === 'divisao') {
             if (tipoErro === 1) opcaoFalsa = resultadoCorreto + 1;
-            else if (tipoErro === 2) opcaoFalsa = resultadoCorreto - 1;
+            else if (tipoErro === 2) opcaoFalsa = Math.max(1, resultadoCorreto - 1);
             else opcaoFalsa = resultadoCorreto + 2;
         }
 
-        if (opcaoFalsa > 0 && opcaoFalsa !== resultadoCorreto) opcoes.add(opcaoFalsa);
+        if (opcaoFalsa >= 0 && opcaoFalsa !== resultadoCorreto) {
+            opcoes.add(opcaoFalsa);
+        }
     }
+
+    let delta = 1;
     while (opcoes.size < 4) {
-        let alt = resultadoCorreto + (opcoes.size * 2);
-        opcoes.add(alt > 0 ? alt : 1);
+        let alt = resultadoCorreto + delta;
+        if (!opcoes.has(alt) && alt >= 0) {
+            opcoes.add(alt);
+        }
+        delta = delta > 0 ? -delta : -delta + 1;
     }
+
     return Array.from(opcoes).sort(() => Math.random() - 0.5);
 }
 
@@ -2293,7 +2249,6 @@ window.iniciarJogo = function() {
         return;
     }
 
-    // Permite a entrada direta se for PRO; se for Free, consome vida
     if (typeof consumirVidaParaEntrar === 'function') {
         if (!window.verificarSeEhPro() && !consumirVidaParaEntrar()) {
             return;
@@ -2302,7 +2257,7 @@ window.iniciarJogo = function() {
 
     prepararFilaOperacoes();
 
-    if (tipoJogoSelecionado === 'normal') {
+    if (tipoJogoSelecionado === 'normal' || operacoesSelecionadas.includes('insano')) {
         executarCarregamentoJogoReal();
     } else {
         window.mudarTela('tela-pre-jogo');
@@ -2390,6 +2345,9 @@ window.comecarDesafioEfetivo = function() {
     }, 1000);
 };
 
+// =========================================================================
+// CORREÇÃO DO FLUXO DE ENTRADA E RENDERIZAÇÃO DA PERGUNTA
+// =========================================================================
 function executarCarregamentoJogoReal() {
     if (timerTransicaoQuestao) clearTimeout(timerTransicaoQuestao);
     
@@ -2398,10 +2356,13 @@ function executarCarregamentoJogoReal() {
     erros = 0;
     respondendoTravado = false;
 
+    // Exibição imediata do container de jogo
     window.mudarTela('tela-jogo');
-    window.atualizarHUDVidasPartida();
+    
+    if (typeof window.atualizarHUDVidasPartida === 'function') {
+        window.atualizarHUDVidasPartida();
+    }
 
-    // Controle do Cronômetro: Visível APENAS no Modo Relâmpago
     const elContCronometro = document.getElementById('container-cronometro');
     if (tipoJogoSelecionado === 'relampago') {
         if (elContCronometro) {
@@ -2417,7 +2378,9 @@ function executarCarregamentoJogoReal() {
         }
     }
 
-    gerarPergunta();
+    setTimeout(() => {
+        gerarPergunta();
+    }, 50);
 }
 
 function gerarPergunta() {
@@ -2554,7 +2517,6 @@ window.verificarEscolha = function(indice) {
                 }
             }
 
-            // CONTROLE DE VIDAS: Pula desconto de vidas se for PRO
             if (!window.verificarSeEhPro()) {
                 if (typeof window.vidasUsuario !== 'undefined') {
                     window.vidasUsuario = Math.max(0, window.vidasUsuario - 1);
@@ -2635,7 +2597,6 @@ async function finalizarJogo() {
     let ganhouVidaBonus = false;
     let limiteDiarioAtingido = false;
 
-    // Apenas calcula bônus de vidas se NÃO for usuário PRO
     if (!ehPago && porcentagemAcertos >= 90) {
         const dataHojeStr = new Date().toLocaleDateString('pt-BR');
         let dataSalva = localStorage.getItem('usuario_vidas_data_bonus');
@@ -3309,13 +3270,11 @@ function atualizarDisplayTimerVidas() {
 
         const tempoFormatado = `${minStr}:${segStr}`;
 
-        // Atualiza na barra superior do painel
         if (elTimer) {
             elTimer.innerHTML = `<span style="font-size: 11px;">⏳</span> ${tempoFormatado}`;
             elTimer.style.display = 'inline-flex';
         }
 
-        // Atualiza ao vivo dentro do Modal de Vidas Esgotadas (se estiver aberto)
         if (elTimerModal) {
             elTimerModal.innerText = tempoFormatado;
         }
@@ -3367,7 +3326,6 @@ window.atualizarInterfaceVidas = function() {
     const plano = window.obterPlanoAtivo();
     const ehPago = window.verificarSeEhPro();
 
-    // Regra de Substituição dos Botões no Painel
     const btnVideo = document.getElementById('btn-assistir-ad-vidas');
     const btnRelatorio = document.getElementById('btn-abrir-relatorio');
 
@@ -3379,7 +3337,6 @@ window.atualizarInterfaceVidas = function() {
         if (btnRelatorio) btnRelatorio.style.display = 'none';
     }
 
-    // Atualiza Badge do Topo
     const badgeTopo = document.getElementById('badge-plano-topo');
     if (badgeTopo) {
         if (ehPago) {
@@ -3391,7 +3348,6 @@ window.atualizarInterfaceVidas = function() {
         }
     }
 
-    // Atualiza Containers de Vidas Padronizados
     window.atualizarHUDVidasPartida();
 
     if (typeof window.atualizarEstadoBotoesModo === 'function') {
@@ -3411,20 +3367,20 @@ window.atualizarEstadoBotoesModo = function() {
         if (!el) return;
         el.disabled = true;
         el.classList.add('modo-desativado');
-        el.style.setProperty('opacity', '0.4', 'important');
-        el.style.setProperty('filter', 'grayscale(80%)', 'important');
-        el.style.setProperty('pointer-events', 'none', 'important');
-        el.style.setProperty('cursor', 'not-allowed', 'important');
+        el.style.opacity = '0.4';
+        el.style.filter = 'grayscale(80%)';
+        el.style.pointerEvents = 'none';
+        el.style.cursor = 'not-allowed';
     };
 
     const ativarBotao = (el) => {
         if (!el) return;
         el.disabled = false;
         el.classList.remove('modo-desativado');
-        el.style.setProperty('opacity', '1', 'important');
-        el.style.setProperty('filter', 'none', 'important');
-        el.style.setProperty('pointer-events', 'auto', 'important');
-        el.style.setProperty('cursor', 'pointer', 'important');
+        el.style.opacity = '1';
+        el.style.filter = 'none';
+        el.style.pointerEvents = 'auto';
+        el.style.cursor = 'pointer';
     };
 
     if (btnTabuadas) {
@@ -3450,7 +3406,7 @@ window.abrirTelaCheckoutPremium = function() {
     const paywall = document.getElementById('modal-paywall-planos');
     if (paywall) {
         paywall.classList.remove('oculto');
-        paywall.style.setProperty('display', 'flex', 'important');
+        paywall.style.display = 'flex';
     }
 };
 
@@ -3461,14 +3417,14 @@ window.fecharPaywall = function() {
     const paywall = document.getElementById('modal-paywall-planos');
     if (paywall) {
         paywall.classList.add('oculto');
-        paywall.style.setProperty('display', 'none', 'important');
+        paywall.style.display = 'none';
     }
 };
 
 const modalPaywall = document.getElementById('modal-paywall-planos');
 if (modalPaywall) {
     modalPaywall.classList.add('oculto');
-    modalPaywall.style.setProperty('display', 'none', 'important');
+    modalPaywall.style.display = 'none';
 
     modalPaywall.addEventListener('click', (e) => {
         if (e.target === modalPaywall) {
@@ -3550,38 +3506,38 @@ window.processarPagamento = function(tipoPlano) {
 window.assistirAnuncioPorVida = function() {
     if (typeof tocarSom === 'function') tocarSom('clique');
 
+    const concederVidaEAtualizarUI = function() {
+        let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+        saldoVidas += 1;
+        localStorage.setItem('usuario_vidas', saldoVidas.toString());
+        
+        // 🔄 Atualiza todos os elementos visuais na tela inicial e HUD
+        if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+            window.sincronizarInterfaceGlobalPlano();
+        } else if (typeof window.atualizarInterfaceVidas === 'function') {
+            window.atualizarInterfaceVidas();
+        }
+
+        if (typeof tocarSom === 'function') {
+            tocarSom('conquista');
+        }
+
+        alert("🎉 Parabéns! Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
+    };
+
+    // Execução do anúncio (Nativo/AdMob ou Simulação Web)
     if (window.AdsManager && typeof window.AdsManager.exibirRecompensado === 'function') {
         window.AdsManager.exibirRecompensado(
-            function() {
-                let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-                saldoVidas += 1;
-                localStorage.setItem('usuario_vidas', saldoVidas.toString());
-                
-                if (typeof window.atualizarInterfaceVidas === 'function') {
-                    window.atualizarInterfaceVidas();
-                }
-                if (typeof tocarSom === 'function') {
-                    tocarSom('conquista');
-                }
-                alert("🎉 Parabéns! Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
-            },
+            concederVidaEAtualizarUI,
             function() {
                 console.log("Anúncio premiado não concluído ou indisponível.");
             }
         );
     } else {
-        // Fallback para testes locais sem AdSense
-        let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-        saldoVidas += 1;
-        localStorage.setItem('usuario_vidas', saldoVidas.toString());
-        if (typeof window.atualizarInterfaceVidas === 'function') window.atualizarInterfaceVidas();
-        alert("🎉 Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
+        concederVidaEAtualizarUI();
     }
-};
+}
 
-/* ==========================================================
-   MODAL REDESENHADO DE VIDAS ESGOTADAS
-   ========================================================== */
 window.exibirModalVidasEsgotadasTaby = function() {
     if (typeof tocarSom === 'function') tocarSom('erro');
 
@@ -3603,32 +3559,27 @@ window.exibirModalVidasEsgotadasTaby = function() {
     modal.id = 'modal-vidas-esgotadas';
     modal.className = 'paywall-overlay';
     modal.style.cssText = `
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        width: 100vw !important; height: 100vh !important;
-        background: rgba(7, 10, 18, 0.92) !important;
-        backdrop-filter: blur(10px) !important;
-        display: flex !important; justify-content: center !important; align-items: center !important;
-        z-index: 99999 !important; padding: 16px !important; box-sizing: border-box !important;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(7, 10, 18, 0.92);
+        backdrop-filter: blur(10px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 99999; padding: 16px; box-sizing: border-box;
     `;
 
     modal.innerHTML = `
         <div style="position: relative; width: 380px; max-width: 92vw; background: #0f172a; border: 1.5px solid rgba(239, 68, 68, 0.5); border-radius: 24px; padding: 24px 18px 20px 18px; box-sizing: border-box; color: #fff; text-align: center; box-shadow: 0 0 30px rgba(239, 68, 68, 0.25), 0 20px 50px rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; align-items: center; gap: 14px;">
-            
-            <!-- BOTÃO DE FECHAR (X) -->
             <button onclick="document.getElementById('modal-vidas-esgotadas').remove()" aria-label="Fechar" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: #94a3b8; font-size: 18px; font-weight: 800; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
                 ✕
             </button>
 
-            <!-- MASCOTE -->
             <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6)); margin-top: 4px;">
             
-            <!-- TÍTULO -->
             <h3 style="color: #ef4444; font-size: 19px; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);">
                 Ops! Suas Vidas Acabaram 💔
             </h3>
             
-            <!-- CARD DE INFORMAÇÕES COM CRONÔMETRO AO VIVO -->
             <div style="background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 12px 14px; width: 100%; box-sizing: border-box;">
                 <p style="color: #cbd5e1; font-size: 12.5px; line-height: 1.4; margin: 0 0 4px 0;">
                     Sua dedicação é incrível! Próxima vida grátis em: 
@@ -3638,22 +3589,17 @@ window.exibirModalVidasEsgotadasTaby = function() {
                 <p style="color: #94a3b8; font-size: 11px; margin: 0;">Escolha como deseja continuar:</p>
             </div>
 
-            <!-- BOTÕES DE AÇÃO -->
             <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                
-                <!-- 1. VÍDEO (VERDE NEON) -->
                 <button onclick="document.getElementById('modal-vidas-esgotadas').remove(); window.assistirAnuncioPorVida();" style="width: 100%; min-height: 46px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.4) 100%); border: 1.5px solid #10b981; border-radius: 14px; color: #34d399; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);">
                     <span>🎬</span>
                     <span>Assistir Vídeo (+1 Vida Grátis)</span>
                 </button>
 
-                <!-- 2. SEJA PRO/PREMIUM (LARANJA/DOURADO NEON) -->
                 <button onclick="document.getElementById('modal-vidas-esgotadas').remove(); window.abrirTelaCheckoutPremium();" style="width: 100%; min-height: 46px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); border: 1.5px solid #fbbf24; border-radius: 14px; color: #ffffff; font-size: 12px; font-weight: 900; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);">
                     <span>👑</span>
                     <span>SEJA PRO/PREMIUM (VIDAS ILIMITADAS)</span>
                 </button>
 
-                <!-- 3. AGUARDAR REGENERAÇÃO -->
                 <button onclick="document.getElementById('modal-vidas-esgotadas').remove();" style="background: transparent; border: none; color: #94a3b8; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px; text-decoration: underline; text-underline-offset: 4px;">
                     Aguardar tempo de regeneração
                 </button>
@@ -3697,13 +3643,13 @@ window.abrirTelaGerenciarPlano = function() {
     modal.id = 'modal-gerenciar-plano';
     modal.className = 'paywall-overlay';
     modal.style.cssText = `
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        width: 100vw !important; height: 100vh !important;
-        background: rgba(7, 10, 18, 0.92) !important;
-        backdrop-filter: blur(10px) !important;
-        display: flex !important; justify-content: center !important; align-items: center !important;
-        z-index: 99999 !important; padding: 16px !important; box-sizing: border-box !important;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(7, 10, 18, 0.92);
+        backdrop-filter: blur(10px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 99999; padding: 16px; box-sizing: border-box;
     `;
 
     modal.innerHTML = `
@@ -3879,12 +3825,11 @@ window.abrirModalRelatorio = function(e) {
         modal.classList.remove('oculto', 'display-none');
         modal.style.display = 'flex';
         
-        if (typeof window.carregarDadosRelatorio === 'function') {
-            window.carregarDadosRelatorio();
+        if (typeof window.carregarEstatisticasReaisRelatorio === 'function') {
+            window.carregarEstatisticasReaisRelatorio();
         }
     }
 };
-
 
 window.atualizarCabecalhoRelatorioLimpo = function() {
     const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
@@ -4406,7 +4351,7 @@ window.fecharModalExclusao = function() {
         const modal = document.getElementById(id);
         if (modal) {
             modal.classList.add('oculto');
-            modal.style.setProperty('display', 'none', 'important');
+            modal.style.display = 'none';
         }
     });
 
@@ -4595,7 +4540,7 @@ window.abrirModalConfirmacaoExclusao = function(tipo = 'perfil') {
 
     if (modal) {
         modal.classList.remove('oculto');
-        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.display = 'flex';
     }
 };
 
@@ -4796,7 +4741,6 @@ window.addEventListener('beforeinstallprompt', e => {
     eventoInstalacao = e; 
 });
 
-// Listener global de cliques genéricos
 document.addEventListener('click', function(event) {
     const botaoClicado = event.target.closest('button, .btn, [role="button"]');
     const eBotaoSom = event.target.closest('#btn-som-global, #btn-toggle-som, [onclick*="toggleSom"], .btn-som-topo, .btn-som-moderno');
@@ -4835,7 +4779,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderizarGaleriaPerfil();
     }
     
-    // Disparador centralizado para abertura do modal de perfil com Garantia de SSOT
     const dispararAberturaPerfil = (e) => {
         if (e) {
             e.preventDefault();
@@ -4843,7 +4786,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (typeof window.tocarSom === 'function') window.tocarSom('clique');
         
-        // Executa a abertura correspondente
         if (typeof window.abrirEdicaoPerfil === 'function') {
             window.abrirEdicaoPerfil();
         } else if (typeof window.abrirEdicaoPerfilUnico === 'function') {
@@ -4852,17 +4794,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('form-perfil-modal');
             if (modal) {
                 modal.classList.remove('oculto');
-                modal.style.setProperty('display', 'block', 'important');
+                modal.style.display = 'block';
             }
         }
 
-        // CORREÇÃO-CHAVE: Força a sincronização dos badges (Dashboard e Modal) na abertura
         if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
             window.sincronizarInterfaceGlobalPlano();
         }
     };
 
-    // Delegação de cliques para botões de perfil
     document.addEventListener('click', (e) => {
         const elementoClicado = e.target.closest('#btn-perfil-header, #header-foto-perfil, .btn-perfil-avatar, .badge-editar-perfil, .icon-editar-perfil, [onclick*="abrirEdicaoPerfil"]');
         
@@ -4919,7 +4859,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inicialização imediata de estados de Plano e Vidas sem setTimeout crítico
     if (typeof verificarERegenerarVidas === 'function') {
         verificarERegenerarVidas();
     }
@@ -5006,5 +4945,69 @@ window.AdsManager = {
                 if (typeof onSucesso === 'function') onSucesso();
             }
         }, 100);
+    }
+};
+
+// =========================================================================
+// CONTROLE DE MODOS (TREINO / RELÂMPAGO) E MODO INSANO
+// =========================================================================
+
+window.selecionarOperacao = function(op) {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+
+    if (op === 'insano') {
+        operacoesSelecionadas = ['insano'];
+    } else {
+        operacoesSelecionadas = operacoesSelecionadas.filter(o => o !== 'insano');
+
+        if (tipoJogoSelecionado === 'relampago') {
+            operacoesSelecionadas = [op];
+        } else {
+            if (operacoesSelecionadas.includes(op)) {
+                if (operacoesSelecionadas.length > 1) {
+                    operacoesSelecionadas = operacoesSelecionadas.filter(item => item !== op);
+                }
+            } else {
+                operacoesSelecionadas.push(op);
+            }
+        }
+    }
+
+    atualizarBotoesOperacaoVisual();
+};
+
+window.selecionarModoRelampago = function() {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+    
+    tipoJogoSelecionado = 'relampago';
+    
+    const btnTreino = document.getElementById('btn-modo-treino');
+    const btnRelampago = document.getElementById('btn-modo-relampago');
+    if (btnTreino) btnTreino.classList.remove('selecionado', 'ativo');
+    if (btnRelampago) btnRelampago.classList.add('selecionado', 'ativo');
+
+    const btnInsano = document.getElementById('btn-op-insano');
+    if (btnInsano) {
+        btnInsano.classList.remove('oculto');
+    }
+};
+
+window.selecionarModoTreino = function() {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+    
+    if (typeof window.selecionarTipoJogo === 'function') {
+        window.selecionarTipoJogo('normal');
+    } else {
+        tipoJogoSelecionado = 'normal';
+    }
+    
+    const btnTreino = document.getElementById('btn-modo-treino');
+    const btnRelampago = document.getElementById('btn-modo-relampago');
+    if (btnRelampago) btnRelampago.classList.remove('selecionado', 'ativo');
+    if (btnTreino) btnTreino.classList.add('selecionado', 'ativo');
+
+    const btnInsano = document.getElementById('btn-op-insano');
+    if (btnInsano) {
+        btnInsano.classList.remove('oculto');
     }
 };

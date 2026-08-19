@@ -107,7 +107,7 @@
                     <!-- 1. OFENSIVA -->
                     <div class="status-item hud-ofensiva-futurista" id="pilula-ofensiva-dias">
                         <span class="fogo-animado">🔥</span>
-                        <span class="valor-ofensiva" id="contador-ofensiva-texto">0</span>
+                        <span class="valor-ofensiva" id="display-ofensiva-dias">0</span>
                     </div>
 
                     <!-- 2. VIDAS -->
@@ -145,42 +145,42 @@
                 <div class="card-painel-container configurador-desafio-box">
                     <span class="section-label">1. MODO DE TREINO:</span>
                     <div class="grid-2-cols">
-                        <button id="btn-modo-treino" onclick="selecionarTipoJogo('normal')" class="btn-modo selecionado">
+                        <button id="btn-modo-treino" type="button" onclick="window.selecionarModoTreino()" class="btn-modo selecionado">
                             🎯 Treino
-                            <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('treino');">i</span>
+                            <span class="btn-info-ico" onclick="event.stopPropagation(); window.mostrarAjudaTaby('treino');">i</span>
                         </button>
-                        <button id="btn-modo-relampago" onclick="selecionarTipoJogo('relampago')" class="btn-modo">
-                            ⚡ Relâmpago
-                            <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('relampago');">i</span>
+                        
+                        <button id="btn-modo-relampago" type="button" onclick="window.selecionarModoRelampago()" class="btn-modo">
+                            ⚡ Modo Relâmpago
+                            <span class="btn-info-ico" onclick="event.stopPropagation(); window.mostrarAjudaTaby('relampago');">i</span>
                         </button>
                     </div>
 
                     <span id="titulo-instrucao-operacoes" class="section-label">2. OPERAÇÃO:</span>
                     <div class="grid-2-cols">
-                        <button id="btn-op-mult" onclick="selecionarOperacao('multiplicacao')" class="btn-op-redesign selecionado">
+                        <button id="btn-op-mult" type="button" onclick="window.selecionarOperacao('multiplicacao')" class="btn-op-redesign selecionado">
                             ✖️ Multiplicação
                         </button>
-                        <button id="btn-op-div" onclick="selecionarOperacao('divisao')" class="btn-op-redesign">
+                        <button id="btn-op-div" type="button" onclick="window.selecionarOperacao('divisao')" class="btn-op-redesign">
                             ➗ Divisão
                         </button>
-                        <button id="btn-op-add" onclick="selecionarOperacao('adicao')" class="btn-op-redesign">
+                        <button id="btn-op-add" type="button" onclick="window.selecionarOperacao('adicao')" class="btn-op-redesign">
                             ➕ Adição
                         </button>
-                        <button id="btn-op-sub" onclick="selecionarOperacao('subtracao')" class="btn-op-redesign">
+                        <button id="btn-op-sub" type="button" onclick="window.selecionarOperacao('subtracao')" class="btn-op-redesign">
                             ➖ Subtração
                         </button>
                     </div>
 
-                    <button id="btn-op-insano" onclick="selecionarOperacao('insano')" class="btn-modo btn-insano-destaque oculto">
+                    <button id="btn-op-insano" type="button" onclick="window.selecionarOperacao('insano')" class="btn-insano-destaque oculto">
                         🔥 MODO INSANO
-                        <span class="btn-info-ico" onclick="event.stopPropagation(); mostrarAjudaTaby('insano');">i</span>
+                        <span class="btn-info-ico" onclick="event.stopPropagation(); window.mostrarAjudaTaby('insano');">i</span>
                     </button>
 
-                    <button onclick="iniciarJogo()" class="btn-comecar-desafio">
+                    <button type="button" onclick="window.iniciarJogo()" class="btn-comecar-desafio">
                         COMEÇAR DESAFIO 🚀
                     </button>
                 </div>
-
             </div>
         </section>
 
@@ -199,7 +199,7 @@
                 </div>
 
                 <div id="balao-taby-trilha" class="balao-taby-container">
-                    <button onclick="fecharBalaoTabyTrilha()" class="btn-fechar-balao">✕</button>
+                    <button onclick="window.fecharBalaoTabyTrilha()" class="btn-fechar-balao">✕</button>
                     <div class="flex-align-center-gap">
                         <img src="icon144.png" alt="Taby" class="img-taby-mini" onerror="this.onerror=null; this.src='icon144.png';">
                         <div class="texto-taby-trilha">
@@ -231,7 +231,7 @@
 
                 <div id="mapa-trilha-container" class="mapa-trilha-scroll"></div>
 
-                <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
+                <button onclick="window.irParaPainelJogo()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
             </div>
         </section>
 
@@ -292,7 +292,7 @@
             <div class="app-container">
                 <div class="header-ranking-title">
                     <h1 class="titulo-ranking">Top Jogadores 🏆</h1>
-                    <span class="btn-info-ico" onclick="mostrarAjudaTaby('ranking');">i</span>
+                    <span class="btn-info-ico" onclick="window.mostrarAjudaTaby('ranking');">i</span>
                 </div>
                 
                 <div class="container-abas-ranking">
@@ -302,8 +302,8 @@
 
                 <input type="hidden" id="tipo-ranking" value="treino">
 
-                <div id="filtro-operacoes-relampago" class="filtro-relampago-box display-none">
-                    <select id="select-op-relampago" onchange="carregarRankingRelampago()" class="select-ranking-style">
+                <div id="filtro-operacoes-relampago" class="filtro-relampago-box" style="display: none;">
+                    <select id="select-op-relampago" onchange="window.carregarRankingRelampago()" class="select-ranking-style">
                         <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
                         <option value="multiplicacao">✖️ Multiplicação</option>
                         <option value="divisao">➗ Divisão</option>
@@ -313,7 +313,7 @@
                     </select>
                 </div>
 
-                <select id="filtro-tempo" onchange="aplicarFiltro()" class="select-filtro-tempo">
+                <select id="filtro-tempo" onchange="window.aplicarFiltro()" class="select-filtro-tempo">
                     <option value="hoje" selected>Hoje</option>
                     <option value="3dias">Últimos 3 dias</option>
                     <option value="1mes">Último mês</option>
@@ -324,78 +324,7 @@
                     <p class="text-center-secondary">Carregando...</p>
                 </div>
 
-                <button onclick="voltarParaInicial()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
-            </div>
-        </section>
-
-        <!-- TELA 6: SEÇÃO EDUCATIVA -->
-        <section id="tela-educativo" class="tela oculto">
-            <div class="app-container scrollable-internal">
-                <section class="container-educativo-ui">
-                    <div class="card-educativo-glass">
-                        <div class="header-educativo">
-                            <span class="badge-tag-ui">🎓 PLATAFORMA EDUCATIVA GAMIFICADA</span>
-                            <h2>A Tabuada Gravada na Memória Para Sempre! 🧠⚡</h2>
-                        </div>
-
-                        <p class="texto-destaque-ui">
-                            Chega de sofrer com a matemática! O <strong>Tabuada Fácil</strong> combina algoritmos de repetibilidade inteligente e gamificação para fixar as 4 operações de forma definitiva.
-                        </p>
-
-                        <h3 class="titulo-sessao-ui">🎮 Modos de Treino e Gamificação</h3>
-                        
-                        <div class="grid-recursos-ui">
-                            <div class="card-recurso-item">
-                                <div class="icone-recurso">📊</div>
-                                <div>
-                                    <h4>Modo Treino Livre</h4>
-                                    <p>Ideal para a fixação inicial. Permite praticar as 4 operações sem a pressão do relógio.</p>
-                                </div>
-                            </div>
-
-                            <div class="card-recurso-item">
-                                <div class="icone-recurso">⚡</div>
-                                <div>
-                                    <h4>Modo Relâmpago</h4>
-                                    <p>Desenvolvido para estimular a agilidade mental e o raciocínio rápido contra o cronômetro.</p>
-                                </div>
-                            </div>
-
-                            <div class="card-recurso-item">
-                                <div class="icone-recurso">🏆</div>
-                                <div>
-                                    <h4>Rankings Globais</h4>
-                                    <p>Classificação dinâmica dividida entre Pontuação e Menor Tempo.</p>
-                                </div>
-                            </div>
-
-                            <div class="card-recurso-item destaque-trilha-item">
-                                <div class="icone-recurso">🪐</div>
-                                <div>
-                                    <h4>Trilha de Aprendizado (15 Planetas)</h4>
-                                    <p>Uma jornada espacial onde a progressão ocorre ao atingir mais de 85% de domínio.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="box-pais-educadores-ui">
-                            <div class="header-pais-ui">
-                                <span class="icone-pais">👨‍👩‍👧‍👦</span>
-                                <h3>Por que o Tabuada Fácil é Diferente?</h3>
-                            </div>
-                            
-                            <p>
-                                A metodologia baseada em repetição espaçada e gamificação é incomparavelmente superior para a retenção a longo prazo.
-                            </p>
-
-                            <ul class="lista-beneficios-pais">
-                                <li>✨ <strong>Fim do Estresse:</strong> A matemática se torna um jogo dinâmico.</li>
-                                <li>🧠 <strong>Aumento do Foco:</strong> Feedback imediato e recompensa continuada.</li>
-                                <li>📈 <strong>Segurança Escolar:</strong> Elimina erros bobos e acelera a resolução em provas.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
+                <button onclick="window.voltarParaInicial()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
             </div>
         </section>
 
@@ -407,8 +336,8 @@
                 
                 <div id="box-contador-regressivo" class="contador-regressivo-box oculto">3</div>
                 
-                <button id="btn-iniciar-desafio-real" onclick="comecarDesafioEfetivo()" class="btn-comecar-desafio">▶️ INICIAR AGORA</button>
-                <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
+                <button id="btn-iniciar-desafio-real" onclick="window.comecarDesafioEfetivo()" class="btn-comecar-desafio">▶️ INICIAR AGORA</button>
+                <button onclick="window.irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
             </div>
         </section>
 
@@ -417,32 +346,32 @@
             <div class="estrelas-container"></div>
             <div class="app-container content-z2">
                 <!-- HEADER DA PARTIDA COM PÍLULAS PADRONIZADAS -->
-<div class="header-partida-hud">
-    <div class="hud-pilula-gameplay">
-        <!-- 1. CONTADOR DE PERGUNTAS -->
-        <div class="hud-item-gameplay">
-            <span class="hud-label-ico">🎯</span>
-            <span id="contador-perguntas" class="hud-valor-destaque">1/10</span>
-        </div>
+                <div class="header-partida-hud">
+                    <div class="hud-pilula-gameplay">
+                        <!-- 1. CONTADOR DE PERGUNTAS -->
+                        <div class="hud-item-gameplay">
+                            <span class="hud-label-ico">🎯</span>
+                            <span id="contador-perguntas" class="hud-valor-destaque">1/10</span>
+                        </div>
 
-        <div class="hud-divisor-line"></div>
+                        <div class="hud-divisor-line"></div>
 
-        <!-- 2. VIDAS PADRÃO GLOBAIS (PÍLULA COM NÚMERO EXATO DE VIDAS OU INFINITO) -->
-        <div class="hud-item-gameplay">
-            <div id="gameplay-hearts-partida" class="status-item hud-vida-futurista">
-                <span class="icone-vida-glow pulse">❤️</span>
-                <span class="valor-vida" id="contador-vidas-texto">5</span>
-            </div>
-        </div>
+                        <!-- 2. VIDAS PADRÃO GLOBAIS -->
+                        <div class="hud-item-gameplay">
+                            <div id="gameplay-hearts-partida" class="status-item hud-vida-futurista">
+                                <span class="icone-vida-glow pulse">❤️</span>
+                                <span class="valor-vida">5</span>
+                            </div>
+                        </div>
 
-        <!-- 3. CRONÔMETRO (OCULTO NO MODO TREINO / VISÍVEL NO MODO RELÂMPAGO) -->
-        <div id="container-cronometro" class="hud-item-gameplay oculto" style="display: none;">
-            <div class="hud-divisor-line"></div>
-            <span class="hud-label-ico">⏱️</span>
-            <span id="cronometro-jogo" class="hud-valor-destaque">0:00.0</span>
-        </div>
-    </div>
-</div>
+                        <!-- 3. CRONÔMETRO -->
+                        <div id="container-cronometro" class="hud-item-gameplay oculto" style="display: none;">
+                            <div class="hud-divisor-line"></div>
+                            <span class="hud-label-ico">⏱️</span>
+                            <span id="cronometro-jogo" class="hud-valor-destaque">0:00.0</span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="card-painel-container text-center">
                     <div class="taby-gameplay-dica">
@@ -459,13 +388,13 @@
                     </div>
 
                     <div id="alternativas-container" class="grid-alternativas-2x2">
-                        <button onclick="verificarEscolha(0)" id="alt-0" class="btn-resposta-futurista">15</button>
-                        <button onclick="verificarEscolha(1)" id="alt-1" class="btn-resposta-futurista">14</button>
-                        <button onclick="verificarEscolha(2)" id="alt-2" class="btn-resposta-futurista">8</button>
-                        <button onclick="verificarEscolha(3)" id="alt-3" class="btn-resposta-futurista">20</button>
+                        <button onclick="window.verificarEscolha(0)" id="alt-0" class="btn-resposta-futurista">15</button>
+                        <button onclick="window.verificarEscolha(1)" id="alt-1" class="btn-resposta-futurista">14</button>
+                        <button onclick="window.verificarEscolha(2)" id="alt-2" class="btn-resposta-futurista">8</button>
+                        <button onclick="window.verificarEscolha(3)" id="alt-3" class="btn-resposta-futurista">20</button>
                     </div>
 
-                    <button onclick="confirmarSaidaJogo()" class="btn-desistir-futurista">
+                    <button onclick="window.confirmarSaidaJogo()" class="btn-desistir-futurista">
                         🚪 Desistir e Sair
                     </button>
                 </div>
@@ -495,27 +424,17 @@
                     <div id="display-tempo-final" class="tempo-destaque oculto">⏱️ Tempo Total: 0s</div>
                     <p id="mensagem-envio" class="msg-envio-destaque">Resultados salvos no Ranking! ✅</p>
                 </div>
-                
-                <div class="adsense-container-box">
-                    <ins class="adsbygoogle"
-                         style="display:block; width:100%;"
-                         data-ad-client="ca-pub-8040540242603270"
-                         data-ad-slot="5874739202"
-                         data-ad-format="horizontal"
-                         data-full-width-responsive="true"></ins>
-                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                </div>
 
                 <div class="botoes-pos-partida-stack">
-                    <button id="btn-compartilhar-tempo" onclick="compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">
+                    <button id="btn-compartilhar-tempo" onclick="window.compartilharTempoRelampago()" class="btn-comecar-desafio btn-compartilhar-estilizado oculto">
                         📤 Compartilhar meu Tempo ⚡
                     </button>
                     
-                    <button onclick="continuarJogando()" class="btn-comecar-desafio">
+                    <button onclick="window.continuarJogando()" class="btn-comecar-desafio">
                         Continuar Jogando 🚀
                     </button>
                     
-                    <button onclick="irParaPainelJogo()" class="btn-voltar-futurista">
+                    <button onclick="window.irParaPainelJogo()" class="btn-voltar-futurista">
                         ⬅️ Voltar ao Painel
                     </button>
                 </div>
@@ -557,7 +476,7 @@
             </div>
         </section>
 
-        <section id="tela-autenticacao" class="tela oculto display-none">
+        <section id="tela-autenticacao" class="tela oculto">
             <div class="app-container padding-top-10">
                 <div class="header-auth-box">
                     <img src="icon144.png" alt="Taby" class="robo-flutuante img-auth-taby" onerror="this.onerror=null; this.src='icon144.png';">
@@ -571,7 +490,7 @@
 
                 <div id="form-login" class="card-painel-container">
                     <h3 class="titulo-auth-card">Acesse sua Conta</h3>
-                    <button onclick="fazerLoginGoogle()" class="btn-google-login">
+                    <button onclick="window.fazerLoginGoogle()" class="btn-google-login">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
                             <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.14v3.15C3.15 21.32 7.23 24 12 24z"/>
@@ -588,11 +507,11 @@
                     <input type="email" id="login-email" placeholder="E-mail" class="input-futurista">
                     <input type="password" id="login-senha" placeholder="Senha" class="input-futurista">
                     
-                    <button onclick="fazerLoginFirebase()" class="btn-comecar-desafio">ENTRAR AGORA 🚀</button>
+                    <button onclick="window.fazerLoginFirebase()" class="btn-comecar-desafio">ENTRAR AGORA 🚀</button>
                     
                     <div class="links-auth-row">
-                        <a href="#" onclick="alternarFormularios('cadastro'); return false;" class="link-destaque-blue">Criar Conta</a>
-                        <a href="#" onclick="abrirModalSobre(event); return false;" class="link-secundario-white">Ajuda?</a>
+                        <a href="#" onclick="window.alternarFormularios('cadastro'); return false;" class="link-destaque-blue">Criar Conta</a>
+                        <a href="#" onclick="window.abrirModalSobre(event); return false;" class="link-secundario-white">Ajuda?</a>
                     </div>
                 </div>
 
@@ -602,14 +521,14 @@
                     <input type="email" id="cad-email" placeholder="Seu Melhor E-mail" class="input-futurista">
                     <input type="password" id="cad-senha" placeholder="Senha (Mínimo 6 dígitos)" class="input-futurista">
                     
-                    <button onclick="realizarCadastroFirebase()" class="btn-painel-trilha">CONCLUIR CADASTRO ✨</button>
+                    <button onclick="window.realizarCadastroFirebase()" class="btn-painel-trilha">CONCLUIR CADASTRO ✨</button>
                     <br>
-                    <a href="#" onclick="alternarFormularios('login'); return false;" class="link-voltar-login">Já tenho conta. Voltar ao Login.</a>
+                    <a href="#" onclick="window.alternarFormularios('login'); return false;" class="link-voltar-login">Já tenho conta. Voltar ao Login.</a>
                 </div>
             </div>
         </section>
 
-        <section id="tela-selecao-perfis" class="tela oculto display-none-important">
+        <section id="tela-selecao-perfis" class="tela oculto">
             <h2 class="header-perfis">Quem vai jogar agora?</h2>
             <p>Escolha o seu perfil para carregar sua jornada</p>
             <div id="container-grid-perfis" class="grid-perfis-container"></div>
@@ -641,57 +560,8 @@
 
 <!-- MODAIS E OVERLAYS ISOLADOS -->
 
-<!-- MODAL DE VIDAS ESGOTADAS -->
-<div id="modal-sem-vidas" class="modal-overlay-ui oculto">
-    <div class="card-modal-vidas-esgotadas">
-        
-        <!-- BOTÃO DE FECHAR (X) -->
-        <button type="button" class="btn-fechar-x-modal" onclick="if(typeof window.fecharModalSemVidas === 'function') window.fecharModalSemVidas(); else document.getElementById('modal-sem-vidas').classList.add('oculto');" aria-label="Fechar">
-            ✖
-        </button>
-
-        <!-- MASCOTE -->
-        <img src="icon144.png" alt="Taby" class="robo-flutuante-modal" onerror="this.onerror=null; this.src='icon144.png';">
-
-        <!-- TÍTULO -->
-        <h2 class="titulo-vidas-esgotadas">
-            Ops! Suas Vidas Acabaram 💔
-        </h2>
-
-        <!-- CARD INFORMATIVO COM CRONÔMETRO -->
-        <div class="card-info-regeneracao">
-            <p class="texto-info-vidas">
-                Sua dedicação é incrível! Próxima vida grátis em: 
-                <span class="icone-timer-modal">⏳</span>
-                <b id="tempo-restante-modal-sem-vidas" class="tempo-destaque-neon">15:00</b>
-            </p>
-            <p class="subtexto-info-vidas">Escolha como deseja continuar:</p>
-        </div>
-
-        <!-- AÇÕES -->
-        <div class="stack-botoes-sem-vidas">
-            <!-- 1. ASSISTIR VÍDEO (VERDE NEON) -->
-            <button type="button" class="btn-assistir-video-modal" id="btn-modal-ad-vida" onclick="if(typeof window.assistirAnuncioPorVida === 'function') window.assistirAnuncioPorVida();">
-                <span>🎬</span>
-                <span>Assistir Vídeo (+1 Vida Grátis)</span>
-            </button>
-
-            <!-- 2. BECOME PRO/PREMIUM (DOURADO/LARANJA NEON) -->
-            <button type="button" class="btn-seja-pro-modal" onclick="if(typeof window.abrirPaywall === 'function') window.abrirPaywall();">
-                <span>👑</span>
-                <span>SEJA PRO/PREMIUM (VIDAS ILIMITADAS)</span>
-            </button>
-        </div>
-
-        <!-- BOTAO FECHAR / AGUARDAR -->
-        <button type="button" class="btn-aguardar-regeneracao" onclick="if(typeof window.fecharModalSemVidas === 'function') window.fecharModalSemVidas(); else document.getElementById('modal-sem-vidas').classList.add('oculto');">
-            Aguardar tempo de regeneração
-        </button>
-    </div>
-</div>
-
 <!-- 1. MODAL DE EDIÇÃO DE PERFIL -->
-<div id="form-perfil-modal" class="modal-overlay-ui oculto display-none">  
+<div id="form-perfil-modal" class="modal-overlay-ui oculto">  
     <div class="card-painel-container">        
         <h3 id="titulo-form-perfil" class="titulo-edicao-perfil">Editar Perfil</h3>
 
@@ -746,7 +616,7 @@
                 <button type="button" class="btn-carrossel-seta direita" onclick="window.rolarCarrosselAvatares(1)" aria-label="Próximo">❯</button>
             </div>
 
-            <input type="file" id="input-upload-galeria" accept="image/*" onchange="window.carregarFotoParaAjuste(event)" class="display-none">
+            <input type="file" id="input-upload-galeria" accept="image/*" onchange="window.carregarFotoParaAjuste(event)" style="display: none;">
             
             <div id="balao-aviso-limite" class="balao-alerta-limite oculto">
                 ⚠️ Limite de 6 fotos atingido! Para adicionar uma nova, exclua uma foto da sua galeria.
@@ -761,7 +631,7 @@
         </div>
 
         <div class="secao-exclusao-perfil">
-            <button type="button" id="btn-acao-logout" onclick="window.fazerLogout()" class="btn-logout-conta-ui">
+            <button type="button" id="btn-acao-logout" onclick="window.sairDaConta()" class="btn-logout-conta-ui">
                 🚪 Sair da Conta
             </button>
 
@@ -772,33 +642,13 @@
     </div>
 </div>
 
-<!-- 2. POP-UP DE CORTE DE FOTO -->
-<div id="modal-corte-foto" class="modal-overlay-ui oculto">
-    <div class="card-corte-container">
-        <div class="header-corte-box">
-            <h3>Ajustar Foto de Perfil 🖼️</h3>
-            <p>Arraste e ajuste sua foto dentro da moldura circular</p>
-        </div>
-
-        <div class="cropper-wrapper-circulo">
-            <img id="img-crop-target" src="" alt="Ajustar Imagem">
-        </div>
-
-        <div class="botoes-corte-row">
-            <button type="button" class="btn-corte-cancelar" onclick="window.fecharModalCorte()">Cancelar</button>
-            <button type="button" class="btn-corte-confirmar" onclick="window.confirmarCorteFoto()">Confirmar Foto</button>
-        </div>
-    </div>
-</div>
-
-<!-- 3. MODAL DE RELATÓRIO E ACOMPANHAMENTO -->
-<div id="modal-relatorio" class="modal-overlay-ui oculto display-none">
+<!-- 2. MODAL DE RELATÓRIO E ACOMPANHAMENTO -->
+<div id="modal-relatorio" class="modal-overlay-ui oculto">
     <div class="card-relatorio-ui">
-        
         <div class="modal-header-relatorio">
             <div class="titulo-relatorio-box">
                 <span class="badge-tag-relatorio">📊 PAINEL PEDAGÓGICO</span>
-                 alienation<h2>Relatório de Desempenho</h2>
+                <h2>Relatório de Desempenho</h2>
             </div>
             <button class="btn-fechar-modal" onclick="window.fecharModalRelatorio()">✖</button>
         </div>
@@ -812,13 +662,6 @@
                 <h3 id="relatorio-nome-usuario">ODILON MAIA</h3>
                 <span class="badge-status-relatorio">Nível: Explorador Espacial 🚀</span>
             </div>
-        </div>
-
-        <div class="seletor-dependente-box">
-            <span class="label-dependente">Visualizando dados de:</span>
-            <select id="select-perfil-relatorio" class="select-futurista-ui" onchange="window.trocarVisualizacaoRelatorio(this.value)">
-                <option value="meu_perfil">👤 Meu Perfil (Jogador)</option>
-            </select>
         </div>
 
         <div class="abas-relatorio-nav">
@@ -924,7 +767,7 @@
         </div>
 
         <!-- ABA 2: ESTATÍSTICAS E EVOLUÇÃO -->
-        <div id="conteudo-aba-evolucao" class="aba-conteudo-relatorio display-none">
+        <div id="conteudo-aba-evolucao" class="aba-conteudo-relatorio" style="display: none;">
             <div class="painel-filtros-pais">
                 <div class="grupo-filtro">
                     <label for="filtro-operacao-grafico">🎯 Filtrar Operação:</label>
@@ -956,92 +799,18 @@
                 <canvas id="graficoVolumeQuestoes" height="150"></canvas>
             </div>
         </div>
-
-        <!-- ABA 3: CONECTAR CONTA -->
-        <div id="conteudo-aba-vinculo" class="aba-conteudo-relatorio display-none">
-            <div class="card-acao-vinculo">
-                <h4>👧 Gerar Código de Acesso para o Responsável</h4>
-                <p>Gere um código de 6 dígitos para que seus pais acompanhem seu relatório no celular deles.</p>
-                <div class="box-codigo-gerado">
-                    <span id="display-codigo-vinculo" class="codigo-destaque">TB-8492</span>
-                    <button class="btn-copiar-codigo" onclick="window.gerarOuCopiarCodigoVinculo()">🔄 Gerar / Copiar</button>
-                </div>
-            </div>
-
-            <div class="divisor-ou"><span>OU</span></div>
-
-            <div class="card-acao-vinculo">
-                <h4>👨‍👩‍👧‍👦 Conectar Conta de Aluno/Filho</h4>
-                <p>Digite o código gerado no celular da sua filha para vincular a conta dela ao seu app.</p>
-                
-                <div class="form-input-codigo-row">
-                    <input type="text" id="input-codigo-vinculo" class="input-codigo-ui" placeholder="Ex: TB-8492" maxlength="7">
-                    <button class="btn-conectar-vinculo" onclick="window.vincularCodigoDependente()">Conectar</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
-<!-- 4. MODAL INSTITUCIONAL: SOBRE -->
-<div id="modal-sobre-contato" class="modal-overlay-ui oculto">
-    <div class="card-painel-container">
-        <h2 class="titulo-modal-inst">
-            Sobre o tabuadafacil.com.br 🚀
-        </h2>
-        
-        <p class="texto-modal-inst">
-            O <b>Tabuada Fácil</b> é uma plataforma educacional interativa desenvolvida para auxiliar estudantes, pais e educadores na prática e no aprendizado do cálculo mental e da matemática básica.
-        </p>
-
-        <h3 class="subtitulo-modal-inst-purple">Recursos Principais</h3>
-        <ul class="lista-modal-inst">
-            <li>Trilha Espacial de Aprendizado com sistema de maestria.</li>
-            <li>Modo Relâmpago com cronômetro e ranking global unificado.</li>
-            <li>Consultas interativas de tabuadas das 4 operações.</li>
-            <li>Suporte a funcionamento offline via PWA.</li>
-        </ul>
-
-        <h3 class="subtitulo-modal-inst-orange">Contato e Suporte ✉️</h3>
-        <p class="box-email-suporte">
-            omarapps87@gmail.com
-        </p>
-
-        <button id="btn-fechar-sobre" class="btn-voltar-futurista">Fechar</button>
-    </div>
-</div>
-
-<!-- 5. MODAL INSTITUCIONAL: PRIVACIDADE -->
-<div id="modal-privacidade" class="modal-overlay-ui oculto">
-    <div class="card-painel-container">
-        <h2 class="titulo-modal-inst">
-            Política de Privacidade 🔒
-        </h2>
-
-        <p class="texto-modal-inst-small">
-            A sua privacidade é extremamente importante para nós. Respeitamos a sua privacidade em relação a qualquer informação coletada.
-        </p>
-
-        <button id="btn-fechar-privacidade" class="btn-voltar-futurista margin-top-12">Fechar</button>
-    </div>
-</div>
-
-<!-- 6. MODAL DE PAYWALL / PLANOS -->
-<div id="modal-paywall-planos" class="paywall-overlay oculto display-none-important">
+<!-- 3. MODAL DE PAYWALL / PLANOS -->
+<div id="modal-paywall-planos" class="paywall-overlay oculto">
     <div class="card-painel-container max-width-480-important">
-        
         <button onclick="window.fecharPaywall()" class="btn-fechar-modal">&times;</button>
 
         <div class="sub-header-paywall">
             ⚡ O Método Definitivo para a Tabuada Virar Reflexo Automático
         </div>
-        <h3 class="titulo-paywall">
-            Diga Adeus à Contagem nos Dedos!
-        </h3>
-        <p class="desc-paywall">
-            O Tabuada Fácil substitui a 'decoreba' cansativa por um algoritmo inteligente de repetição espaçada que transforma cálculos em respostas automáticas e sem esforço.
-        </p>
+        <h3 class="titulo-paywall">Diga Adeus à Contagem nos Dedos!</h3>
 
         <div class="tabs-paywall-row">
             <button class="tab-paywall-btn active" onclick="window.alternarAbaPaywall('pro')">
@@ -1055,25 +824,11 @@
         <div id="conteudo-aba-pro">
             <div class="box-recursos-paywall">
                 <div class="item-recurso-paywall">
-                    <span class="check-icon">✓</span>
-                    Algoritmo Anti-Inércia (Foco automático nas maiores dúvidas)
+                    <span class="check-icon">✓</span> Algoritmo Anti-Inércia
                 </div>
                 <div class="item-recurso-paywall">
-                    <span class="check-icon">✓</span>
-                    Vidas Ilimitadas & Desbloqueio de Todos os 15 Planetas
+                    <span class="check-icon">✓</span> Vidas Ilimitadas & Todos os Planetas
                 </div>
-                <div class="item-recurso-paywall">
-                    <span class="check-icon">✓</span>
-                    Zero Anúncios & Acesso Completo aos Rankings Globais
-                </div>
-            </div>
-
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'pro_mensal', '9,90')">
-                <div class="text-align-left">
-                    <span class="tit-duracao">Mensal</span>
-                    <span class="sub-duracao">Ideal para testar</span>
-                </div>
-                <span class="preco-pro">R$ 9,90 <small>/mês</small></span>
             </div>
 
             <div class="card-duracao destaque-recomendado selecionado" onclick="window.selecionarDuracao(this, 'pro_trimestral', '24,90')">
@@ -1086,68 +841,6 @@
                 </div>
                 <div class="text-align-right">
                     <span class="preco-pro-destaque">R$ 24,90</span>
-                    <span class="sub-preco">R$ 8,30/mês</span>
-                </div>
-            </div>
-
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'pro_semestral', '34,90')">
-                <div class="text-align-left">
-                    <span class="tit-duracao">Semestral (6 Meses)</span>
-                    <span class="sub-duracao-green">Economia Máxima</span>
-                </div>
-                <div class="text-align-right">
-                    <span class="preco-pro">R$ 34,90</span>
-                    <span class="sub-preco">R$ 5,81/mês</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="conteudo-aba-familia" class="display-none">
-            <div class="box-recursos-paywall">
-                <div class="item-recurso-paywall">
-                    <span class="check-icon">✓</span>
-                    Tudo do Plano PRO 💎 incluso
-                </div>
-                <div class="item-recurso-paywall">
-                    <span class="check-icon">✓</span>
-                    Até 3 Perfis Individuais (Evolução independente por filho)
-                </div>
-                <div class="item-recurso-paywall">
-                    <span class="check-icon">✓</span>
-                    Relatório Pedagógico com Índice de Reflexo e Erros em PDF
-                </div>
-            </div>
-
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'fam_mensal', '14,90')">
-                <div class="text-align-left">
-                    <span class="tit-duracao">Mensal Família</span>
-                    <span class="sub-duracao">Ideal para testar</span>
-                </div>
-                <span class="preco-fam">R$ 14,90 <small>/mês</small></span>
-            </div>
-
-            <div class="card-duracao destaque-recomendado" onclick="window.selecionarDuracao(this, 'fam_trimestral', '32,90')">
-                <div class="flex-align-center-gap8">
-                    <span>⭐</span>
-                    <div class="text-align-left">
-                        <span class="tag-popular-gold">RECOMENDADO PARA PAIS</span>
-                        <span class="nome-duracao-highlight">Trimestral (3 Meses)</span>
-                    </div>
-                </div>
-                <div class="text-align-right">
-                    <span class="preco-fam-destaque">R$ 32,90</span>
-                    <span class="sub-preco">R$ 10,96/mês</span>
-                </div>
-            </div>
-
-            <div class="card-duracao" onclick="window.selecionarDuracao(this, 'fam_semestral', '49,90')">
-                <div class="text-align-left">
-                    <span class="tit-duracao">Semestral Família (6 Meses)</span>
-                    <span class="sub-duracao-green">Melhor Custo-Benefício</span>
-                </div>
-                <div class="text-align-right">
-                    <span class="preco-fam">R$ 49,90</span>
-                    <span class="sub-preco">R$ 8,31/mês</span>
                 </div>
             </div>
         </div>
@@ -1155,122 +848,16 @@
         <button id="btn-paywall-confirmar" onclick="window.processarPagamentoSelecionado()" class="btn-comecar-desafio btn-assinar-paywall">
             ASSINAR AGORA POR R$ 24,90 🚀
         </button>
-
-        <div class="garantia-box-paywall">
-            <span>🛡️</span>
-            <span><b>Garantia do Método:</b> Desenvolvido com repetição focada para fixar o aprendizado na memória de longo prazo.</span>
-        </div>
-
     </div>
 </div>
 
-<!-- 7. MODAL DE CONFIRMAÇÃO DE SEGURANÇA -->
-<div id="modal-confirmar-exclusao-seguranca" class="modal-overlay-ui oculto display-none">
-    <div class="card-painel-container modal-seguranca-box">
-        
-        <div class="icon-shield-exclusao">🛡️</div>
-        <h3 id="exclusao-titulo-modal" class="titulo-modal-exclusao">Confirmar Exclusão</h3>
-        
-        <p id="exclusao-subtitulo-modal" class="subtitulo-modal-exclusao">
-            Esta ação apagará seus dados permanentemente.
-        </p>
-
-        <div id="container-campo-senha-exclusao" class="margin-bottom-14">
-            <input type="password" id="input-senha-reautenticacao" placeholder="Digite sua senha do app" class="input-senha-seguranca" />
-        </div>
-
-        <div id="container-campo-texto-exclusao" class="margin-bottom-16 display-none">
-            <label class="label-confirm-excluir">Digite a palavra <b>EXCLUIR</b>:</label>
-            <input type="text" id="input-texto-confirmacao-exclusao" placeholder="EXCLUIR" class="input-texto-confirm-excluir" />
-        </div>
-
-        <div class="flex-gap-10 margin-top-10">
-            <button type="button" onclick="window.fecharModalSegurancaExclusao()" class="btn-cancelar-exclusao">
-                Cancelar
-            </button>
-            <button type="button" id="btn-executar-exclusao-final" class="btn-comecar-desafio btn-executar-exclusao">
-                Confirmar
-            </button>
-        </div>
-
-    </div>
-</div>
-
-<!-- SCRIPT DE GERENCIAMENTO DAS ABAS NAV E MODAIS INSTITUCIONAIS -->
+<!-- SCRIPT DE GERENCIAMENTO DE TELA E NAVEGAÇÃO -->
 <script>
     function sincronizarPlanoSeDisponivel() {
         if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
             window.sincronizarInterfaceGlobalPlano();
         }
     }
-
-    window.navegarAbaNav = function(idTelaAlvo, btnElement) {
-        if (typeof window.mudarTela === 'function') {
-            window.mudarTela(idTelaAlvo);
-        } else {
-            var telas = document.querySelectorAll('.app-content-area > .tela');
-            telas.forEach(function(t) {
-                t.classList.add('oculto');
-                t.classList.remove('ativo');
-                t.style.display = 'none';
-            });
-
-            var telaDestino = document.getElementById(idTelaAlvo);
-            if (telaDestino) {
-                telaDestino.classList.remove('oculto');
-                telaDestino.classList.add('ativo');
-                telaDestino.style.display = 'block';
-            }
-        }
-
-        var botoesNav = document.querySelectorAll('.bottom-nav-app .btn-nav-item');
-        botoesNav.forEach(function(b) {
-            b.classList.remove('ativo');
-        });
-        if (btnElement) {
-            btnElement.classList.add('ativo');
-        }
-
-        sincronizarPlanoSeDisponivel();
-    };
-
-    window.abrirModalSobre = function(e) { 
-        if (e && e.preventDefault) e.preventDefault();
-        if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-        var el = document.getElementById('modal-sobre-contato');
-        if (el) {
-            el.classList.remove('oculto');
-            el.style.display = 'flex';
-        }
-    };
-
-    window.fecharModalSobre = function() { 
-        if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-        var el = document.getElementById('modal-sobre-contato');
-        if (el) {
-            el.classList.add('oculto');
-            el.style.display = 'none';
-        }
-    };
-
-    window.abrirModalPrivacidade = function(e) { 
-        if (e && e.preventDefault) e.preventDefault();
-        if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-        var el = document.getElementById('modal-privacidade');
-        if (el) {
-            el.classList.remove('oculto');
-            el.style.display = 'flex';
-        }
-    };
-
-    window.fecharModalPrivacidade = function() { 
-        if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-        var el = document.getElementById('modal-privacidade');
-        if (el) {
-            el.classList.add('oculto');
-            el.style.display = 'none';
-        }
-    };
 
     document.addEventListener('DOMContentLoaded', function() {
         sincronizarPlanoSeDisponivel();
@@ -1281,8 +868,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-<!-- SCRIPT PRINCIPAL -->
-<script type="module" src="js/app.js?v=6.2"></script>
+<!-- SCRIPT PRINCIPAL DA APLICAÇÃO -->
+<script type="module" src="js/app.js?v=6.3"></script>
 
 </body>
 </html>

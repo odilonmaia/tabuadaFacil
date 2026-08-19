@@ -642,7 +642,19 @@
     </div>
 </div>
 
-<!-- 2. MODAL DE RELATÓRIO E ACOMPANHAMENTO -->
+<!-- 2. MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE CONTA -->
+<div id="modal-confirmar-exclusao" class="modal-overlay-ui oculto">
+    <div class="card-painel-container text-center">
+        <h3 class="titulo-vitoria-neon" style="color: #ef4444;">Excluir Conta?</h3>
+        <p class="subtitulo-vitoria margin-bottom-12">Esta ação é irreversível e apagará todo o seu progresso no jogo.</p>
+        <div class="stack-botoes-full">
+            <button type="button" onclick="window.confirmarExclusaoEfetivaConta()" class="btn-excluir-conta-acao">SIM, EXCLUIR DEFINITIVAMENTE</button>
+            <button type="button" onclick="window.fecharModalExclusao()" class="btn-voltar-futurista">CANCELAR</button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. MODAL DE RELATÓRIO E ACOMPANHAMENTO -->
 <div id="modal-relatorio" class="modal-overlay-ui oculto">
     <div class="card-relatorio-ui">
         <div class="modal-header-relatorio">
@@ -659,7 +671,7 @@
             </div>
 
             <div class="info-jogador-relatorio">
-                <h3 id="relatorio-nome-usuario">ODILON MAIA</h3>
+                <h3 id="relatorio-nome-usuario">JOGADOR</h3>
                 <span class="badge-status-relatorio">Nível: Explorador Espacial 🚀</span>
             </div>
         </div>
@@ -802,7 +814,7 @@
     </div>
 </div>
 
-<!-- 3. MODAL DE PAYWALL / PLANOS -->
+<!-- 4. MODAL DE PAYWALL / PLANOS -->
 <div id="modal-paywall-planos" class="paywall-overlay oculto">
     <div class="card-painel-container max-width-480-important">
         <button onclick="window.fecharPaywall()" class="btn-fechar-modal">&times;</button>

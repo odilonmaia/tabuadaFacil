@@ -82,7 +82,7 @@ const CATALOGO_TABY = [
 
 let tempoInicioSessao = Date.now();
 let avisoPausaExibido = false;
-let tipoJogoSelecionado = 'normal';
+let tipoJogoSelecionado = 'treino'; // Unificado para 'treino'
 let operacoesSelecionadas = ['multiplicacao'];
 let filaOperacoesJogo = [];
 let usuarioAtualLogado = null;
@@ -417,7 +417,7 @@ onAuthStateChanged(auth, async (user) => {
 
 window.carregarOuCriarPerfilPrincipal = function(uid, nome, email, fotoUrl) {
     let perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
-    let perfilAtivo = perfisLocais.find(p => p.uid === uid || p.id === uid);
+    let perfilAtivo = perfisLocais.find(p => p.uid === uid || p.id === uid || p.perfilId === uid);
 
     if (!perfilAtivo) {
         perfilAtivo = {
@@ -1224,7 +1224,7 @@ window.carregarFotoParaAjuste = function(event) {
     if (!files || files.length === 0) return;
 
     if (typeof Cropper === 'undefined') {
-        alert("A biblioteca de ajuste de imagem ainda está carregando. Tente novamente em alguns instantes.");
+        alert("A biblioteca de ajuste de imagem ainda está carregando ou não foi encontrada no HTML. Certifique-se de carregar o Cropper.js.");
         return;
     }
 
@@ -1477,7 +1477,7 @@ function garantirPerfilIdUnico(perfil) {
     if (!perfil) return null;
     if (perfil.perfilId) return perfil;
 
-    const novoPerfilId = 'prf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    const novoPerfilId = 'prf_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
     perfil.perfilId = novoPerfilId;
     perfil.id = novoPerfilId;
 
@@ -2151,11 +2151,11 @@ window.atualizarHUDVidasPartida = function() {
 };
 
 function atualizarBotoesOperacaoVisual() {
-    Object.values(mapaIds).forEach(idBtn => {
-        const el = document.getElementById(idBtn);
-        if (el) el.classList.remove('selecionado');
-    });
+    // 1. Limpa a classe de seleção de TODOS os botões no DOM
+    const todosBotoesOp = document.querySelectorAll('.btn-op-redesign, .btn-insano-destaque, #btn-op-mult, #btn-op-div, #btn-op-add, #btn-op-sub, #btn-op-insano');
+    todosBotoesOp.forEach(btn => btn.classList.remove('selecionado', 'ativo'));
 
+    // 2. Aplica a classe selecionado apenas para quem estiver no array
     operacoesSelecionadas.forEach(op => {
         const idBtn = mapaIds[op];
         const el = document.getElementById(idBtn);
@@ -2257,7 +2257,7 @@ window.iniciarJogo = function() {
 
     prepararFilaOperacoes();
 
-    if (tipoJogoSelecionado === 'normal' || operacoesSelecionadas.includes('insano')) {
+    if (tipoJogoSelecionado === 'treino' || operacoesSelecionadas.includes('insano')) {
         executarCarregamentoJogoReal();
     } else {
         window.mudarTela('tela-pre-jogo');
@@ -2300,7 +2300,7 @@ function prepararFilaOperacoes() {
         const qtdOps = Math.max(1, operacoesSelecionadas.length);
         let repeticoes = 10;
 
-        if (tipoJogoSelecionado === 'normal') {
+        if (tipoJogoSelecionado === 'treino') {
             if (qtdOps === 2) repeticoes = 5;
             else if (qtdOps === 3) repeticoes = 4;
             else if (qtdOps === 4) repeticoes = 3;
@@ -2346,7 +2346,7 @@ window.comecarDesafioEfetivo = function() {
 };
 
 // =========================================================================
-// CORREÇÃO DO FLUXO DE ENTRADA E RENDERIZAÇÃO DA PERGUNTA
+// FLUXO DE ENTRADA E RENDERIZAÇÃO DA PERGUNTA
 // =========================================================================
 function executarCarregamentoJogoReal() {
     if (timerTransicaoQuestao) clearTimeout(timerTransicaoQuestao);
@@ -2518,12 +2518,18 @@ window.verificarEscolha = function(indice) {
             }
 
             if (!window.verificarSeEhPro()) {
-                if (typeof window.vidasUsuario !== 'undefined') {
-                    window.vidasUsuario = Math.max(0, window.vidasUsuario - 1);
+                let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+                saldoVidas = Math.max(0, saldoVidas - 1);
+                localStorage.setItem('usuario_vidas', saldoVidas.toString());
+
+                if (saldoVidas === 0 && !localStorage.getItem('usuario_proxima_vida_timestamp')) {
+                    const proximoTempo = Date.now() + TEMPO_REGENERACAO_MS;
+                    localStorage.setItem('usuario_proxima_vida_timestamp', proximoTempo.toString());
                 }
+
                 window.atualizarHUDVidasPartida();
 
-                if (window.vidasUsuario <= 0) {
+                if (saldoVidas <= 0) {
                     semVidasDerrota = true;
                 }
             }
@@ -2538,7 +2544,9 @@ window.verificarEscolha = function(indice) {
     timerTransicaoQuestao = setTimeout(() => {
         try {
             if (semVidasDerrota) {
-                if (typeof window.abrirPaywall === 'function') {
+                if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+                    window.exibirModalVidasEsgotadasTaby();
+                } else if (typeof window.abrirPaywall === 'function') {
                     window.abrirPaywall();
                 } else {
                     alert("Suas vidas acabaram! Faça upgrade para o Plano PRO para jogar com vidas ilimitadas.");
@@ -3511,7 +3519,6 @@ window.assistirAnuncioPorVida = function() {
         saldoVidas += 1;
         localStorage.setItem('usuario_vidas', saldoVidas.toString());
         
-        // 🔄 Atualiza todos os elementos visuais na tela inicial e HUD
         if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
             window.sincronizarInterfaceGlobalPlano();
         } else if (typeof window.atualizarInterfaceVidas === 'function') {
@@ -3525,7 +3532,6 @@ window.assistirAnuncioPorVida = function() {
         alert("🎉 Parabéns! Você assistiu ao vídeo e ganhou +1 Vida! ❤️");
     };
 
-    // Execução do anúncio (Nativo/AdMob ou Simulação Web)
     if (window.AdsManager && typeof window.AdsManager.exibirRecompensado === 'function') {
         window.AdsManager.exibirRecompensado(
             concederVidaEAtualizarUI,
@@ -3536,7 +3542,7 @@ window.assistirAnuncioPorVida = function() {
     } else {
         concederVidaEAtualizarUI();
     }
-}
+};
 
 window.exibirModalVidasEsgotadasTaby = function() {
     if (typeof tocarSom === 'function') tocarSom('erro');
@@ -4089,11 +4095,13 @@ window.alternarAbaRelatorio = function(aba) {
     }
 };
 
-if (typeof ChartDataLabels !== 'undefined') {
+if (typeof ChartDataLabels !== 'undefined' && typeof Chart !== 'undefined') {
     Chart.register(ChartDataLabels);
 }
 
 window.atualizarGraficosEvolucao = function() {
+    if (typeof Chart === 'undefined') return;
+
     const filtroOp = document.getElementById('filtro-operacao-grafico')?.value || 'todos';
     const filtroPeriodo = document.getElementById('filtro-periodo-grafico')?.value || '7dias';
 
@@ -4949,7 +4957,7 @@ window.AdsManager = {
 };
 
 // =========================================================================
-// CONTROLE DE MODOS (TREINO / RELÂMPAGO) E MODO INSANO
+// CONTROLE DE MODOS (TREINO / RELÂMPAGO) E MODO INSANO (PADRONIZADO)
 // =========================================================================
 
 window.selecionarOperacao = function(op) {
@@ -4976,38 +4984,28 @@ window.selecionarOperacao = function(op) {
     atualizarBotoesOperacaoVisual();
 };
 
-window.selecionarModoRelampago = function() {
-    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-    
-    tipoJogoSelecionado = 'relampago';
-    
-    const btnTreino = document.getElementById('btn-modo-treino');
-    const btnRelampago = document.getElementById('btn-modo-relampago');
-    if (btnTreino) btnTreino.classList.remove('selecionado', 'ativo');
-    if (btnRelampago) btnRelampago.classList.add('selecionado', 'ativo');
+// Função do Modo Treino
+window.selecionarModoTreino = function() {
+    // 1. Atualiza os estados dos botões de modo
+    document.getElementById('btn-modo-treino')?.classList.add('selecionado');
+    document.getElementById('btn-modo-relampago')?.classList.remove('selecionado');
 
+    // 2. CORREÇÃO: Esconde o Modo Insano no Modo Treino
     const btnInsano = document.getElementById('btn-op-insano');
     if (btnInsano) {
-        btnInsano.classList.remove('oculto');
+        btnInsano.classList.add('oculto'); // ou btnInsano.style.display = 'none';
     }
 };
 
-window.selecionarModoTreino = function() {
-    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
-    
-    if (typeof window.selecionarTipoJogo === 'function') {
-        window.selecionarTipoJogo('normal');
-    } else {
-        tipoJogoSelecionado = 'normal';
-    }
-    
-    const btnTreino = document.getElementById('btn-modo-treino');
-    const btnRelampago = document.getElementById('btn-modo-relampago');
-    if (btnRelampago) btnRelampago.classList.remove('selecionado', 'ativo');
-    if (btnTreino) btnTreino.classList.add('selecionado', 'ativo');
+// Função do Modo Relâmpago
+window.selecionarModoRelampago = function() {
+    // 1. Atualiza os estados dos botões de modo
+    document.getElementById('btn-modo-treino')?.classList.remove('selecionado');
+    document.getElementById('btn-modo-relampago')?.classList.add('selecionado');
 
+    // 2. Exibe o Modo Insano no Modo Relâmpago
     const btnInsano = document.getElementById('btn-op-insano');
     if (btnInsano) {
-        btnInsano.classList.remove('oculto');
+        btnInsano.classList.remove('oculto'); // ou btnInsano.style.display = 'block';
     }
 };

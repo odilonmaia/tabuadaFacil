@@ -382,6 +382,28 @@ body {
     width: 100%;
 }
 
+/* MINI RANKING NO SUB-HEADER DA SAUDAÇÃO */
+.mini-ranking-topo {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    justify-content: center;
+}
+
+.badge-treino, .badge-relampago {
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 3px 8px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+}
+
+.badge-treino b, .badge-relampago b {
+    color: var(--accent-blue);
+}
+
 /* TABY MINI CARD NO PAINEL */
 .card-taby-mini {
     display: flex;
@@ -674,7 +696,7 @@ button {
 /* 4. PROTEÇÃO PARA OCULTAR ELEMENTOS COM ALTA ESPECIFICIDADE */
 .configurador-desafio-box .oculto,
 .oculto {
-    display: none;
+    display: none !important;
 }
 
 /* 5. BOTÕES DE AÇÃO DO FLUXO */
@@ -984,6 +1006,14 @@ body {
     color: #e2e8f0;
 }
 
+/* STACK DE BOTOES EM MODAIS */
+.stack-botoes-full {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
 /* ADSENSE CONTAINER BOX */
 .adsense-container-box {
     width: 100%;
@@ -1017,7 +1047,7 @@ body {
 .margin-top-10 { margin-top: 10px; }
 .margin-top-12 { margin-top: 12px; }
 .margin-top-15 { margin-top: 15px; }
-.display-none { display: none; }
+.display-none { display: none !important; }
 .flex-align-center-gap { display: flex; align-items: center; gap: 10px; }
 .flex-justify-center { display: flex; justify-content: center; }
 
@@ -1033,7 +1063,7 @@ button.oculto,
 span.oculto,
 .modal-overlay-ui.oculto,
 .paywall-overlay.oculto {
-    display: none;
+    display: none !important;
 }
 
 /* ==========================================================
@@ -1064,7 +1094,7 @@ span.oculto,
 }
 
 .bottom-nav-app.oculto-na-partida {
-    display: none;
+    display: none !important;
 }
 
 #tela-jogo .taby-gameplay-dica {
@@ -1954,7 +1984,6 @@ span.oculto,
    MODAL FUTURISTA DE VIDAS ESGOTADAS
    ========================================================== */
 
-/* Container Principal do Card */
 .card-modal-vidas-esgotadas {
     background: #0f172a;
     border: 1.5px solid rgba(239, 68, 68, 0.5);
@@ -1986,7 +2015,6 @@ span.oculto,
     margin: 0;
 }
 
-/* Card de Regeneração Interno */
 .card-info-regeneracao {
     background: rgba(30, 41, 59, 0.75);
     border: 1px solid rgba(56, 189, 248, 0.3);
@@ -2017,7 +2045,6 @@ span.oculto,
     margin: 0;
 }
 
-/* Stack de Botões de Ação */
 .stack-botoes-sem-vidas {
     display: flex;
     flex-direction: column;
@@ -2025,7 +2052,6 @@ span.oculto,
     width: 100%;
 }
 
-/* 1. Botão Assistir Vídeo Neon Verde */
 .btn-assistir-video-modal {
     width: 100%;
     min-height: 46px;
@@ -2050,7 +2076,6 @@ span.oculto,
     color: #ffffff;
 }
 
-/* 2. Botão Seja PRO / Premium */
 .btn-seja-pro-modal {
     width: 100%;
     min-height: 48px;
@@ -2079,7 +2104,6 @@ span.oculto,
     font-size: 16px;
 }
 
-/* Botão de Fechar / Aguardar */
 .btn-aguardar-regeneracao {
     background: transparent;
     border: none;
@@ -2102,7 +2126,6 @@ span.oculto,
    ESTILIZAÇÃO UNIFICADA E ABSOLUTA: MODAL VIDAS ESGOTADAS
    ========================================================== */
 
-/* 1. MOLDURA DO CARD */
 #modal-sem-vidas .card-modal-vidas-esgotadas,
 #modal-vidas-esgotadas .card-modal-vidas-esgotadas,
 #modal-sem-vidas > div,
@@ -2123,7 +2146,6 @@ span.oculto,
     box-sizing: border-box;
 }
 
-/* 2. BOTÃO FECHAR (X) NO CANTO SUPERIOR RIGHT */
 #modal-sem-vidas .btn-fechar-x-modal,
 #modal-sem-vidas .btn-fechar-modal,
 .card-modal-vidas-esgotadas .btn-fechar-x-modal {
@@ -2149,7 +2171,6 @@ span.oculto,
     transform: scale(1.15);
 }
 
-/* 3. CARD DE INFORMAÇÕES E CRONÔMETRO */
 #modal-sem-vidas .card-info-regeneracao,
 #modal-sem-vidas div[class*="card-info"],
 #modal-sem-vidas div:has(> #tempo-restante-modal-sem-vidas) {
@@ -2179,7 +2200,6 @@ span.oculto,
     text-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
 }
 
-/* 4. BOTÃO 1: ASSISTIR VÍDEO (+1 VIDA) - FORÇANDO VERDE NEON */
 #modal-sem-vidas button[onclick*="assistir"],
 #modal-sem-vidas .btn-assistir-video-modal,
 #btn-modal-ad-vida {
@@ -2207,7 +2227,6 @@ span.oculto,
     color: #ffffff;
 }
 
-/* 5. BOTÃO 2: SEJA PRO / PREMIUM - LARANJA / DOURADO NEON */
 #modal-sem-vidas button[onclick*="Paywall"],
 #modal-sem-vidas button[onclick*="paywall"],
 #modal-sem-vidas .btn-seja-pro-modal {
@@ -2235,7 +2254,6 @@ span.oculto,
     box-shadow: 0 0 22px rgba(251, 191, 36, 0.6);
 }
 
-/* 6. LINK/BOTÃO INFERIOR AGUARDAR REGENERAÇÃO */
 #modal-sem-vidas .btn-aguardar-regeneracao,
 #modal-sem-vidas button:last-child {
     background: transparent;
@@ -2251,7 +2269,6 @@ span.oculto,
     min-height: auto;
 }
 
-/* Ajuste fino do HUD de gameplay para pílula unificada */
 .header-partida-hud .hud-vida-futurista {
     background: transparent;
     border: none;
@@ -2269,20 +2286,18 @@ span.oculto,
     color: #f8fafc;
 }
 
-/* Oculta o divisor de linha quando o cronômetro estiver oculto */
 #container-cronometro.oculto {
-    display: none;
+    display: none !important;
 }
 
 /* ==========================================================
    CORREÇÃO DE UX/UI PARA A TELA DE TRILHA ESPACIAL
    ========================================================== */
 
-/* 1. Centralizar o HUD de Vidas na Trilha */
 .topo-trilha-hud {
     width: 100%;
     display: flex;
-    justify-content: center; /* Centraliza o elemento horizontalmente */
+    justify-content: center;
     align-items: center;
     padding: 0;
     margin-bottom: 2px;
@@ -2300,7 +2315,6 @@ span.oculto,
     backdrop-filter: blur(8px);
 }
 
-/* 2. Posicionamento correto do Botão "X" de Fechar no Balão */
 #balao-taby-trilha,
 .balao-taby-container {
     position: relative;
@@ -2308,7 +2322,7 @@ span.oculto,
     background: rgba(30, 41, 59, 0.8);
     border: 1.5px solid rgba(56, 189, 248, 0.35);
     border-radius: 16px;
-    padding: 12px 36px 12px 14px; /* Adiciona espaço à direita para o X não encostar no texto */
+    padding: 12px 36px 12px 14px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -2321,7 +2335,7 @@ span.oculto,
 .btn-fechar-balao {
     position: absolute;
     top: 12px;
-    right: 12px; /* Posiciona com margem proporcional correta */
+    right: 12px;
     width: 22px;
     height: 22px;
     background: rgba(15, 23, 42, 0.9);

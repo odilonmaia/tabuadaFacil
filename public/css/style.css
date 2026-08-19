@@ -65,7 +65,7 @@ body {
     align-items: center;
 }
 
-/* CONTAINER PRINCIPAL DO VIEWPORT DO APP */
+/* 1. CONTAINER PRINCIPAL (MOLDURA) */
 .app-viewport {
     width: 100%;
     max-width: 440px;
@@ -76,12 +76,7 @@ body {
     position: relative;
     box-sizing: border-box;
     background: radial-gradient(ellipse at top, #111827 0%, #070a12 100%);
-    
-    /* SUPORTE PARA NOTCH E HOME BAR DO IPHONE */
-    padding-top: max(8px, env(safe-area-inset-top));
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    padding-left: max(8px, env(safe-area-inset-left));
-    padding-right: max(8px, env(safe-area-inset-right));
+    overflow: hidden;
 }
 
 @media screen and (min-width: 768px) {
@@ -146,22 +141,37 @@ body {
    HEADER TOPO GLOBAL FIXO NATIVO
    ========================================================== */
 
+/* 2. CABEÇALHO (TOPO) */
 .header-topo-global {
     width: 100%;
-    padding: 6px 12px;
+    padding: 10px 14px;
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+    box-sizing: border-box;
+    flex-shrink: 0;
     z-index: 100;
+    margin: 0;
+    border-radius: 0;
 }
 
+@media screen and (min-width: 768px) {
+    .header-topo-global {
+        border-top-left-radius: 26px;
+        border-top-right-radius: 26px;
+    }
+}
+
+/* Container interno do header */
+.header-topo-global .header-container,
 .header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin: 0 auto;
+    margin: 0;
+    border-radius: 0;
 }
 
 .header-esquerda,
@@ -285,6 +295,7 @@ body {
    BARRA DE NAVEGAÇÃO INFERIOR NATIVA (BOTTOM NAV BAR)
    ========================================================== */
 
+/* 3. RODAPÉ / NAV (BASE) */
 .bottom-nav-app {
     width: 100%;
     background: rgba(15, 23, 42, 0.95);
@@ -293,9 +304,21 @@ body {
     border-top: 1.5px solid rgba(56, 189, 248, 0.3);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    padding: 6px 4px max(6px, env(safe-area-inset-bottom)) 4px;
+    padding: 8px 4px max(8px, env(safe-area-inset-bottom)) 4px;
+    box-sizing: border-box;
+    flex-shrink: 0;
     z-index: 1000;
     box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5);
+    margin: 0;
+    border-radius: 0;
+}
+
+/* ARREDONDAMENTO EM TELAS MAIORES (DESKTOP) */
+@media screen and (min-width: 768px) {
+    .bottom-nav-app {
+        border-bottom-left-radius: 26px;
+        border-bottom-right-radius: 26px;
+    }
 }
 
 .btn-nav-item {
@@ -2005,7 +2028,7 @@ span.oculto,
 /* 1. Botão Assistir Vídeo Neon Verde */
 .btn-assistir-video-modal {
     width: 100%;
-    min-height: 48px;
+    min-height: 46px;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.35) 100%);
     border: 1.5px solid #10b981;
     border-radius: 14px;
@@ -2249,4 +2272,77 @@ span.oculto,
 /* Oculta o divisor de linha quando o cronômetro estiver oculto */
 #container-cronometro.oculto {
     display: none;
+}
+
+/* ==========================================================
+   CORREÇÃO DE UX/UI PARA A TELA DE TRILHA ESPACIAL
+   ========================================================== */
+
+/* 1. Centralizar o HUD de Vidas na Trilha */
+.topo-trilha-hud {
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centraliza o elemento horizontalmente */
+    align-items: center;
+    padding: 0;
+    margin-bottom: 2px;
+}
+
+.topo-trilha-hud .status-vidas-gameplay,
+#gameplay-hearts-trilha {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 16px;
+    padding: 4px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(8px);
+}
+
+/* 2. Posicionamento correto do Botão "X" de Fechar no Balão */
+#balao-taby-trilha,
+.balao-taby-container {
+    position: relative;
+    width: 100%;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 16px;
+    padding: 12px 36px 12px 14px; /* Adiciona espaço à direita para o X não encostar no texto */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+#balao-taby-trilha .btn-fechar-balao,
+.btn-fechar-balao {
+    position: absolute;
+    top: 12px;
+    right: 12px; /* Posiciona com margem proporcional correta */
+    width: 22px;
+    height: 22px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+#balao-taby-trilha .btn-fechar-balao:hover,
+.btn-fechar-balao:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: scale(1.1);
 }

@@ -1755,28 +1755,35 @@ window.fecharModalAjudaTaby = function() {
 window.atualizarOfensivaUsuario = function() {
     const hojeStr = new Date().toLocaleDateString('pt-BR');
     let ultimaDataStr = localStorage.getItem('usuario_ofensiva_data');
-    let diasOfensiva = parseInt(localStorage.getItem('usuario_ofensiva_dias') || '60', 10);
+    let rawOfensiva = localStorage.getItem('usuario_ofensiva_dias');
+    let diasOfensiva = parseInt(rawOfensiva || '60', 10);
 
-    // Se o valor estiver corrompido ou zerado por erro anterior, restaura para 60
+    // Proteção estrita: se for NaN ou menor/igual a 0, restaura o valor histórico (60)
     if (isNaN(diasOfensiva) || diasOfensiva <= 0) {
         diasOfensiva = 60;
+        localStorage.setItem('usuario_ofensiva_dias', '60');
     }
 
-    // Salva o valor garantido
-    localStorage.setItem('usuario_ofensiva_dias', diasOfensiva.toString());
     if (!ultimaDataStr) {
         localStorage.setItem('usuario_ofensiva_data', hojeStr);
     }
 
-    // Procura o elemento em diferentes seletores possíveis para garantir a atualização visual
-    const elementosOfensiva = [
-        document.getElementById('display-ofensiva-dias'),
-        document.getElementById('contador-ofensiva'),
-        document.querySelector('.contador-ofensiva-texto'),
-        document.querySelector('#badge-ofensiva span')
+    // Alvo direto no elemento exato da foto/interface (display-ofensiva-dias)
+    const elementoId = document.getElementById('display-ofensiva-dias');
+    if (elementoId) {
+        elementoId.innerText = diasOfensiva;
+    }
+
+    // Varre seletores alternativos por segurança
+    const seletores = [
+        '#display-ofensiva-dias',
+        '#contador-ofensiva',
+        '.contador-ofensiva-texto',
+        '#badge-ofensiva span'
     ];
 
-    elementosOfensiva.forEach(el => {
+    seletores.forEach(s => {
+        const el = document.querySelector(s);
         if (el) el.innerText = diasOfensiva;
     });
 };
@@ -2172,11 +2179,6 @@ window.atualizarHUDVidasPartida = function() {
             }
         });
     });
-
-    // Mantém os botões do painel/hub sincronizados com o saldo atual
-    if (typeof window.atualizarEstadoBotoesModo === 'function') {
-        window.atualizarEstadoBotoesModo();
-    }
 };
 
 function atualizarBotoesOperacaoVisual() {
@@ -2439,12 +2441,32 @@ function executarCarregamentoJogoReal() {
     erros = 0;
     respondendoTravado = false;
 
+    // 1. DESCONTA 1 VIDA AO INICIAR A PARTIDA (APENAS SE NÃO FOR PRO)
+    const ehPro = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
+    
+    if (!ehPro) {
+        let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '1', 10);
+        saldoVidas = Math.max(0, saldoVidas - 1);
+        localStorage.setItem('usuario_vidas', saldoVidas.toString());
+
+        // Se zerou ao entrar, inicia o timestamp de recarga (+1h)
+        if (saldoVidas === 0) {
+            const proximoTempo = Date.now() + (60 * 60 * 1000);
+            localStorage.setItem('usuario_proxima_vida_timestamp', proximoTempo.toString());
+        }
+    }
+
+    // 2. EXIBE A TELA DO JOGO E SINCRONIZA O HUD SUPERIOR
     window.mudarTela('tela-jogo');
     
     if (typeof window.atualizarHUDVidasPartida === 'function') {
         window.atualizarHUDVidasPartida();
     }
+    if (typeof window.atualizarInterfaceVidas === 'function') {
+        window.atualizarInterfaceVidas();
+    }
 
+    // 3. CONFIGURA CRONÔMETRO E PERGUNTA
     const elContCronometro = document.getElementById('container-cronometro');
     if (tipoJogoSelecionado === 'relampago') {
         if (elContCronometro) {
@@ -2550,27 +2572,17 @@ function gerarPergunta() {
 
 // VERIFICAÇÃO UNIFICADA COM TRIGGER PARA O POP-UP DO TABY
 window.verificarEscolha = function(indiceSelecionado) {
-    if (respondendoTravado) return;
-    
-    const saldoVidasActual = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-    const ehProUser = window.verificarSeEhPro();
-
-    if (saldoVidasActual <= 0 && !ehProUser) {
-        pararCronometro();
-        if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
-            window.exibirModalVidasEsgotadasTaby();
-        } else if (typeof window.abrirModalVidasAcabaram === 'function') {
-            window.abrirModalVidasAcabaram();
-        }
-        return;
-    }
+    if (respondendoTravado) return; // Evita duplo clique rápido
 
     respondendoTravado = true;
 
+    // Busca o valor real contido no botão clicado a partir do array oficial
     const valorClicado = opcoesAtuaisJogo[indiceSelecionado];
     const btnClicado = document.getElementById(`alt-${indiceSelecionado}`);
+    const ehProUser = window.verificarSeEhPro();
 
     if (valorClicado === respostaCorretaGlobal) {
+        // --- RESPOSTA CORRETA ---
         if (typeof tocarSom === 'function') tocarSom('acerto');
         if (btnClicado) btnClicado.classList.add('correto');
         acertos++;
@@ -2585,10 +2597,12 @@ window.verificarEscolha = function(indiceSelecionado) {
         }, 500);
 
     } else {
+        // --- RESPOSTA ERRADA ---
         if (typeof tocarSom === 'function') tocarSom('erro');
         if (btnClicado) btnClicado.classList.add('incorreto');
         erros++;
 
+        // Destaca a resposta certa visualmente
         for (let i = 0; i < 4; i++) {
             if (opcoesAtuaisJogo[i] === respostaCorretaGlobal) {
                 const btnCerto = document.getElementById(`alt-${i}`);
@@ -2596,37 +2610,15 @@ window.verificarEscolha = function(indiceSelecionado) {
             }
         }
 
-        if (!ehProUser) {
-            let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-            saldoVidas = Math.max(0, saldoVidas - 1);
-            localStorage.setItem('usuario_vidas', saldoVidas.toString());
-        }
-
-        if (typeof window.atualizarHUDVidasPartida === 'function') {
-            window.atualizarHUDVidasPartida();
-        }
-
-        let saldoFinalVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-
-        if (saldoFinalVidas <= 0 && !ehProUser) {
-            pararCronometro();
-            setTimeout(() => {
-                if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
-                    window.exibirModalVidasEsgotadasTaby();
-                } else if (typeof window.abrirModalVidasAcabaram === 'function') {
-                    window.abrirModalVidasAcabaram();
-                }
-            }, 700);
-        } else {
-            setTimeout(() => {
-                perguntaAtual++;
-                if (perguntaAtual > totalPerguntas) {
-                    finalizarJogo();
-                } else {
-                    gerarPergunta();
-                }
-            }, 1000);
-        }
+        // Avança normalmente para a próxima pergunta da partida atual
+        setTimeout(() => {
+            perguntaAtual++;
+            if (perguntaAtual > totalPerguntas) {
+                finalizarJogo();
+            } else {
+                gerarPergunta();
+            }
+        }, 1000);
     }
 };
 
@@ -3438,59 +3430,29 @@ window.atualizarEstadoBotoesModo = function() {
     const ehPago = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
     const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
 
-    const botoes = document.querySelectorAll(
-        '#btn-modo-trilha, #btn-modo-treino, #btn-modo-relampago, ' +
-        '#btn-op-mult, #btn-op-div, #btn-op-add, #btn-op-sub, #btn-op-insano, ' +
-        '.btn-comecar-desafio, .btn-iniciar-jogo-hub'
+    // Seleciona APENAS os botões de seleção de modo e início do HUB principal
+    const botoesHub = document.querySelectorAll(
+        '#tela-painel-jogo #btn-modo-trilha, ' +
+        '#tela-painel-jogo #btn-modo-treino, ' +
+        '#tela-painel-jogo #btn-modo-relampago, ' +
+        '#tela-painel-jogo #btn-op-mult, ' +
+        '#tela-painel-jogo #btn-op-div, ' +
+        '#tela-painel-jogo #btn-op-add, ' +
+        '#tela-painel-jogo #btn-op-sub, ' +
+        '#tela-painel-jogo #btn-op-insano, ' +
+        '#tela-painel-jogo .btn-comecar-desafio'
     );
 
-    botoes.forEach(el => {
-        if (!el) return;
-        
-        // Se possui 1 ou mais vidas (ou é PRO), destrava obrigatoriamente
-        if (ehPago || saldoVidas > 0) {
-            el.disabled = false;
-            el.style.opacity = '1';
-            el.style.filter = 'none';
-            el.style.pointerEvents = 'auto';
-            el.classList.remove('modo-desativado');
-        } else {
-            // Apenas se for exatamente 0 vidas
-            el.style.opacity = '0.5';
-            el.style.filter = 'grayscale(80%)';
-            el.style.pointerEvents = 'auto'; 
-        }
-    });
-};
-
-
-
-window.atualizarEstadoBotoesModo = function() {
-    const ehPago = window.verificarSeEhPro();
-    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
-
-    const botoes = document.querySelectorAll(
-        '#btn-modo-trilha, #btn-modo-treino, #btn-modo-relampago, ' +
-        '#btn-op-mult, #btn-op-div, #btn-op-add, #btn-op-sub, #btn-op-insano, ' +
-        '.btn-comecar-desafio, .btn-iniciar-jogo-hub'
-    );
-
-    botoes.forEach(el => {
+    botoesHub.forEach(el => {
         if (!el) return;
         
         if (ehPago || saldoVidas > 0) {
-            // Libera visualmente e habilita cliques
-            el.disabled = false;
             el.style.opacity = '1';
             el.style.filter = 'none';
-            el.style.pointerEvents = 'auto';
             el.classList.remove('modo-desativado');
         } else {
-            // Deixa com opacidade reduzida se estiver zerado
             el.style.opacity = '0.5';
             el.style.filter = 'grayscale(80%)';
-            // Não usamos disabled = true aqui para permitir que o clique abra o modal do Taby
-            el.style.pointerEvents = 'auto'; 
         }
     });
 };
@@ -5251,6 +5213,9 @@ window.irParaPainelJogo = function() {
     if (typeof window.atualizarEstadoBotoesModo === 'function') {
     window.atualizarEstadoBotoesModo();
     }
+    if (typeof window.atualizarOfensivaUsuario === 'function') {
+    window.atualizarOfensivaUsuario();
+}
 };
 
 // Função genérica para verificar vidas e abrir o modal se necessário

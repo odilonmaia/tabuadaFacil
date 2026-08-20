@@ -2503,3 +2503,13 @@ button.btn-touch-secundario {
         filter: drop-shadow(0 0 15px #38bdf8);
     }
 }
+.btn-compartilhar-resultado, 
+#btn-compartilhar-tempo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding-left: 0;
+    padding-right: 0;
+}

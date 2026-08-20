@@ -4961,17 +4961,91 @@ window.AdsManager = {
 // CONTROLE DE MODOS (TREINO / RELÂMPAGO) E MODO INSANO (PADRONIZADO)
 // =========================================================================
 
+// Helper para remover a classe visual de seleção de todos os botões de operação
+function limparSelecaoVisualOperacoes() {
+    const botoesOp = [
+        'btn-op-mult', 
+        'btn-op-div', 
+        'btn-op-add', 
+        'btn-op-sub', 
+        'btn-op-insano'
+    ];
+    
+    botoesOp.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.classList.remove('selecionado', 'ativo');
+        }
+    });
+}
+
+window.selecionarModoTreino = function() {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+    
+    tipoJogoSelecionado = 'treino';
+    
+    const btnTreino = document.getElementById('btn-modo-treino');
+    const btnRelampago = document.getElementById('btn-modo-relampago');
+    if (btnRelampago) btnRelampago.classList.remove('selecionado', 'ativo');
+    if (btnTreino) btnTreino.classList.add('selecionado', 'ativo');
+
+    // MANTÉM A ÚLTIMA OPERAÇÃO NO TREINO
+    // Se estiver vazio (veio do relâmpago) ou com 'insano', reseta para multiplicação
+    if (!operacoesSelecionadas || operacoesSelecionadas.length === 0 || operacoesSelecionadas.includes('insano')) {
+        operacoesSelecionadas = ['multiplicacao'];
+    }
+    atualizarBotoesOperacaoVisual();
+
+    // No modo Treino, ESCONDE o modo insano e EXIBE o botão "Começar Desafio"
+    const btnInsano = document.getElementById('btn-op-insano');
+    if (btnInsano) btnInsano.classList.add('oculto');
+
+    const btnStart = document.querySelector('.btn-comecar-desafio') || document.querySelector('.btn-iniciar-jogo-hub');
+    if (btnStart) btnStart.style.display = 'block';
+};
+
+window.selecionarModoRelampago = function() {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+    
+    tipoJogoSelecionado = 'relampago';
+    
+    const btnTreino = document.getElementById('btn-modo-treino');
+    const btnRelampago = document.getElementById('btn-modo-relampago');
+    if (btnTreino) btnTreino.classList.remove('selecionado', 'ativo');
+    if (btnRelampago) btnRelampago.classList.add('selecionado', 'ativo');
+
+    // LIMPA A SELEÇÃO NO MODO RELÂMPAGO
+    operacoesSelecionadas = [];
+    limparSelecaoVisualOperacoes();
+
+    // No modo Relâmpago, EXIBE o modo insano e ESCONDE o botão "Começar Desafio"
+    const btnInsano = document.getElementById('btn-op-insano');
+    if (btnInsano) btnInsano.classList.remove('oculto');
+
+    const btnStart = document.querySelector('.btn-comecar-desafio') || document.querySelector('.btn-iniciar-jogo-hub');
+    if (btnStart) btnStart.style.display = 'none';
+};
+
 window.selecionarOperacao = function(op) {
     if (typeof window.tocarSom === 'function') window.tocarSom('clique');
 
-    if (op === 'insano') {
-        operacoesSelecionadas = ['insano'];
-    } else {
-        operacoesSelecionadas = operacoesSelecionadas.filter(o => o !== 'insano');
-
-        if (tipoJogoSelecionado === 'relampago') {
-            operacoesSelecionadas = [op];
+    if (tipoJogoSelecionado === 'relampago') {
+        // No Modo Relâmpago, define a operação escolhida e INICIA O JOGO DIRETO!
+        if (op === 'insano') {
+            operacoesSelecionadas = ['insano'];
         } else {
+            operacoesSelecionadas = [op];
+        }
+        atualizarBotoesOperacaoVisual();
+        
+        // Dispara o jogo imediatamente sem precisar do botão de confirmação
+        window.iniciarJogo();
+    } else {
+        // Modo Treino (comportamento normal de múltipla seleção)
+        if (op === 'insano') {
+            operacoesSelecionadas = ['insano'];
+        } else {
+            operacoesSelecionadas = operacoesSelecionadas.filter(o => o !== 'insano');
             if (operacoesSelecionadas.includes(op)) {
                 if (operacoesSelecionadas.length > 1) {
                     operacoesSelecionadas = operacoesSelecionadas.filter(item => item !== op);
@@ -4980,33 +5054,6 @@ window.selecionarOperacao = function(op) {
                 operacoesSelecionadas.push(op);
             }
         }
-    }
-
-    atualizarBotoesOperacaoVisual();
-};
-
-// Função do Modo Treino
-window.selecionarModoTreino = function() {
-    // 1. Atualiza os estados dos botões de modo
-    document.getElementById('btn-modo-treino')?.classList.add('selecionado');
-    document.getElementById('btn-modo-relampago')?.classList.remove('selecionado');
-
-    // 2. CORREÇÃO: Esconde o Modo Insano no Modo Treino
-    const btnInsano = document.getElementById('btn-op-insano');
-    if (btnInsano) {
-        btnInsano.classList.add('oculto'); // ou btnInsano.style.display = 'none';
-    }
-};
-
-// Função do Modo Relâmpago
-window.selecionarModoRelampago = function() {
-    // 1. Atualiza os estados dos botões de modo
-    document.getElementById('btn-modo-treino')?.classList.remove('selecionado');
-    document.getElementById('btn-modo-relampago')?.classList.add('selecionado');
-
-    // 2. Exibe o Modo Insano no Modo Relâmpago
-    const btnInsano = document.getElementById('btn-op-insano');
-    if (btnInsano) {
-        btnInsano.classList.remove('oculto'); // ou btnInsano.style.display = 'block';
+        atualizarBotoesOperacaoVisual();
     }
 };

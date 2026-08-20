@@ -508,21 +508,24 @@
             </div>
         </section>
 
-        <section id="tela-autenticacao" class="tela oculto">
-            <div class="app-container padding-top-10">
-                <div class="header-auth-box">
-                    <img src="icon144.png" alt="Taby" class="robo-flutuante img-auth-taby" onerror="this.onerror=null; this.src='icon144.png';">
+            <!-- TELA DE LOGIN -->
+
+<section id="tela-autenticacao" class="tela oculto">
+            <div class="app-container padding-top-10" style="display: flex; flex-direction: column; justify-content: center; min-height: 85vh;">
+                <div class="header-auth-box" style="text-align: center; margin-bottom: 16px;">
+                    <img src="icon144.png" alt="Taby" class="robo-flutuante img-auth-taby" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px;" onerror="this.onerror=null; this.src='icon144.png';">
                     <div class="balao-auth-welcome">
-                        <p>
-                            Olá! Seja bem-vindo ao <b class="text-blue">Tabuada Fácil</b>! 🚀<br>
-                            Eu sou o <b>Taby</b> e vou te ajudar a dominar a tabuada!
+                        <p style="color: #f8fafc; font-size: 14px; line-height: 1.4; margin: 0;">
+                            Olá! Seja bem-vindo ao <b class="text-blue" style="color: #38bdf8;">Tabuada Fácil</b>! 🚀<br>
+                            Eu sou o <b style="color: #fff;">Taby</b> e vou te ajudar a dominar a tabuada!
                         </p>
                     </div>
                 </div>
 
-                <div id="form-login" class="card-painel-container">
-                    <h3 class="titulo-auth-card">Acesse sua Conta</h3>
-                    <button onclick="window.fazerLoginGoogle()" class="btn-google-login">
+                <div id="form-login" class="card-painel-container" style="display: flex; flex-direction: column; gap: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 20px; box-sizing: border-box;">
+                    <h3 class="titulo-auth-card" style="color: #fff; font-size: 16px; font-weight: 800; text-align: center; margin: 0 0 4px 0;">Acesse sua Conta</h3>
+                    
+                    <button onclick="window.fazerLoginGoogle()" class="btn-google-login" style="width: 100%; height: 42px; background: #ffffff; color: #1e293b; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
                             <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.14v3.15C3.15 21.32 7.23 24 12 24z"/>
@@ -532,30 +535,39 @@
                         Entrar com o Google
                     </button>
 
-                    <div class="divisor-ou-linha">
-                        <hr><span class="label-ou">ou com e-mail</span><hr>
+                    <div class="divisor-ou-linha" style="display: flex; align-items: center; text-align: center; color: #64748b; font-size: 12px; font-weight: 600; margin: 2px 0;">
+                        <hr style="flex: 1; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-right: 10px;">
+                        <span class="label-ou">ou com e-mail</span>
+                        <hr style="flex: 1; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-left: 10px;">
                     </div>
 
-                    <input type="email" id="login-email" placeholder="E-mail" class="input-futurista">
-                    <input type="password" id="login-senha" placeholder="Senha" class="input-futurista">
+                    <input type="email" id="login-email" placeholder="E-mail" class="input-futurista" style="width: 100%; height: 42px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 0 14px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;">
                     
-                    <button onclick="window.fazerLoginFirebase()" class="btn-comecar-desafio">ENTRAR AGORA 🚀</button>
+                    <input type="password" id="login-senha" placeholder="Senha" class="input-futurista" style="width: 100%; height: 42px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 0 14px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;">
                     
-                    <div class="links-auth-row">
-                        <a href="#" onclick="window.alternarFormularios('cadastro'); return false;" class="link-destaque-blue">Criar Conta</a>
-                        <a href="#" onclick="window.abrirModalSobre(event); return false;" class="link-secundario-white">Ajuda?</a>
+                    <button onclick="window.fazerLoginFirebase()" class="btn-comecar-desafio" style="width: 100%; height: 44px; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); margin-top: 4px;">ENTRAR AGORA 🚀</button>
+                    
+                    <div class="links-auth-row" style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 6px;">
+                        <a href="#" onclick="window.alternarFormularios('cadastro'); return false;" class="link-destaque-blue" style="color: #38bdf8; font-size: 13px; font-weight: 700; text-decoration: underline;">Criar Conta</a>
+                        <span style="color: #64748b; font-size: 12px;">•</span>
+                        <a href="#" onclick="window.abrirModalSobre(event); return false;" class="link-secundario-white" style="color: #38bdf8; font-size: 13px; font-weight: 700; text-decoration: underline;">Ajuda?</a>
                     </div>
                 </div>
 
-                <div id="form-cadastro" class="card-painel-container oculto">
-                    <h3 class="titulo-cad-card">Criar sua Conta</h3>
-                    <input type="text" id="cad-nick" placeholder="Seu Nome / Nickname (Máx 10 letras)" maxlength="10" class="input-futurista">
-                    <input type="email" id="cad-email" placeholder="Seu Melhor E-mail" class="input-futurista">
-                    <input type="password" id="cad-senha" placeholder="Senha (Mínimo 6 dígitos)" class="input-futurista">
+                <div id="form-cadastro" class="card-painel-container oculto" style="display: flex; flex-direction: column; gap: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 20px; box-sizing: border-box;">
+                    <h3 class="titulo-cad-card" style="color: #fff; font-size: 16px; font-weight: 800; text-align: center; margin: 0 0 4px 0;">Criar sua Conta</h3>
                     
-                    <button onclick="window.realizarCadastroFirebase()" class="btn-painel-trilha">CONCLUIR CADASTRO ✨</button>
-                    <br>
-                    <a href="#" onclick="window.alternarFormularios('login'); return false;" class="link-voltar-login">Já tenho conta. Voltar ao Login.</a>
+                    <input type="text" id="cad-nick" placeholder="Seu Nome / Nickname (Máx 10 letras)" maxlength="10" class="input-futurista" style="width: 100%; height: 42px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 0 14px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;">
+                    
+                    <input type="email" id="cad-email" placeholder="Seu Melhor E-mail" class="input-futurista" style="width: 100%; height: 42px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 0 14px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;">
+                    
+                    <input type="password" id="cad-senha" placeholder="Senha (Mínimo 6 dígitos)" class="input-futurista" style="width: 100%; height: 42px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 0 14px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;">
+                    
+                    <button onclick="window.realizarCadastroFirebase()" class="btn-painel-trilha" style="width: 100%; height: 44px; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); margin-top: 4px;">CONCLUIR CADASTRO ✨</button>
+                    
+                    <div style="text-align: center; margin-top: 4px;">
+                        <a href="#" onclick="window.alternarFormularios('login'); return false;" class="link-voltar-login" style="color: #38bdf8; font-size: 13px; font-weight: 700; text-decoration: underline;">Já tenho conta. Voltar ao Login.</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -659,7 +671,7 @@
 
         <div class="acoes-form-row margin-top-12">
             <button type="button" onclick="window.salvarPerfil(event);" class="btn-salvar-perfil-ui">SALVAR</button>
-            <button type="button" onclick="window.fecharEdicaoPerfil();" class="btn-cancelar-perfil-ui">CANCELAR</button>
+            <button type="button" onclick="window.fecharModalPerfil ? window.fecharModalPerfil() : window.fecharEdicaoPerfil()" class="btn-cancelar-perfil-ui">CANCELAR</button>
         </div>
 
         <div class="secao-exclusao-perfil">

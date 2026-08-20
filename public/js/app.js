@@ -515,8 +515,20 @@ window.alternarFormularios = function(alvo) {
 };
 
 window.sairDaConta = function() {
-    tocarSom('clique');
-    signOut(auth);
+    // Ação correta do botão SAIR DA CONTA: limpa sessão e vai para o login
+    localStorage.removeItem('tabuada_perfil_ativo');
+    localStorage.removeItem('usuario_atual');
+    
+    if (typeof auth !== 'undefined' && typeof signOut === 'function') {
+        signOut(auth).then(() => {
+            window.mudarTela('tela-autenticacao');
+        }).catch((error) => {
+            console.error("Erro ao deslogar do Firebase:", error);
+            window.mudarTela('tela-autenticacao');
+        });
+    } else {
+        window.mudarTela('tela-autenticacao');
+    }
 };
 
 async function reautenticarResponsavel(senhaDigitada = null) {
@@ -539,9 +551,6 @@ async function reautenticarResponsavel(senhaDigitada = null) {
 //#endregion
 
 
-// =========================================================================
-// 4. GERENCIAMENTO DE PERFIL, GALERIA E AVATARES
-// =========================================================================
 //#region [4] PERFIS, GALERIA E AVATARES
 
 window.obterPlanoAtivo = function() {
@@ -638,6 +647,10 @@ window.atualizarHeaderPerfilAtivo = function() {
     if (perfilAtivo && imgHeader) {
         const fotoUrl = perfilAtivo.fotoUrlPersonalizada || perfilAtivo.fotoUrl || 'icon144.png';
         imgHeader.src = fotoUrl;
+        imgHeader.onerror = function() {
+            this.src = 'icon144.png';
+            this.onerror = null;
+        };
     }
 };
 
@@ -646,7 +659,7 @@ window.abrirEdicaoPerfil = async function() {
         window.tocarSom('clique');
     }
 
-    const modalForm = document.getElementById('form-perfil-modal');
+    const modalForm = document.getElementById('modal-editar-perfil') || document.getElementById('form-perfil-modal');
     const perfilAtivo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
 
     let planoAtual = 'free';
@@ -685,17 +698,55 @@ window.abrirEdicaoPerfil = async function() {
     }
 };
 
+window.fecharModalPerfil = function() {
+    const modais = ['modal-editar-perfil', 'form-perfil-modal', 'tela-editar-perfil'];
+    modais.forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('oculto');
+        }
+    });
+};
+
 window.fecharEdicaoPerfil = function() {
-    const modalForm = document.getElementById('form-perfil-modal');
-    if (modalForm) {
-        modalForm.classList.add('oculto');
-        modalForm.style.display = 'none';
+    window.fecharModalPerfil();
+};
+
+window.sairDaConta = function() {
+    // 1. FECHA O MODAL DE PERFIL IMEDIATAMENTE PARA NÃO FICAR SOBREPOSTO
+    if (typeof window.fecharModalPerfil === 'function') {
+        window.fecharModalPerfil();
     }
 
-    const modalPerfis = document.getElementById('tela-selecao-perfis');
-    if (modalPerfis) {
-        modalPerfis.classList.add('oculto');
-        modalPerfis.style.display = 'none';
+    // 2. Limpa todos os dados locais do perfil e do usuário
+    localStorage.removeItem('tabuada_perfil_ativo');
+    localStorage.removeItem('usuario_atual');
+    localStorage.removeItem('perfil_ativo_id');
+    localStorage.removeItem('tabuada_perfil_selecionado');
+
+    // 3. Executa o logout no Firebase Auth e redireciona para o login
+    if (typeof auth !== 'undefined' && auth && typeof signOut === 'function') {
+        signOut(auth).then(() => {
+            if (typeof window.mudarTela === 'function') {
+                window.mudarTela('tela-autenticacao');
+            } else {
+                location.reload();
+            }
+        }).catch((error) => {
+            console.error("Erro ao sair:", error);
+            if (typeof window.mudarTela === 'function') {
+                window.mudarTela('tela-autenticacao');
+            } else {
+                location.reload();
+            }
+        });
+    } else {
+        if (typeof window.mudarTela === 'function') {
+            window.mudarTela('tela-autenticacao');
+        } else {
+            location.reload();
+        }
     }
 };
 
@@ -777,9 +828,7 @@ window.atualizarInterfacePerfil = function(perfil) {
     const elFotoHeader = document.getElementById('header-foto-perfil');
     const elAvatarEmoji = document.getElementById('header-avatar-mini');
 
-    const skinAtual = perfil.skin || 'padrao';
-    const fotoFinal = perfil.fotoUrlPersonalizada || perfil.fotoUrl || AVATARES_TABY[skinAtual] || AVATARES_TABY.padrao;
-
+    const fotoFinal = perfil.fotoUrlPersonalizada || perfil.fotoUrl || 'icon144.png';
     window.avatarSelecionadoAtual = fotoFinal;
 
     if (elFotoHeader) {
@@ -787,7 +836,7 @@ window.atualizarInterfacePerfil = function(perfil) {
         elFotoHeader.style.display = 'block';
         elFotoHeader.style.backgroundImage = 'none';
         elFotoHeader.onerror = function() {
-            this.src = AVATARES_TABY[skinAtual] || AVATARES_TABY.padrao;
+            this.src = 'icon144.png';
             this.onerror = null;
         };
         
@@ -815,17 +864,19 @@ window.atualizarSkinsGlobais = function(perfil) {
     }
     if (!perfil) return;
 
-    const fotoUsuario = perfil.fotoUrlPersonalizada || perfil.fotoUrl || AVATARES_TABY[perfil.skin] || AVATARES_TABY.padrao;
+    const fotoUsuario = perfil.fotoUrlPersonalizada || perfil.fotoUrl || 'icon144.png';
 
     const imgHeader = document.getElementById('header-foto-perfil');
     if (imgHeader) {
         imgHeader.src = fotoUsuario;
         imgHeader.style.display = 'block';
+        imgHeader.onerror = function() { this.src = 'icon144.png'; };
     }
 
     const imgRelatorio = document.getElementById('relatorio-foto-perfil');
     if (imgRelatorio) {
         imgRelatorio.src = fotoUsuario;
+        imgRelatorio.onerror = function() { this.src = 'icon144.png'; };
     }
 
     const imgPainelDicas = document.querySelector('.painel-taby-img') || document.getElementById('img-taby-boas-vindas');
@@ -902,17 +953,6 @@ window.tentarAdicionarNovoPerfil = function() {
     }
 };
 
-window.fecharModalPerfil = function() {
-    const modalPerfis = document.getElementById('tela-selecao-perfis');
-    if (modalPerfis) modalPerfis.style.display = 'none';
-
-    const formPerfilModal = document.getElementById('form-perfil-modal');
-    if (formPerfilModal) formPerfilModal.style.display = 'none';
-
-    const gridPerfis = document.getElementById('container-grid-perfis');
-    if (gridPerfis) gridPerfis.style.display = 'grid';
-};
-
 window.renderizarPerfis = function() {
     const container = document.getElementById('container-grid-perfis');
     if (!container) return;
@@ -925,7 +965,7 @@ window.renderizarPerfis = function() {
     let htmlCompleto = '';
 
     perfis.forEach(perfil => {
-        const iconSkin = SKINS_TABY[perfil.skin] || '🤖';
+        const iconSkin = (typeof SKINS_TABY !== 'undefined' && SKINS_TABY[perfil.skin]) ? SKINS_TABY[perfil.skin] : '🤖';
         const nomeTratado = (perfil.nome || 'Jogador').replace(/'/g, "\\'");
         const skinTratada = perfil.skin || 'padrao';
         const idUnico = perfil.perfilId || perfil.id;
@@ -984,11 +1024,13 @@ window.selecionarPerfilAtivo = function(idPerfil) {
     }
 
     window.atualizarHeaderPerfilAtivo();
-    window.irParaPainelJogo();
+    if (typeof window.irParaPainelJogo === 'function') {
+        window.irParaPainelJogo();
+    }
 };
 
 window.abrirFormEditarPerfil = function(idPerfil, nomeAtual, skinAtual) {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
 
     let perfis = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
     const perfil = perfis.find(p => p.id === idPerfil || p.perfilId === idPerfil);
@@ -1060,17 +1102,16 @@ window.selecionarSkinForm = function(skinKey, imgSrc, el) {
     const perfil = perfilStr ? JSON.parse(perfilStr) : {};
     const planoAtivo = window.obterPlanoAtivo();
 
-    const tabyObj = CATALOGO_TABY.find(t => t.id === skinKey);
-
-    if (tabyObj && tabyObj.premium && planoAtivo === 'gratis') {
-        if (typeof window.abrirPaywall === 'function') {
-            window.abrirPaywall('Esta fantasia é exclusiva para assinantes PRO/PREMIUM!');
-        } else if (typeof window.abrirTelaCheckoutPremium === 'function') {
-            window.abrirTelaCheckoutPremium();
-        } else {
-            alert('Recurso exclusivo do Plano PRO/PREMIUM!');
+    if (typeof CATALOGO_TABY !== 'undefined') {
+        const tabyObj = CATALOGO_TABY.find(t => t.id === skinKey);
+        if (tabyObj && tabyObj.premium && planoAtivo === 'gratis') {
+            if (typeof window.abrirPaywall === 'function') {
+                window.abrirPaywall('Esta fantasia é exclusiva para assinantes PRO/PREMIUM!');
+            } else {
+                alert('Recurso exclusivo do Plano PRO/PREMIUM!');
+            }
+            return;
         }
-        return;
     }
 
     window.skinFormSelecionada = skinKey || 'padrao';
@@ -1090,7 +1131,8 @@ window.selecionarSkinForm = function(skinKey, imgSrc, el) {
 
     const elPreview = document.getElementById('form-foto-preview');
     if (elPreview && !window.tempFotoBase64Personalizada) {
-        elPreview.src = imgSrc || AVATARES_TABY[skinKey] || AVATARES_TABY.padrao;
+        const avatarPadrao = (typeof AVATARES_TABY !== 'undefined' && AVATARES_TABY[skinKey]) ? AVATARES_TABY[skinKey] : 'icon144.png';
+        elPreview.src = imgSrc || avatarPadrao;
     }
 };
 
@@ -1166,7 +1208,7 @@ window.renderizarGaleriaPerfil = function() {
             slot.onclick = () => window.selecionarAvatarSlot(fotoUrl, slot);
 
             slot.innerHTML = `
-                <img src="${fotoUrl}" alt="Foto ${index + 1}">
+                <img src="${fotoUrl}" alt="Foto ${index + 1}" onerror="this.src='icon144.png';">
                 <button class="btn-deletar-foto-custom" onclick="event.stopPropagation(); window.excluirFotoGaleria(${index});" aria-label="Excluir Foto" title="Excluir Foto">✕</button>
             `;
             grid.appendChild(slot);
@@ -1212,7 +1254,7 @@ window.excluirFotoGaleria = function(index) {
         }
 
         if (window.avatarSelecionadoAtual === fotoRemovida) {
-            window.avatarSelecionadoAtual = (typeof TABYS_PADRAO !== 'undefined' && TABYS_PADRAO[0]) ? TABYS_PADRAO[0].url : 'icon144.png';
+            window.avatarSelecionadoAtual = 'icon144.png';
         }
         
         window.renderizarGaleriaPerfil();
@@ -1354,46 +1396,51 @@ window.confirmarCorteFoto = async function() {
 
         const fotoBase64 = canvasFinal.toDataURL("image/jpeg", 0.85);
 
-        const user = auth.currentUser;
+        const user = (typeof auth !== 'undefined' && auth) ? auth.currentUser : null;
         const userId = user ? user.uid : 'anonimo';
         const perfilAtivoObj = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
         const perfilId = perfilAtivoObj.perfilId || perfilAtivoObj.id || 'perfil';
 
-        const caminhoStorage = `perfis/${userId}/${perfilId}_${Date.now()}.jpg`;
-        const storageRef = ref(storage, caminhoStorage);
+        if (typeof storage !== 'undefined' && typeof ref !== 'undefined' && typeof uploadString !== 'undefined') {
+            const caminhoStorage = `perfis/${userId}/${perfilId}_${Date.now()}.jpg`;
+            const storageRef = ref(storage, caminhoStorage);
 
-        await uploadString(storageRef, fotoBase64, 'data_url');
-        const downloadURL = await getDownloadURL(storageRef);
+            await uploadString(storageRef, fotoBase64, 'data_url');
+            const downloadURL = await getDownloadURL(storageRef);
 
-        if (!Array.isArray(window.galeriaFotosUsuario)) {
-            window.galeriaFotosUsuario = [];
-        }
-
-        if (!window.galeriaFotosUsuario.includes(downloadURL)) {
-            window.galeriaFotosUsuario.unshift(downloadURL);
-            if (window.galeriaFotosUsuario.length > 6) {
-                window.galeriaFotosUsuario.pop();
+            if (!Array.isArray(window.galeriaFotosUsuario)) {
+                window.galeriaFotosUsuario = [];
             }
+
+            if (!window.galeriaFotosUsuario.includes(downloadURL)) {
+                window.galeriaFotosUsuario.unshift(downloadURL);
+                if (window.galeriaFotosUsuario.length > 6) {
+                    window.galeriaFotosUsuario.pop();
+                }
+            }
+
+            localStorage.setItem('tabuada_galeria_fotos', JSON.stringify(window.galeriaFotosUsuario));
+
+            if (perfilId && typeof db !== 'undefined') {
+                const perfilDocRef = doc(db, "perfis_usuarios", perfilId);
+                await setDoc(perfilDocRef, {
+                    fotoUrl: downloadURL,
+                    galeriaFotos: arrayUnion(downloadURL)
+                }, { merge: true });
+            }
+
+            window.avatarSelecionadoAtual = downloadURL;
+            perfilAtivoObj.fotoUrl = downloadURL;
+        } else {
+            // Fallback local se o Firebase Storage não estiver instanciado
+            window.avatarSelecionadoAtual = fotoBase64;
+            perfilAtivoObj.fotoUrl = fotoBase64;
         }
 
-        localStorage.setItem('tabuada_galeria_fotos', JSON.stringify(window.galeriaFotosUsuario));
-
-        if (perfilId) {
-            const perfilDocRef = doc(db, "perfis_usuarios", perfilId);
-            await setDoc(perfilDocRef, {
-                fotoUrl: downloadURL,
-                galeriaFotos: arrayUnion(downloadURL)
-            }, { merge: true });
-        }
-
-        window.avatarSelecionadoAtual = downloadURL;
-        
-        let perfil = perfilAtivoObj;
-        perfil.fotoUrl = downloadURL;
-        localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfil));
+        localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivoObj));
 
         const elPreview = document.getElementById('form-foto-preview');
-        if (elPreview) elPreview.src = downloadURL;
+        if (elPreview) elPreview.src = window.avatarSelecionadoAtual;
 
         if (typeof window.renderizarGaleriaPerfil === 'function') {
             window.renderizarGaleriaPerfil();
@@ -1409,7 +1456,7 @@ window.confirmarCorteFoto = async function() {
         }
 
     } catch (erro) {
-        console.error("Erro ao enviar foto para a nuvem:", erro);
+        console.error("Erro ao enviar foto:", erro);
         alert("Falha ao salvar a imagem na nuvem. Verifique a conexão.");
     } finally {
         if (btnSalvar) {
@@ -1486,7 +1533,7 @@ function garantirPerfilIdUnico(perfil) {
 }
 
 window.sincronizarGaleriaEModePerfil = function(perfilId) {
-    if (!perfilId) return;
+    if (!perfilId || typeof db === 'undefined') return;
 
     const perfilRef = doc(db, "perfis_usuarios", perfilId);
 
@@ -1520,7 +1567,7 @@ window.removerFotoGaleria = async function(urlFoto) {
     const perfilAtivoObj = JSON.parse(localStorage.getItem('tabuada_perfil_ativo')) || {};
     const perfilId = perfilAtivoObj.perfilId || perfilAtivoObj.id;
 
-    if (perfilId && urlFoto) {
+    if (perfilId && urlFoto && typeof db !== 'undefined') {
         try {
             const perfilDocRef = doc(db, "perfis_usuarios", perfilId);
             await setDoc(perfilDocRef, {

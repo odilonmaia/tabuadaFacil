@@ -2672,3 +2672,194 @@ button.btn-touch-secundario {
     background: rgba(56, 189, 248, 0.3);
     
 }
+
+/* Container flexível para centralização vertical do login */
+.login-container-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    box-sizing: border-box;
+    min-height: 80vh;
+}
+
+/* Caixa de boas-vindas do mascote */
+.login-header-box {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.mascote-login-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 8px;
+    animation: flotacao 3s ease-in-out infinite;
+}
+
+.login-titulo-boasvindas {
+    color: #f8fafc;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.destaque-marca {
+    color: #38bdf8;
+}
+
+.login-subtitulo-taby {
+    color: #94a3b8;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Card principal do formulário */
+.card-form-acesso {
+    width: 100%;
+    max-width: 340px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-titulo {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 4px 0;
+}
+
+/* Botão de login do Google */
+.btn-google-login {
+    width: 100%;
+    height: 42px;
+    background: #ffffff;
+    color: #1e293b;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-google-login:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.google-logo-ico {
+    width: 18px;
+    height: 18px;
+}
+
+/* Divisor "ou com e-mail" */
+.divisor-ou {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 2px 0;
+}
+
+.divisor-ou::before, .divisor-ou::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.divisor-ou::before {
+    margin-right: 10px;
+}
+
+.divisor-ou::after {
+    margin-left: 10px;
+}
+
+/* Inputs de email e senha */
+.input-grupo-login {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-futurista-login {
+    width: 100%;
+    height: 42px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 0 14px;
+    color: #fff;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.input-futurista-login:focus {
+    border-color: #38bdf8;
+}
+
+/* Botão principal Entrar Agora */
+.btn-entrar-acao {
+    width: 100%;
+    height: 44px;
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    margin-top: 4px;
+}
+
+.btn-entrar-acao:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+}
+
+/* Links do rodapé (Criar Conta / Ajuda) */
+.login-links-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.link-acao-txt {
+    color: #38bdf8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.link-acao-txt:hover {
+    color: #7dd3fc;
+}
+
+.separador-links {
+    color: #64748b;
+    font-size: 12px;
+}

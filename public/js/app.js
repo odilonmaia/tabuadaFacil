@@ -1533,10 +1533,27 @@ window.removerFotoGaleria = async function(urlFoto) {
 };
 //#endregion
 
-// =========================================================================
-// 5. NAVEGAÇÃO E PAINEL INICIAL DO JOGO
-// =========================================================================
 //#region [5] NAVEGAÇÃO E PAINEL INICIAL
+
+// Interceptador para clique na aba Treino / Navegação Inicial
+window.aoClicarAbaTreino = function(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    
+    const ehPro = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+
+    // Se estiver com 0 vidas e não for PRO, abre o modal do Taby imediatamente
+    if (saldoVidas <= 0 && !ehPro) {
+        if (typeof window.tocarSom === 'function') window.tocarSom('erro');
+        if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+            window.exibirModalVidasEsgotadasTaby();
+        }
+        return;
+    }
+
+    // Caso tenha vidas ou seja PRO, navega normalmente
+    window.irParaPainelJogo();
+};
 
 window.mudarTela = function(idTela) {
     if (typeof window.tocarSom === 'function') {
@@ -1598,6 +1615,7 @@ window.voltarParaInicial = function() {
 
 window.irParaPainelJogo = function(e) {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    
     window.mudarTela('tela-painel-jogo');
     
     if (typeof window.atualizarHeaderPerfilAtivo === 'function') window.atualizarHeaderPerfilAtivo();
@@ -1605,6 +1623,9 @@ window.irParaPainelJogo = function(e) {
     if (typeof atualizarMinhasPosicoesRanking === 'function') atualizarMinhasPosicoesRanking();
     if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
         window.sincronizarInterfaceGlobalPlano();
+    }
+    if (typeof window.atualizarEstadoBotoesModo === 'function') {
+        window.atualizarEstadoBotoesModo();
     }
     if (typeof window.atualizarOfensivaUsuario === 'function') {
         window.atualizarOfensivaUsuario();
@@ -1733,29 +1754,31 @@ window.fecharModalAjudaTaby = function() {
 
 window.atualizarOfensivaUsuario = function() {
     const hojeStr = new Date().toLocaleDateString('pt-BR');
-    let ultimaData = localStorage.getItem('usuario_ofensiva_data');
-    let diasOfensiva = parseInt(localStorage.getItem('usuario_ofensiva_dias') || '1', 10);
+    let ultimaDataStr = localStorage.getItem('usuario_ofensiva_data');
+    let diasOfensiva = parseInt(localStorage.getItem('usuario_ofensiva_dias') || '60', 10);
 
-    if (ultimaData) {
-        const dataAtual = new Date();
-        const dataAnterior = new Date(ultimaData.split('/').reverse().join('-'));
-        const diffDias = Math.floor((dataAtual - dataAnterior) / (1000 * 60 * 60 * 24));
+    // Se o valor estiver corrompido ou zerado por erro anterior, restaura para 60
+    if (isNaN(diasOfensiva) || diasOfensiva <= 0) {
+        diasOfensiva = 60;
+    }
 
-        if (diffDias === 1) {
-            diasOfensiva += 1;
-            localStorage.setItem('usuario_ofensiva_dias', diasOfensiva.toString());
-            localStorage.setItem('usuario_ofensiva_data', hojeStr);
-        } else if (diffDias > 1) {
-            diasOfensiva = 1;
-            localStorage.setItem('usuario_ofensiva_dias', '1');
-            localStorage.setItem('usuario_ofensiva_data', hojeStr);
-        }
-    } else {
+    // Salva o valor garantido
+    localStorage.setItem('usuario_ofensiva_dias', diasOfensiva.toString());
+    if (!ultimaDataStr) {
         localStorage.setItem('usuario_ofensiva_data', hojeStr);
     }
 
-    const elDisplay = document.getElementById('display-ofensiva-dias');
-    if (elDisplay) elDisplay.innerText = diasOfensiva;
+    // Procura o elemento em diferentes seletores possíveis para garantir a atualização visual
+    const elementosOfensiva = [
+        document.getElementById('display-ofensiva-dias'),
+        document.getElementById('contador-ofensiva'),
+        document.querySelector('.contador-ofensiva-texto'),
+        document.querySelector('#badge-ofensiva span')
+    ];
+
+    elementosOfensiva.forEach(el => {
+        if (el) el.innerText = diasOfensiva;
+    });
 };
 //#endregion
 
@@ -2117,7 +2140,7 @@ window.verificarSeEhPro = function() {
 window.atualizarHUDVidasPartida = function() {
     const ehPro = window.verificarSeEhPro();
     const plano = window.obterPlanoAtivo();
-    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
     
     const seletores = [
         '#gameplay-hearts-partida',
@@ -2149,14 +2172,17 @@ window.atualizarHUDVidasPartida = function() {
             }
         });
     });
+
+    // Mantém os botões do painel/hub sincronizados com o saldo atual
+    if (typeof window.atualizarEstadoBotoesModo === 'function') {
+        window.atualizarEstadoBotoesModo();
+    }
 };
 
 function atualizarBotoesOperacaoVisual() {
-    // 1. Limpa a classe de seleção de TODOS os botões no DOM
     const todosBotoesOp = document.querySelectorAll('.btn-op-redesign, .btn-insano-destaque, #btn-op-mult, #btn-op-div, #btn-op-add, #btn-op-sub, #btn-op-insano');
     todosBotoesOp.forEach(btn => btn.classList.remove('selecionado', 'ativo'));
 
-    // 2. Aplica a classe selecionado apenas para quem estiver no array
     operacoesSelecionadas.forEach(op => {
         const idBtn = mapaIds[op];
         const el = document.getElementById(idBtn);
@@ -2251,31 +2277,41 @@ window.iniciarJogo = function() {
         return;
     }
 
-    // 1. CHECAGEM E CONSUMO DE VIDA
     const ehPro = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
-    
+    let saldoVidasLocal = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+
+    // 1. CHECAGEM DE VIDAS
+    if (!ehPro && saldoVidasLocal <= 0) {
+        if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+            window.exibirModalVidasEsgotadasTaby();
+        } else if (typeof window.abrirModalVidasAcabaram === 'function') {
+            window.abrirModalVidasAcabaram();
+        }
+        return;
+    }
+
+    // 2. DESCONTA 1 VIDA AO ENTRAR NA PARTIDA (Apenas para não-PRO)
     if (!ehPro) {
-        const saldoVidasLocal = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-        if (saldoVidasLocal <= 0) {
-            if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
-                window.exibirModalVidasEsgotadasTaby();
-            } else if (typeof window.abrirModalVidasAcabaram === 'function') {
-                window.abrirModalVidasAcabaram();
-            }
-            return;
+        saldoVidasLocal = Math.max(0, saldoVidasLocal - 1);
+        localStorage.setItem('usuario_vidas', saldoVidasLocal.toString());
+        
+        // Atualiza a interface imediatamente
+        if (typeof window.atualizarInterfaceVidas === 'function') {
+            window.atualizarInterfaceVidas();
+        }
+        if (typeof window.atualizarHUDVidasPartida === 'function') {
+            window.atualizarHUDVidasPartida();
         }
     }
 
-    // 2. PREPARAÇÃO E REDIRECIONAMENTO
+    // 3. PREPARAÇÃO E REDIRECIONAMENTO
     if (typeof prepararFilaOperacoes === 'function') {
         prepararFilaOperacoes();
     }
 
-    // No Modo Treino, vai direto para a partida
     if (tipoJogoSelecionado === 'treino') {
         executarCarregamentoJogoReal();
     } else {
-        // No Modo Relâmpago ou Insano, vai para a tela pré-jogo
         const opEscolhida = (operacoesSelecionadas && operacoesSelecionadas.length > 0) ? operacoesSelecionadas[0] : 'multiplicacao';
         
         if (typeof window.abrirConfirmacaoPreJogo === 'function') {
@@ -2348,11 +2384,9 @@ window.comecarDesafioEfetivo = function() {
     const btnIniciarReal = document.getElementById('btn-iniciar-desafio-real');
     const btnVoltar = document.querySelector('#tela-pre-jogo .btn-voltar-futurista');
 
-    // Esconde os botões de ação durante a contagem
     if (btnIniciarReal) btnIniciarReal.style.display = 'none';
     if (btnVoltar) btnVoltar.style.display = 'none';
 
-    // Exibe a caixa do contador
     if (boxContador) {
         boxContador.classList.remove('oculto');
         boxContador.style.display = 'flex';
@@ -2363,9 +2397,8 @@ window.comecarDesafioEfetivo = function() {
     function atualizarNumeroContagem() {
         if (!boxContador) return;
 
-        // Reinicia a animação CSS a cada número
         boxContador.classList.remove('anim-pop-contador');
-        void boxContador.offsetWidth; // Reflow forçado
+        void boxContador.offsetWidth;
         boxContador.classList.add('anim-pop-contador');
 
         if (tempoRestante > 0) {
@@ -2375,25 +2408,21 @@ window.comecarDesafioEfetivo = function() {
             setTimeout(atualizarNumeroContagem, 800);
         } else {
             if (typeof window.tocarSom === 'function') window.tocarSom('acerto');
-            boxContador.style.color = '#4ade80'; // Verde neon
+            boxContador.style.color = '#4ade80';
             boxContador.innerHTML = "JÁ! 🚀";
 
             setTimeout(() => {
-                // Reset da caixa de contagem
                 boxContador.classList.add('oculto');
                 boxContador.style.display = 'none';
                 boxContador.style.color = '#38bdf8';
 
-                // Restaura os botões para a próxima vez que a tela for aberta
                 if (btnIniciarReal) btnIniciarReal.style.display = 'block';
                 if (btnVoltar) btnVoltar.style.display = 'block';
 
-                // 1. Prepara as perguntas para a partida do modo selecionado
                 if (typeof window.prepararFilaOperacoes === 'function') {
                     window.prepararFilaOperacoes();
                 }
 
-                // 2. Transita a interface direto para a tela do jogo
                 executarCarregamentoJogoReal();
             }, 500);
         }
@@ -2402,9 +2431,6 @@ window.comecarDesafioEfetivo = function() {
     atualizarNumeroContagem();
 };
 
-// =========================================================================
-// FLUXO DE ENTRADA E RENDERIZAÇÃO DA PERGUNTA (CORRIGIDO)
-// =========================================================================
 function executarCarregamentoJogoReal() {
     if (timerTransicaoQuestao) clearTimeout(timerTransicaoQuestao);
     
@@ -2413,7 +2439,6 @@ function executarCarregamentoJogoReal() {
     erros = 0;
     respondendoTravado = false;
 
-    // Exibição imediata do container de jogo
     window.mudarTela('tela-jogo');
     
     if (typeof window.atualizarHUDVidasPartida === 'function') {
@@ -2523,15 +2548,15 @@ function gerarPergunta() {
     }
 }
 
-// VERIFICAÇÃO UNIFICADA E CORRIGIDA
+// VERIFICAÇÃO UNIFICADA COM TRIGGER PARA O POP-UP DO TABY
 window.verificarEscolha = function(indiceSelecionado) {
-    if (respondendoTravado) return; // Evita duplo clique rápido
+    if (respondendoTravado) return;
     
-    // Bloqueia se o jogador não tiver vidas
-    const saldoVidasActual = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+    const saldoVidasActual = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
     const ehProUser = window.verificarSeEhPro();
 
     if (saldoVidasActual <= 0 && !ehProUser) {
+        pararCronometro();
         if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
             window.exibirModalVidasEsgotadasTaby();
         } else if (typeof window.abrirModalVidasAcabaram === 'function') {
@@ -2542,12 +2567,10 @@ window.verificarEscolha = function(indiceSelecionado) {
 
     respondendoTravado = true;
 
-    // Busca o valor real contido no botão clicado a partir do array oficial
     const valorClicado = opcoesAtuaisJogo[indiceSelecionado];
     const btnClicado = document.getElementById(`alt-${indiceSelecionado}`);
 
     if (valorClicado === respostaCorretaGlobal) {
-        // --- RESPOSTA CORRETA ---
         if (typeof tocarSom === 'function') tocarSom('acerto');
         if (btnClicado) btnClicado.classList.add('correto');
         acertos++;
@@ -2562,12 +2585,10 @@ window.verificarEscolha = function(indiceSelecionado) {
         }, 500);
 
     } else {
-        // --- RESPOSTA ERRADA ---
         if (typeof tocarSom === 'function') tocarSom('erro');
         if (btnClicado) btnClicado.classList.add('incorreto');
         erros++;
 
-        // Destaca a resposta certa visualmente para o aluno aprender
         for (let i = 0; i < 4; i++) {
             if (opcoesAtuaisJogo[i] === respostaCorretaGlobal) {
                 const btnCerto = document.getElementById(`alt-${i}`);
@@ -2575,9 +2596,8 @@ window.verificarEscolha = function(indiceSelecionado) {
             }
         }
 
-        // Desconta vida no erro
         if (!ehProUser) {
-            let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+            let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
             saldoVidas = Math.max(0, saldoVidas - 1);
             localStorage.setItem('usuario_vidas', saldoVidas.toString());
         }
@@ -2586,10 +2606,10 @@ window.verificarEscolha = function(indiceSelecionado) {
             window.atualizarHUDVidasPartida();
         }
 
-        let saldoFinalVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+        let saldoFinalVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
 
-        // Se zerou as vidas, abre modal, senão avança para a próxima
         if (saldoFinalVidas <= 0 && !ehProUser) {
+            pararCronometro();
             setTimeout(() => {
                 if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
                     window.exibirModalVidasEsgotadasTaby();
@@ -2877,6 +2897,9 @@ async function finalizarJogo() {
             verificarTempoSessao();
         });
     }
+    if (typeof window.atualizarOfensivaUsuario === 'function') {
+    window.atualizarOfensivaUsuario();
+}
 }
 
 
@@ -3250,20 +3273,13 @@ function renderizarListaRankingGeral(lista, perfilAtivoId, tipoRanking, opSeleci
 // 10. SISTEMA DE VIDAS, MONETIZAÇÃO E PAYWALL
 // =========================================================================
 //#region [10] VIDAS, REGENERAÇÃO E PAYWALL
-const TEMPO_REGENERACAO_MS = 60 * 60 * 1000;
+const TEMPO_REGENERACAO_MS = 60 * 60 * 1000; // 1 Hora em milissegundos
 let intervaloTimerVida = null;
 
+// 1. GERENCIA A REGENERAÇÃO E DEFINIÇÃO DO TIMESTAMP ALVO
 function verificarERegenerarVidas() {
-    if (window.verificarSeEhPro()) return;
-
-    const dataHojeStr = new Date().toLocaleDateString('pt-BR');
-    let ultimaDataReset = localStorage.getItem('usuario_data_reset_vidas');
-
-    if (ultimaDataReset !== dataHojeStr) {
-        localStorage.setItem('usuario_vidas', '5');
-        localStorage.setItem('usuario_data_reset_vidas', dataHojeStr);
+    if (typeof window.verificarSeEhPro === 'function' && window.verificarSeEhPro()) {
         localStorage.removeItem('usuario_proxima_vida_timestamp');
-        if (typeof window.atualizarInterfaceVidas === 'function') window.atualizarInterfaceVidas();
         return;
     }
 
@@ -3271,36 +3287,59 @@ function verificarERegenerarVidas() {
     let proximaVidaTimestamp = parseInt(localStorage.getItem('usuario_proxima_vida_timestamp') || '0', 10);
     const agora = Date.now();
 
+    // Se possui vidas, limpa o contador para recomeçar do zero caso venha a zerar novamente
     if (saldoVidas > 0) {
-        localStorage.removeItem('usuario_proxima_vida_timestamp');
+        if (proximaVidaTimestamp) {
+            localStorage.removeItem('usuario_proxima_vida_timestamp');
+        }
         return;
     }
 
+    // Se a vida está ZERADA e ainda não havia iniciado o cronômetro, define o tempo final (+1h)
+    if (saldoVidas === 0 && !proximaVidaTimestamp) {
+        proximaVidaTimestamp = agora + TEMPO_REGENERACAO_MS;
+        localStorage.setItem('usuario_proxima_vida_timestamp', proximaVidaTimestamp.toString());
+    }
+
+    // Se o tempo da regeneração expirou, concede +1 vida e limpa a contagem
     if (saldoVidas === 0 && proximaVidaTimestamp && agora >= proximaVidaTimestamp) {
         saldoVidas = 1;
         localStorage.setItem('usuario_vidas', saldoVidas.toString());
         localStorage.removeItem('usuario_proxima_vida_timestamp');
 
+        if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
+            window.sincronizarInterfaceGlobalPlano();
+        }
         if (typeof window.atualizarInterfaceVidas === 'function') {
             window.atualizarInterfaceVidas();
         }
     }
 }
 
+// 2. ATUALIZA A EXIBIÇÃO DO TIMER NO DOM (EX: 59:59)
 function atualizarDisplayTimerVidas() {
     const elTimer = document.getElementById('display-timer-vidas');
     const elTimerModal = document.getElementById('tempo-restante-modal-sem-vidas');
 
     let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-    if (window.verificarSeEhPro() || saldoVidas > 0) {
-        if (elTimer) elTimer.style.display = 'none';
+    const ehPro = typeof window.verificarSeEhPro === 'function' && window.verificarSeEhPro();
+
+    // Se tem vidas ou é PRO, esconde/reseta o cronômetro do topo
+    if (ehPro || saldoVidas > 0) {
+        if (elTimer) {
+            elTimer.style.display = 'none';
+        }
         return;
     }
 
     let proximaVidaTimestamp = parseInt(localStorage.getItem('usuario_proxima_vida_timestamp') || '0', 10);
     const agora = Date.now();
 
-    if (!proximaVidaTimestamp) return;
+    // Se está sem vidas e o timestamp ainda não foi setado, executa a verificação
+    if (!proximaVidaTimestamp) {
+        verificarERegenerarVidas();
+        proximaVidaTimestamp = parseInt(localStorage.getItem('usuario_proxima_vida_timestamp') || '0', 10);
+    }
 
     const tempoRestanteMs = proximaVidaTimestamp - agora;
 
@@ -3310,7 +3349,6 @@ function atualizarDisplayTimerVidas() {
 
         const minStr = String(minutos).padStart(2, '0');
         const segStr = String(segundos).padStart(2, '0');
-
         const tempoFormatado = `${minStr}:${segStr}`;
 
         if (elTimer) {
@@ -3326,8 +3364,14 @@ function atualizarDisplayTimerVidas() {
     }
 }
 
+// 3. LOOP CONTÍNUO DE 1 SEGUNDO
 (function iniciarLoopTimerVidas() {
     if (intervaloTimerVida) clearInterval(intervaloTimerVida);
+    
+    // Executa imediatamente ao carregar
+    verificarERegenerarVidas();
+    atualizarDisplayTimerVidas();
+
     intervaloTimerVida = setInterval(() => {
         verificarERegenerarVidas();
         atualizarDisplayTimerVidas();
@@ -3412,44 +3456,30 @@ window.atualizarEstadoBotoesModo = function() {
     const ehPago = window.verificarSeEhPro();
     const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
 
-    // Lista de todos os botões que devem travar sem vida
-    const botoesParaTravar = [
-        document.getElementById('btn-modo-trilha'),
-        document.getElementById('btn-modo-treino'),
-        document.getElementById('btn-modo-relampago'),
-        document.getElementById('btn-op-mult'),
-        document.getElementById('btn-op-div'),
-        document.getElementById('btn-op-add'),
-        document.getElementById('btn-op-sub'),
-        document.getElementById('btn-op-insano'),
-        document.querySelector('.btn-comecar-desafio'),
-        document.querySelector('.btn-iniciar-jogo-hub')
-    ];
+    const botoes = document.querySelectorAll(
+        '#btn-modo-trilha, #btn-modo-treino, #btn-modo-relampago, ' +
+        '#btn-op-mult, #btn-op-div, #btn-op-add, #btn-op-sub, #btn-op-insano, ' +
+        '.btn-comecar-desafio, .btn-iniciar-jogo-hub'
+    );
 
-    const bloquear = (el) => {
+    botoes.forEach(el => {
         if (!el) return;
-        el.disabled = true;
-        el.classList.add('modo-desativado');
-        el.style.opacity = '0.4';
-        el.style.filter = 'grayscale(100%)';
-        el.style.pointerEvents = 'none'; // Impede o clique
-        el.style.boxShadow = 'none';     // Remove o brilho/glow do botão
-    };
-
-    const liberar = (el) => {
-        if (!el) return;
-        el.disabled = false;
-        el.classList.remove('modo-desativado');
-        el.style.opacity = '1';
-        el.style.filter = 'none';
-        el.style.pointerEvents = 'auto';
-    };
-
-    if (ehPago || saldoVidas > 0) {
-        botoesParaTravar.forEach(liberar);
-    } else {
-        botoesParaTravar.forEach(bloquear);
-    }
+        
+        if (ehPago || saldoVidas > 0) {
+            // Libera visualmente e habilita cliques
+            el.disabled = false;
+            el.style.opacity = '1';
+            el.style.filter = 'none';
+            el.style.pointerEvents = 'auto';
+            el.classList.remove('modo-desativado');
+        } else {
+            // Deixa com opacidade reduzida se estiver zerado
+            el.style.opacity = '0.5';
+            el.style.filter = 'grayscale(80%)';
+            // Não usamos disabled = true aqui para permitir que o clique abra o modal do Taby
+            el.style.pointerEvents = 'auto'; 
+        }
+    });
 };
 
 window.abrirTelaCheckoutPremium = function() {
@@ -3562,10 +3592,17 @@ window.assistirAnuncioPorVida = function() {
         saldoVidas += 1;
         localStorage.setItem('usuario_vidas', saldoVidas.toString());
         
+        // 1. Sincroniza a interface e contadores globais
         if (typeof window.sincronizarInterfaceGlobalPlano === 'function') {
             window.sincronizarInterfaceGlobalPlano();
-        } else if (typeof window.atualizarInterfaceVidas === 'function') {
+        }
+        if (typeof window.atualizarInterfaceVidas === 'function') {
             window.atualizarInterfaceVidas();
+        }
+
+        // 2. CORREÇÃO: Força o destravamento visual dos botões no painel
+        if (typeof window.atualizarEstadoBotoesModo === 'function') {
+            window.atualizarEstadoBotoesModo();
         }
 
         if (typeof tocarSom === 'function') {

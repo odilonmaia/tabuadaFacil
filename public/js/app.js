@@ -1765,7 +1765,7 @@ window.atualizarOfensivaUsuario = function() {
 // =========================================================================
 //#region [6] TRILHA DE APRENDIZADO ESPACIAL
 window.fecharBalaoTabyTrilha = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const balao = document.getElementById('balao-taby-trilha');
     if (balao) {
         balao.classList.add('oculto');
@@ -1787,36 +1787,37 @@ function calcularMaestriaFase(fase) {
 }
 
 window.mostrarTelaTrilha = async function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     window.mudarTela('tela-trilha');
 
-    const elNomeBalao = document.getElementById('nome-aluno-taby-trilha');
-    const nomeAluno = usuarioAtualLogado ? (usuarioAtualLogado.displayName || "Comandante") : "Comandante";
+    const nomeAluno = (typeof usuarioAtualLogado !== 'undefined' && usuarioAtualLogado && usuarioAtualLogado.displayName) 
+        ? usuarioAtualLogado.displayName 
+        : (window.nomeUsuarioAtual || "Comandante");
 
     const balao = document.getElementById('balao-taby-trilha');
     if (balao) {
         balao.className = "balao-taby-container-ui";
         balao.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 14px; position: relative;">
-                <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-flutuante-trilha" alt="Taby Robô">
+            <div style="display: flex; align-items: center; gap: 14px; position: relative; width: 100%; box-sizing: border-box;">
+                <img src="taby.png" onerror="this.onerror=null; this.src='icon144.png';" class="taby-flutuante-trilha" alt="Taby Robô" style="width: 50px; height: 50px; flex-shrink: 0; object-fit: contain;">
                 
-                <div style="flex: 1; text-align: left;">
-                    <div style="color: #38bdf8; font-size: 15px; font-weight: 900; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
+                <div style="flex: 1; text-align: left; padding-right: 28px;">
+                    <div style="color: #38bdf8; font-size: 14px; font-weight: 900; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
                         <span>🚀 Preparado, <strong id="nome-aluno-taby-trilha" style="color: #fff;">${nomeAluno}</strong>?</span>
                     </div>
-                    <p style="color: #e2e8f0; font-size: 13px; line-height: 1.45; margin: 0; font-weight: 600;">
+                    <p style="color: #e2e8f0; font-size: 12px; line-height: 1.4; margin: 0; font-weight: 600;">
                         Conquiste <b style="color: #4ade80;">85% de Maestria</b> nos planetas para avançar e <b style="color: #fbbf24;">gravar a tabuada na memória para sempre!</b> 🧠⚡
                     </p>
                 </div>
 
-                <button onclick="window.fecharBalaoTabyTrilha()" style="background: rgba(255,255,255,0.1); border: none; color: #94a3b8; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; position: absolute; top: -4px; right: -4px;">✕</button>
+                <button onclick="window.fecharBalaoTabyTrilha()" style="background: rgba(255,255,255,0.12); border: none; color: #94a3b8; width: 26px; height: 26px; min-width: 26px; min-height: 26px; max-width: 26px; max-height: 26px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; position: absolute; top: 0px; right: 0px; padding: 0; line-height: 1; flex-shrink: 0; box-sizing: border-box;">✕</button>
             </div>
         `;
         balao.classList.remove('oculto');
         balao.style.display = 'block';
     }
 
-    if (usuarioAtualLogado) {
+    if (typeof usuarioAtualLogado !== 'undefined' && usuarioAtualLogado) {
         try {
             const userRef = doc(db, "trilha_usuarios", usuarioAtualLogado.uid);
             const docSnap = await getDoc(userRef);
@@ -1838,7 +1839,7 @@ function renderizarMapaTrilha() {
     let html = "";
     let faseAnteriorDominada = true; 
     
-    const planoSalvo = window.obterPlanoAtivo();
+    const planoSalvo = (typeof window.obterPlanoAtivo === 'function') ? window.obterPlanoAtivo() : 'gratis';
     const ehUsuarioPremium = (planoSalvo === 'pro' || planoSalvo === 'premium') || 
                             (typeof dadosTrilhaUsuario !== 'undefined' && dadosTrilhaUsuario?.ehPremium || false);
 
@@ -1856,20 +1857,21 @@ function renderizarMapaTrilha() {
         let conteudoIcone = "";
 
         if (concluida) {
-            conteudoIcone = `<span style="font-size: 34px;" class="anim-flutuar">⭐</span>`;
+            conteudoIcone = `<span style="font-size: 32px;" class="anim-flutuar">⭐</span>`;
         } else if (ehBloqueadoPorPlano) {
-            conteudoIcone = `<span style="font-size: 32px;">👑</span>`;
+            conteudoIcone = `<span style="font-size: 28px;">👑</span>`;
         } else if (!liberada) {
-            conteudoIcone = `<span style="font-size: 30px;">🔒</span>`;
+            conteudoIcone = `<span style="font-size: 28px;">🔒</span>`;
         } else {
-            conteudoIcone = `<span style="font-size: 34px;" class="anim-flutuar">${fase.icone || '🪐'}</span>`;
+            conteudoIcone = `<span style="font-size: 32px;" class="anim-flutuar">${fase.icone || '🪐'}</span>`;
         }
         
         let corBorda = concluida ? '#10b981' : (ehBloqueadoPorPlano ? '#f59e0b' : (liberada ? '#38bdf8' : '#475569'));
         let corFundoBtn = concluida ? 'radial-gradient(circle, #064e3b 0%, #022c22 100%)' 
                          : (liberada ? 'radial-gradient(circle, #0c4a6e 0%, #082f49 100%)' : '#0f172a');
 
-        let alinhamento = (idx % 2 === 0) ? "align-self: flex-start; margin-left: 8%;" : "align-self: flex-end; margin-right: 8%;";
+        // Deslocamento controlado a partir do centro calculado do container
+        let deslocamentoX = (idx % 2 === 0) ? "transform: translateX(38px);" : "transform: translateX(-38px);";
 
         let acaoClique = ehBloqueadoPorPlano 
             ? `window.abrirTelaCheckoutPremium()` 
@@ -1878,17 +1880,17 @@ function renderizarMapaTrilha() {
         let classeAnimaSol = (fase.id === '14' && liberada) ? 'anim-sol-pulsante' : '';
 
         html += `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 230px; ${alinhamento} margin-bottom: 26px; position: relative;">
+            <div style="display: flex; flex-direction: column; align-items: center; width: 220px; ${deslocamentoX} margin-bottom: 28px; position: relative;">
                 
-                <button onclick="${acaoClique}" class="${classeAnimaSol}" style="width: 84px; height: 84px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: ${corFundoBtn}; border: 3px solid ${corBorda}; color: #fff; box-shadow: 0 0 20px ${corBorda}55, inset 0 0 10px rgba(255,255,255,0.1); position: relative; z-index: 2; overflow: hidden;">
+                <button onclick="${acaoClique}" class="${classeAnimaSol}" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: ${corFundoBtn}; border: 3px solid ${corBorda}; color: #fff; box-shadow: 0 0 18px ${corBorda}55, inset 0 0 10px rgba(255,255,255,0.1); position: relative; z-index: 2; overflow: hidden; padding: 0; box-sizing: border-box;">
                     ${conteudoIcone}
                 </button>
                 
-                <span style="font-size: 13.5px; font-weight: 900; margin-top: 8px; text-align: center; color: #f8fafc; text-shadow: 0 0 10px rgba(0,0,0,0.9);">
+                <span style="font-size: 13px; font-weight: 900; margin-top: 8px; text-align: center; color: #f8fafc; text-shadow: 0 0 10px rgba(0,0,0,0.9); line-height: 1.2;">
                     ${fase.titulo}
                 </span>
                 
-                <div style="width: 100%; background: rgba(15, 23, 42, 0.9); border-radius: 12px; height: 11px; margin-top: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: inset 0 0 6px rgba(0,0,0,0.6);">
+                <div style="width: 100%; max-width: 180px; background: rgba(15, 23, 42, 0.9); border-radius: 12px; height: 10px; margin-top: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: inset 0 0 6px rgba(0,0,0,0.6);">
                     <div style="width: ${maestriaExibida}%; background: linear-gradient(90deg, #38bdf8, #2ecc71, #a855f7); height: 100%; transition: width 0.6s ease; border-radius: 12px;"></div>
                 </div>
 
@@ -1927,18 +1929,12 @@ window.abrirModalCuriosidadeEspacial = function(faseObj) {
     modal.id = 'modal-curiosidade-trilha';
     modal.style.cssText = `
         position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100vw; 
-        height: 100vh;
+        top: 0; left: 0; 
+        width: 100vw; height: 100vh;
         background: rgba(7, 10, 18, 0.88); 
         backdrop-filter: blur(8px);
-        display: flex; 
-        justify-content: center; 
-        align-items: center;
-        z-index: 99999; 
-        padding: 16px; 
-        box-sizing: border-box;
+        display: flex; justify-content: center; align-items: center;
+        z-index: 99999; padding: 16px; box-sizing: border-box;
     `;
 
     modal.innerHTML = `
@@ -1959,7 +1955,7 @@ window.abrirModalCuriosidadeEspacial = function(faseObj) {
                 🤖 <b style="color: #38bdf8;">Taby Diz:</b> "${faseObj.curiosidade}"
             </p>
 
-            <button onclick="window.marcarCuriosidadeEIniciar('${faseObj.id}')" style="width: 100%; padding: 12px; font-size: 12.5px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: 1.5px solid #38bdf8; border-radius: 14px; color: #fff; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(56, 189, 248, 0.35); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <button onclick="window.marcarCuriosidadeEIniciar('${faseObj.id}')" style="width: 100%; padding: 12px; font-size: 12.5px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: 1.5px solid #38bdf8; border-radius: 14px; color: #fff; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(56, 189, 248, 0.35); transition: transform 0.2s;">
                 VAMOS CONQUISTAR JUNTOS! 🚀
             </button>
         </div>
@@ -1996,12 +1992,10 @@ window.confirmarEIniciarFaseReal = function(faseObj) {
 };
 
 window.continuarTrilhaMesmoPlaneta = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     if (faseAtualTrilha) {
         if (typeof consumirVidaParaEntrar === 'function') {
-            if (!consumirVidaParaEntrar()) {
-                return;
-            }
+            if (!consumirVidaParaEntrar()) return;
         }
         tipoJogoSelecionado = 'trilha';
         operacoesSelecionadas = faseAtualTrilha.ops || ['multiplicacao'];
@@ -2049,18 +2043,12 @@ window.abrirDiarioDeBordoTaby = function() {
     modal.id = 'modal-diario-bordo';
     modal.style.cssText = `
         position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100vw; 
-        height: 100vh;
+        top: 0; left: 0; 
+        width: 100vw; height: 100vh;
         background: rgba(7, 10, 18, 0.88); 
         backdrop-filter: blur(6px);
-        display: flex; 
-        justify-content: center; 
-        align-items: center;
-        z-index: 99999; 
-        padding: 16px; 
-        box-sizing: border-box;
+        display: flex; justify-content: center; align-items: center;
+        z-index: 99999; padding: 16px; box-sizing: border-box;
     `;
 
     modal.innerHTML = `
@@ -2092,7 +2080,7 @@ window.abrirDiarioDeBordoTaby = function() {
                 ${listaHtml}
             </div>
 
-            <button onclick="document.getElementById('modal-diario-bordo').remove()" style="margin-top: 10px; width: 100%; padding: 9px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #f8fafc; font-weight: 800; font-size: 11.5px; cursor: pointer; flex-shrink: 0; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+            <button onclick="document.getElementById('modal-diario-bordo').remove()" style="margin-top: 10px; width: 100%; padding: 9px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #f8fafc; font-weight: 800; font-size: 11.5px; cursor: pointer; flex-shrink: 0;">
                 FECHAR DIÁRIO 🚀
             </button>
         </div>

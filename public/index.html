@@ -328,18 +328,44 @@
             </div>
         </section>
 
-        <!-- OUTRAS TELAS DO FLUXO DE JOGO -->
-        <section id="tela-pre-jogo" class="tela oculto">
-            <div class="app-container">
-                <h2 class="titulo-pre-jogo">Modo Relâmpago ⚡</h2>
-                <p class="subtitulo-pre-jogo">Prepare-se! O cronômetro iniciará assim que você clicar em começar.</p>
-                
-                <div id="box-contador-regressivo" class="contador-regressivo-box oculto">3</div>
-                
-                <button id="btn-iniciar-desafio-real" onclick="window.comecarDesafioEfetivo()" class="btn-comecar-desafio">▶️ INICIAR AGORA</button>
-                <button onclick="window.irParaPainelJogo()" class="btn-voltar-futurista">Voltar ao Painel</button>
+        <!-- TELA PRÉ-JOGO (CONFIRMAÇÃO MODO RELÂMPAGO) -->
+<section id="tela-pre-jogo" class="tela oculto">
+    <div class="container-pre-jogo-centro">
+        
+        <div class="card-pre-jogo-container">
+            <!-- Header com Mascote Taby -->
+            <div class="pre-jogo-mascote-box">
+                <img src="taby.png" alt="Taby" class="taby-animado-pre" onerror="this.onerror=null; this.src='icon144.png';">
+                <div class="balao-fala-taby">
+                    <p id="texto-balao-taby-pre">Preparado? Responda o mais rápido que puder sem errar!</p>
+                </div>
             </div>
-        </section>
+
+            <!-- Título da Operação Selecionada -->
+            <div class="badge-op-pre-jogo">
+                <h2 class="titulo-pre-jogo">✖️ Modo Relâmpago: Multiplicação</h2>
+            </div>
+
+            <p class="subtitulo-pre-jogo">
+                O cronômetro iniciará assim que você clicar no botão abaixo.
+            </p>
+            
+            <!-- Box do Timer (Regressão 3, 2, 1) -->
+            <div id="box-contador-regressivo" class="contador-regressivo-box oculto">3</div>
+            
+            <!-- Ações Principais do Mobile (Thumb Zone) -->
+            <div class="acoes-pre-jogo-stack">
+                <button id="btn-iniciar-desafio-real" onclick="window.comecarDesafioEfetivo()" class="btn-comecar-desafio btn-touch-alvo">
+                    🚀 INICIAR CONTAGEM
+                </button>
+                <button onclick="window.irParaPainelJogo()" class="btn-voltar-futurista btn-touch-secundario">
+                    ⬅️ Desistir e Voltar
+                </button>
+            </div>
+        </div>
+
+    </div>
+</section>
 
         <!-- TELA DE JOGO -->
         <section id="tela-jogo" class="tela oculto espaco-sideral-bg">

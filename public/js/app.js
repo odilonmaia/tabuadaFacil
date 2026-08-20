@@ -96,7 +96,7 @@ let tempoInicioMillis = 0;
 let tempoRelampagoGlobalUltimo = 0;
 let somAtivado = true;
 let iniciandoJogoTrava = false;
-
+let questaoAtual = null;
 let tipoTabuadaEstudo = 'multiplicacao';
 let eventoInstalacao = null;
 let respondendoTravado = false;
@@ -2243,29 +2243,53 @@ window.iniciarJogo = function() {
     iniciandoJogoTrava = true;
     setTimeout(() => { iniciandoJogoTrava = false; }, 800);
 
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
+
     if (!usuarioAtualLogado) {
         alert("Entre na conta para jogar!");
         window.irParaPainelJogo();
         return;
     }
 
-    if (typeof consumirVidaParaEntrar === 'function') {
-        if (!window.verificarSeEhPro() && !consumirVidaParaEntrar()) {
+    // 1. CHECAGEM E CONSUMO DE VIDA
+    const ehPro = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
+    
+    if (!ehPro) {
+        const saldoVidasLocal = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+        if (saldoVidasLocal <= 0) {
+            if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+                window.exibirModalVidasEsgotadasTaby();
+            } else if (typeof window.abrirModalVidasAcabaram === 'function') {
+                window.abrirModalVidasAcabaram();
+            }
             return;
         }
     }
 
-    prepararFilaOperacoes();
+    // 2. PREPARAÇÃO E REDIRECIONAMENTO
+    if (typeof prepararFilaOperacoes === 'function') {
+        prepararFilaOperacoes();
+    }
 
-    if (tipoJogoSelecionado === 'treino' || operacoesSelecionadas.includes('insano')) {
+    // No Modo Treino, vai direto para a partida
+    if (tipoJogoSelecionado === 'treino') {
         executarCarregamentoJogoReal();
     } else {
-        window.mudarTela('tela-pre-jogo');
-        const btnInic = document.getElementById('btn-iniciar-desafio-real');
-        const boxCont = document.getElementById('box-contador-regressivo');
-        if (btnInic) btnInic.classList.remove('oculto');
-        if (boxCont) boxCont.classList.add('oculto');
+        // No Modo Relâmpago ou Insano, vai para a tela pré-jogo
+        const opEscolhida = (operacoesSelecionadas && operacoesSelecionadas.length > 0) ? operacoesSelecionadas[0] : 'multiplicacao';
+        
+        if (typeof window.abrirConfirmacaoPreJogo === 'function') {
+            window.abrirConfirmacaoPreJogo(opEscolhida);
+        } else {
+            window.mudarTela('tela-pre-jogo');
+            const btnInic = document.getElementById('btn-iniciar-desafio-real');
+            const boxCont = document.getElementById('box-contador-regressivo');
+            if (btnInic) {
+                btnInic.style.display = 'block';
+                btnInic.classList.remove('oculto');
+            }
+            if (boxCont) boxCont.classList.add('oculto');
+        }
     }
 };
 
@@ -2320,34 +2344,66 @@ function prepararFilaOperacoes() {
 }
 
 window.comecarDesafioEfetivo = function() {
-    tocarSom('clique');
-    const btnInic = document.getElementById('btn-iniciar-desafio-real');
     const boxContador = document.getElementById('box-contador-regressivo');
-    if (btnInic) btnInic.classList.add('oculto');
-    if (boxContador) boxContador.classList.remove('oculto');
-    
-    let count = 3;
-    if (boxContador) boxContador.innerText = count;
-    tocarSom('contagem'); 
+    const btnIniciarReal = document.getElementById('btn-iniciar-desafio-real');
+    const btnVoltar = document.querySelector('#tela-pre-jogo .btn-voltar-futurista');
 
-    let timerCount = setInterval(() => {
-        count--;
-        if (count > 0) {
-            if (boxContador) boxContador.innerText = count;
-            tocarSom('contagem'); 
-        } else if (count === 0) {
-            if (boxContador) boxContador.innerText = "JÁ! 🚀";
-            tocarSom('ja'); 
+    // Esconde os botões de ação durante a contagem
+    if (btnIniciarReal) btnIniciarReal.style.display = 'none';
+    if (btnVoltar) btnVoltar.style.display = 'none';
+
+    // Exibe a caixa do contador
+    if (boxContador) {
+        boxContador.classList.remove('oculto');
+        boxContador.style.display = 'flex';
+    }
+
+    let tempoRestante = 3;
+
+    function atualizarNumeroContagem() {
+        if (!boxContador) return;
+
+        // Reinicia a animação CSS a cada número
+        boxContador.classList.remove('anim-pop-contador');
+        void boxContador.offsetWidth; // Reflow forçado
+        boxContador.classList.add('anim-pop-contador');
+
+        if (tempoRestante > 0) {
+            if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+            boxContador.innerHTML = tempoRestante;
+            tempoRestante--;
+            setTimeout(atualizarNumeroContagem, 800);
         } else {
-            clearInterval(timerCount);
-            if (boxContador) boxContador.classList.add('oculto');
-            executarCarregamentoJogoReal();
+            if (typeof window.tocarSom === 'function') window.tocarSom('acerto');
+            boxContador.style.color = '#4ade80'; // Verde neon
+            boxContador.innerHTML = "JÁ! 🚀";
+
+            setTimeout(() => {
+                // Reset da caixa de contagem
+                boxContador.classList.add('oculto');
+                boxContador.style.display = 'none';
+                boxContador.style.color = '#38bdf8';
+
+                // Restaura os botões para a próxima vez que a tela for aberta
+                if (btnIniciarReal) btnIniciarReal.style.display = 'block';
+                if (btnVoltar) btnVoltar.style.display = 'block';
+
+                // 1. Prepara as perguntas para a partida do modo selecionado
+                if (typeof window.prepararFilaOperacoes === 'function') {
+                    window.prepararFilaOperacoes();
+                }
+
+                // 2. Transita a interface direto para a tela do jogo
+                executarCarregamentoJogoReal();
+            }, 500);
         }
-    }, 1000);
+    }
+
+    atualizarNumeroContagem();
 };
 
 // =========================================================================
-// FLUXO DE ENTRADA E RENDERIZAÇÃO DA PERGUNTA
+// FLUXO DE ENTRADA E RENDERIZAÇÃO DA PERGUNTA (CORRIGIDO)
 // =========================================================================
 function executarCarregamentoJogoReal() {
     if (timerTransicaoQuestao) clearTimeout(timerTransicaoQuestao);
@@ -2392,7 +2448,7 @@ function gerarPergunta() {
         let btn = document.getElementById(`alt-${i}`);
         if (btn) {
             btn.disabled = false;
-            btn.classList.remove('incorreto', 'correto');
+            btn.classList.remove('incorreto', 'correto', 'errada', 'correta');
             btn.className = "btn-resposta-futurista";
         }
     }
@@ -2467,124 +2523,102 @@ function gerarPergunta() {
     }
 }
 
-window.verificarEscolha = function(indice) {
-    if (respondendoTravado) return;
-    respondendoTravado = true;
+// VERIFICAÇÃO UNIFICADA E CORRIGIDA
+window.verificarEscolha = function(indiceSelecionado) {
+    if (respondendoTravado) return; // Evita duplo clique rápido
+    
+    // Bloqueia se o jogador não tiver vidas
+    const saldoVidasActual = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+    const ehProUser = window.verificarSeEhPro();
 
-    if (timerTransicaoQuestao) clearTimeout(timerTransicaoQuestao);
-
-    let semVidasDerrota = false;
-
-    try {
-        const tempoGastoMs = Date.now() - inicioTempoQuestao;
-
-        tocarSom('clique');
-        const btnEscolhido = document.getElementById(`alt-${indice}`);
-        const valor = parseInt(btnEscolhido ? btnEscolhido.innerText : '-1');
-
-        for (let i = 0; i < 4; i++) {
-            const btn = document.getElementById(`alt-${i}`);
-            if (btn) btn.disabled = true;
+    if (saldoVidasActual <= 0 && !ehProUser) {
+        if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+            window.exibirModalVidasEsgotadasTaby();
+        } else if (typeof window.abrirModalVidasAcabaram === 'function') {
+            window.abrirModalVidasAcabaram();
         }
-
-        const acertou = (valor === respostaCorretaGlobal);
-        const chaveConta = `${fator1Atual}x${fator2Atual}`;
-        
-        if (!dadosTrilhaUsuario) dadosTrilhaUsuario = {};
-        if (!dadosTrilhaUsuario.maestriaContas) dadosTrilhaUsuario.maestriaContas = {};
-        let scoreAtual = dadosTrilhaUsuario.maestriaContas[chaveConta] || 0;
-
-        if (acertou) {
-            acertos++;
-            if (btnEscolhido) btnEscolhido.classList.add('correto');
-            tocarSom('acerto');
-
-            if (tempoGastoMs <= 1500) scoreAtual += 25;
-            else if (tempoGastoMs <= 3500) scoreAtual += 15;
-            else scoreAtual += 5;
-
-            if (scoreAtual > 100) scoreAtual = 100;
-        } else {
-            erros++;
-            if (btnEscolhido) btnEscolhido.classList.add('incorreto');
-            tocarSom('erro');
-
-            scoreAtual = Math.max(0, scoreAtual - 20);
-
-            for (let i = 0; i < 4; i++) {
-                const btn = document.getElementById(`alt-${i}`);
-                if (btn && parseInt(btn.innerText) === respostaCorretaGlobal) {
-                    btn.classList.add('correto');
-                }
-            }
-
-            if (!window.verificarSeEhPro()) {
-                let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-                saldoVidas = Math.max(0, saldoVidas - 1);
-                localStorage.setItem('usuario_vidas', saldoVidas.toString());
-
-                if (saldoVidas === 0 && !localStorage.getItem('usuario_proxima_vida_timestamp')) {
-                    const proximoTempo = Date.now() + TEMPO_REGENERACAO_MS;
-                    localStorage.setItem('usuario_proxima_vida_timestamp', proximoTempo.toString());
-                }
-
-                window.atualizarHUDVidasPartida();
-
-                if (saldoVidas <= 0) {
-                    semVidasDerrota = true;
-                }
-            }
-        }
-
-        dadosTrilhaUsuario.maestriaContas[chaveConta] = scoreAtual;
-
-    } catch (e) {
-        console.error("Erro ao processar resposta:", e);
+        return;
     }
 
-    timerTransicaoQuestao = setTimeout(() => {
-        try {
-            if (semVidasDerrota) {
-                if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
-                    window.exibirModalVidasEsgotadasTaby();
-                } else if (typeof window.abrirPaywall === 'function') {
-                    window.abrirPaywall();
-                } else {
-                    alert("Suas vidas acabaram! Faça upgrade para o Plano PRO para jogar com vidas ilimitadas.");
-                    window.irParaPainelJogo();
-                }
-                return;
-            }
+    respondendoTravado = true;
 
+    // Busca o valor real contido no botão clicado a partir do array oficial
+    const valorClicado = opcoesAtuaisJogo[indiceSelecionado];
+    const btnClicado = document.getElementById(`alt-${indiceSelecionado}`);
+
+    if (valorClicado === respostaCorretaGlobal) {
+        // --- RESPOSTA CORRETA ---
+        if (typeof tocarSom === 'function') tocarSom('acerto');
+        if (btnClicado) btnClicado.classList.add('correto');
+        acertos++;
+
+        setTimeout(() => {
             perguntaAtual++;
             if (perguntaAtual > totalPerguntas) {
                 finalizarJogo();
             } else {
                 gerarPergunta();
             }
-        } catch (erro) {
-            console.error("Erro na transição de questão:", erro);
-            respondendoTravado = false;
-            if (perguntaAtual <= totalPerguntas) {
-                gerarPergunta();
-            } else {
-                window.irParaPainelJogo();
+        }, 500);
+
+    } else {
+        // --- RESPOSTA ERRADA ---
+        if (typeof tocarSom === 'function') tocarSom('erro');
+        if (btnClicado) btnClicado.classList.add('incorreto');
+        erros++;
+
+        // Destaca a resposta certa visualmente para o aluno aprender
+        for (let i = 0; i < 4; i++) {
+            if (opcoesAtuaisJogo[i] === respostaCorretaGlobal) {
+                const btnCerto = document.getElementById(`alt-${i}`);
+                if (btnCerto) btnCerto.classList.add('correto');
             }
         }
-    }, 600);
+
+        // Desconta vida no erro
+        if (!ehProUser) {
+            let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+            saldoVidas = Math.max(0, saldoVidas - 1);
+            localStorage.setItem('usuario_vidas', saldoVidas.toString());
+        }
+
+        if (typeof window.atualizarHUDVidasPartida === 'function') {
+            window.atualizarHUDVidasPartida();
+        }
+
+        let saldoFinalVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+
+        // Se zerou as vidas, abre modal, senão avança para a próxima
+        if (saldoFinalVidas <= 0 && !ehProUser) {
+            setTimeout(() => {
+                if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+                    window.exibirModalVidasEsgotadasTaby();
+                } else if (typeof window.abrirModalVidasAcabaram === 'function') {
+                    window.abrirModalVidasAcabaram();
+                }
+            }, 700);
+        } else {
+            setTimeout(() => {
+                perguntaAtual++;
+                if (perguntaAtual > totalPerguntas) {
+                    finalizarJogo();
+                } else {
+                    gerarPergunta();
+                }
+            }, 1000);
+        }
+    }
 };
 
 window.continuarJogando = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     window.iniciarJogo();
 };
 
 window.confirmarSaidaJogo = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     if (confirm("Deseja mesmo sair?")) window.irParaPainelJogo();
 };
-//#endregion
-
 
 // =========================================================================
 // 8. FINALIZAÇÃO E REGISTRO DE ESTATÍSTICAS NO FIRESTORE
@@ -3331,9 +3365,16 @@ window.consumirVidaParaEntrar = function() {
     return true;
 };
 
+// =========================================================================
+// CORREÇÃO: SINCRONIZAÇÃO DE VIDAS E DESATIVAÇÃO DE BOTÕES
+// =========================================================================
+
 window.atualizarInterfaceVidas = function() {
     const plano = window.obterPlanoAtivo();
     const ehPago = window.verificarSeEhPro();
+    
+    // Força a leitura atualizada diretamente do localStorage
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
 
     const btnVideo = document.getElementById('btn-assistir-ad-vidas');
     const btnRelatorio = document.getElementById('btn-abrir-relatorio');
@@ -3343,7 +3384,7 @@ window.atualizarInterfaceVidas = function() {
         if (btnRelatorio) btnRelatorio.style.display = 'inline-flex';
     } else {
         if (btnVideo) btnVideo.style.display = 'inline-flex';
-        if (btnRelatorio) btnRelatorio.style.display = 'none';
+        if (btnRelatorio) btnRelatorio.style.display = (saldoVidas < 5) ? 'inline-flex' : 'none';
     }
 
     const badgeTopo = document.getElementById('badge-plano-topo');
@@ -3357,56 +3398,57 @@ window.atualizarInterfaceVidas = function() {
         }
     }
 
-    window.atualizarHUDVidasPartida();
-
-    if (typeof window.atualizarEstadoBotoesModo === 'function') {
-        window.atualizarEstadoBotoesModo();
+    // Atualiza o texto dos contadores no HUD/Painel
+    const elContadorTexto = document.getElementById('contador-vidas-texto');
+    if (elContadorTexto) {
+        elContadorTexto.innerText = ehPago ? '∞' : saldoVidas;
     }
+
+    window.atualizarHUDVidasPartida();
+    window.atualizarEstadoBotoesModo();
 };
 
 window.atualizarEstadoBotoesModo = function() {
     const ehPago = window.verificarSeEhPro();
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
 
-    const btnTrilha = document.getElementById('btn-modo-trilha');
-    const btnTreino = document.getElementById('btn-modo-treino');
-    const btnRelampago = document.getElementById('btn-modo-relampago');
-    const btnTabuadas = document.getElementById('btn-consultar-tabuadas') || document.querySelector('.btn-consultar-tabuadas');
+    // Lista de todos os botões que devem travar sem vida
+    const botoesParaTravar = [
+        document.getElementById('btn-modo-trilha'),
+        document.getElementById('btn-modo-treino'),
+        document.getElementById('btn-modo-relampago'),
+        document.getElementById('btn-op-mult'),
+        document.getElementById('btn-op-div'),
+        document.getElementById('btn-op-add'),
+        document.getElementById('btn-op-sub'),
+        document.getElementById('btn-op-insano'),
+        document.querySelector('.btn-comecar-desafio'),
+        document.querySelector('.btn-iniciar-jogo-hub')
+    ];
 
-    const desativarBotao = (el) => {
+    const bloquear = (el) => {
         if (!el) return;
         el.disabled = true;
         el.classList.add('modo-desativado');
         el.style.opacity = '0.4';
-        el.style.filter = 'grayscale(80%)';
-        el.style.pointerEvents = 'none';
-        el.style.cursor = 'not-allowed';
+        el.style.filter = 'grayscale(100%)';
+        el.style.pointerEvents = 'none'; // Impede o clique
+        el.style.boxShadow = 'none';     // Remove o brilho/glow do botão
     };
 
-    const ativarBotao = (el) => {
+    const liberar = (el) => {
         if (!el) return;
         el.disabled = false;
         el.classList.remove('modo-desativado');
         el.style.opacity = '1';
         el.style.filter = 'none';
         el.style.pointerEvents = 'auto';
-        el.style.cursor = 'pointer';
     };
 
-    if (btnTabuadas) {
-        ativarBotao(btnTabuadas);
-    }
-
-    if (ehPago) {
-        [btnTreino, btnRelampago, btnTrilha].forEach(ativarBotao);
-        return;
-    }
-
-    let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-
-    if (saldoVidas > 0) {
-        [btnTreino, btnRelampago, btnTrilha].forEach(ativarBotao);
+    if (ehPago || saldoVidas > 0) {
+        botoesParaTravar.forEach(liberar);
     } else {
-        [btnTreino, btnRelampago, btnTrilha].forEach(desativarBotao);
+        botoesParaTravar.forEach(bloquear);
     }
 };
 
@@ -5026,22 +5068,20 @@ window.selecionarModoRelampago = function() {
     if (btnStart) btnStart.style.display = 'none';
 };
 
+// Atualização da seleção de operação com trava de segurança
 window.selecionarOperacao = function(op) {
     if (typeof window.tocarSom === 'function') window.tocarSom('clique');
 
+    // Se estiver sem vidas, intercepta e abre o modal imediatamente
+    if (!verificarVidasParaJogar()) return;
+
     if (tipoJogoSelecionado === 'relampago') {
-        // No Modo Relâmpago, define a operação escolhida e INICIA O JOGO DIRETO!
-        if (op === 'insano') {
-            operacoesSelecionadas = ['insano'];
-        } else {
-            operacoesSelecionadas = [op];
-        }
+        limparSelecaoVisualOperacoes();
+        operacoesSelecionadas = [op];
         atualizarBotoesOperacaoVisual();
-        
-        // Dispara o jogo imediatamente sem precisar do botão de confirmação
-        window.iniciarJogo();
+        window.abrirConfirmacaoPreJogo(op);
     } else {
-        // Modo Treino (comportamento normal de múltipla seleção)
+        // Modo Treino (seleção padrão)
         if (op === 'insano') {
             operacoesSelecionadas = ['insano'];
         } else {
@@ -5057,3 +5097,118 @@ window.selecionarOperacao = function(op) {
         atualizarBotoesOperacaoVisual();
     }
 };
+
+// Função para preparar e exibir a tela de confirmação pré-jogo
+window.abrirConfirmacaoPreJogo = function(op) {
+    const dadosOperacoes = {
+        'multiplicacao': { 
+            nome: 'Multiplicação', 
+            icone: '✖️',
+            fala: 'Acelere o raciocínio! Responda o máximo que puder sem errar!'
+        },
+        'divisao': { 
+            nome: 'Divisão', 
+            icone: '➗',
+            fala: 'Hora de dividir rapidinho! Fique atento aos números!'
+        },
+        'adicao': { 
+            nome: 'Adição', 
+            icone: '➕',
+            fala: 'Soma rápida na cabeça! Vamos mostrar que você é fera!'
+        },
+        'subtracao': { 
+            nome: 'Subtração', 
+            icone: '➖',
+            fala: 'Mantenha a calma e subtraia com precisão total!'
+        },
+        'insano': { 
+            nome: 'Modo Insano 🔥', 
+            icone: '⚡',
+            fala: 'Desafio Máximo! São 12 questões mistas contra o relógio!'
+        }
+    };
+
+    const opInfo = dadosOperacoes[op] || { 
+        nome: 'Tabuada', 
+        icone: '🚀', 
+        fala: 'Prepare-se! O tempo começa a contar já já!' 
+    };
+
+    // Atualiza o Título e a fala do Taby
+    const tituloPre = document.querySelector('#tela-pre-jogo .titulo-pre-jogo');
+    if (tituloPre) {
+        tituloPre.innerHTML = `${opInfo.icone} Modo Relâmpago: ${opInfo.nome}`;
+    }
+
+    const balaoTaby = document.getElementById('texto-balao-taby-pre');
+    if (balaoTaby) {
+        balaoTaby.innerText = opInfo.fala;
+    }
+
+    // --- CORREÇÃO DE ESTADO ---
+    // 1. Esconde o box da contagem regressiva
+    const boxContador = document.getElementById('box-contador-regressivo');
+    if (boxContador) {
+        boxContador.classList.add('oculto');
+        boxContador.style.display = 'none';
+        boxContador.innerHTML = '3';
+    }
+
+    // 2. FORÇA o botão de iniciar a reaparecer sempre
+    const btnIniciarReal = document.getElementById('btn-iniciar-desafio-real');
+    if (btnIniciarReal) {
+        btnIniciarReal.style.display = 'block';
+    }
+
+    // 3. Garante que o botão de desistir/voltar também esteja visível
+    const btnVoltar = document.querySelector('#tela-pre-jogo .btn-voltar-futurista');
+    if (btnVoltar) {
+        btnVoltar.style.display = 'block';
+    }
+
+    window.mudarTela('tela-pre-jogo');
+};
+
+// Limpa o destaque do botão ao desistir ou voltar ao painel
+window.irParaPainelJogo = function() {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+    window.mudarTela('tela-painel-jogo');
+
+    if (tipoJogoSelecionado === 'relampago') {
+        operacoesSelecionadas = [];
+        if (typeof limparSelecaoVisualOperacoes === 'function') {
+            limparSelecaoVisualOperacoes();
+        }
+    } else {
+        if (typeof atualizarBotoesOperacaoVisual === 'function') {
+            atualizarBotoesOperacaoVisual();
+        }
+    }
+
+    // Adicione dentro de window.irParaPainelJogo
+    if (typeof window.atualizarEstadoBotoesModo === 'function') {
+    window.atualizarEstadoBotoesModo();
+    }
+};
+
+// Função genérica para verificar vidas e abrir o modal se necessário
+function verificarVidasParaJogar() {
+    // Considera plano Pro/Premium como vidas infinitas
+    const planoSalvo = (typeof window.obterPlanoAtivo === 'function') ? window.obterPlanoAtivo() : 'gratis';
+    if (planoSalvo === 'pro' || planoSalvo === 'premium') return true;
+
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
+
+    if (saldoVidas <= 0) {
+        if (typeof window.tocarSom === 'function') window.tocarSom('erro');
+        if (typeof window.exibirModalVidasEsgotadasTaby === 'function') {
+            window.exibirModalVidasEsgotadasTaby();
+        } else if (typeof window.abrirModalVidasAcabaram === 'function') {
+            window.abrirModalVidasAcabaram();
+        } else {
+            alert("🔒 Você está sem vidas! Assista a um vídeo ou aguarde o tempo de recarga.");
+        }
+        return false;
+    }
+    return true;
+}

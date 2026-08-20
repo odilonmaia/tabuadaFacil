@@ -2360,3 +2360,146 @@ button.btn-fechar-balao {
     color: #ffffff;
     transform: scale(1.1);
 }
+
+/* Container que garante a centralização vertical no Viewport Mobile */
+section#tela-pre-jogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+div.container-pre-jogo-centro {
+    width: 100%;
+    max-width: 380px;
+    margin: auto 0;
+}
+
+/* Card Principal Central */
+div.card-pre-jogo-container {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+    border: 1.5px solid rgba(56, 189, 248, 0.3);
+    border-radius: 24px;
+    padding: 24px 18px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(56, 189, 248, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+/* Taby + Balão de Fala */
+div.pre-jogo-mascote-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+img.taby-animado-pre {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.5));
+    animation: flutuarTaby 3s ease-in-out infinite;
+}
+
+div.balao-fala-taby {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 16px;
+    padding: 10px 14px;
+    position: relative;
+    max-width: 90%;
+}
+
+div.balao-fala-taby p {
+    color: #e2e8f0;
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Título e Destaque da Operação */
+div.badge-op-pre-jogo h2.titulo-pre-jogo {
+    color: #38bdf8;
+    font-size: 17px;
+    font-weight: 900;
+    margin: 0 0 8px 0;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+p.subtitulo-pre-jogo {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+/* Ergonomia dos Botoes (Thumb Zone) */
+div.acoes-pre-jogo-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+button.btn-touch-alvo {
+    min-height: 52px;
+    font-size: 14px;
+    font-weight: 900;
+    border-radius: 14px;
+}
+
+button.btn-touch-secundario {
+    min-height: 46px;
+    font-size: 12.5px;
+    border-radius: 14px;
+    opacity: 0.85;
+}
+
+@keyframes flutuarTaby {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+/* Container da Contagem Regressiva Arcade */
+#box-contador-regressivo,
+.contador-regressivo-box {
+    font-size: 64px;
+    font-weight: 900;
+    color: #38bdf8;
+    text-align: center;
+    margin: 12px 0;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.8), 0 0 40px rgba(56, 189, 248, 0.4);
+    font-family: 'Fredoka', 'Popins', sans-serif, system-ui;
+}
+
+/* Animação disparada a cada segundo via JS */
+.anim-pop-contador {
+    animation: popContador 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popContador {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+        filter: drop-shadow(0 0 0px #38bdf8);
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 1;
+        filter: drop-shadow(0 0 25px #38bdf8);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px #38bdf8);
+    }
+}

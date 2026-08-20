@@ -3319,12 +3319,10 @@ function verificarERegenerarVidas() {
 // 2. ATUALIZA A EXIBIÇÃO DO TIMER NO DOM (EX: 59:59)
 function atualizarDisplayTimerVidas() {
     const elTimer = document.getElementById('display-timer-vidas');
-    const elTimerModal = document.getElementById('tempo-restante-modal-sem-vidas');
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+    const ehPro = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
 
-    let saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '5', 10);
-    const ehPro = typeof window.verificarSeEhPro === 'function' && window.verificarSeEhPro();
-
-    // Se tem vidas ou é PRO, esconde/reseta o cronômetro do topo
+    // Se tem vidas (> 0) ou é PRO, o cronômetro DEVE sumir
     if (ehPro || saldoVidas > 0) {
         if (elTimer) {
             elTimer.style.display = 'none';
@@ -3335,35 +3333,25 @@ function atualizarDisplayTimerVidas() {
     let proximaVidaTimestamp = parseInt(localStorage.getItem('usuario_proxima_vida_timestamp') || '0', 10);
     const agora = Date.now();
 
-    // Se está sem vidas e o timestamp ainda não foi setado, executa a verificação
-    if (!proximaVidaTimestamp) {
-        verificarERegenerarVidas();
-        proximaVidaTimestamp = parseInt(localStorage.getItem('usuario_proxima_vida_timestamp') || '0', 10);
-    }
+    if (!proximaVidaTimestamp) return;
 
     const tempoRestanteMs = proximaVidaTimestamp - agora;
 
     if (tempoRestanteMs > 0) {
         const minutos = Math.floor(tempoRestanteMs / 60000);
         const segundos = Math.floor((tempoRestanteMs % 60000) / 1000);
-
-        const minStr = String(minutos).padStart(2, '0');
-        const segStr = String(segundos).padStart(2, '0');
-        const tempoFormatado = `${minStr}:${segStr}`;
+        const tempoFormatado = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
 
         if (elTimer) {
             elTimer.innerHTML = `<span style="font-size: 11px;">⏳</span> ${tempoFormatado}`;
             elTimer.style.display = 'inline-flex';
         }
-
-        if (elTimerModal) {
-            elTimerModal.innerText = tempoFormatado;
-        }
     } else {
-        verificarERegenerarVidas();
+        if (typeof verificarERegenerarVidas === 'function') {
+            verificarERegenerarVidas();
+        }
     }
 }
-
 // 3. LOOP CONTÍNUO DE 1 SEGUNDO
 (function iniciarLoopTimerVidas() {
     if (intervaloTimerVida) clearInterval(intervaloTimerVida);
@@ -3414,11 +3402,17 @@ window.consumirVidaParaEntrar = function() {
 // =========================================================================
 
 window.atualizarInterfaceVidas = function() {
-    const plano = window.obterPlanoAtivo();
-    const ehPago = window.verificarSeEhPro();
+    const plano = (typeof window.obterPlanoAtivo === 'function') ? window.obterPlanoAtivo() : 'gratis';
+    const ehPago = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : (plano === 'pro' || plano === 'premium');
     
-    // Força a leitura atualizada diretamente do localStorage
+    // 1. LER DIRETAMENTE A FONTE ÚNICA DE VERDADE
     const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+
+    // 2. ATUALIZAR O MOSTRADOR NO TOPO DE FORMA FORÇADA
+    const elContadorTexto = document.getElementById('contador-vidas-texto') || document.querySelector('#badge-vidas span');
+    if (elContadorTexto) {
+        elContadorTexto.innerText = ehPago ? '∞' : saldoVidas;
+    }
 
     const btnVideo = document.getElementById('btn-assistir-ad-vidas');
     const btnRelatorio = document.getElementById('btn-abrir-relatorio');
@@ -3428,29 +3422,48 @@ window.atualizarInterfaceVidas = function() {
         if (btnRelatorio) btnRelatorio.style.display = 'inline-flex';
     } else {
         if (btnVideo) btnVideo.style.display = 'inline-flex';
-        if (btnRelatorio) btnRelatorio.style.display = (saldoVidas < 5) ? 'inline-flex' : 'none';
+        if (btnRelatorio) btnRelatorio.style.display = 'none';
     }
 
-    const badgeTopo = document.getElementById('badge-plano-topo');
-    if (badgeTopo) {
-        if (ehPago) {
-            badgeTopo.style.display = 'inline-flex';
-            badgeTopo.innerText = (plano === 'pro') ? 'PRO 💎' : 'PREMIUM 👑';
-            badgeTopo.className = `badge-plano-topo badge-estilo-${plano}`;
-        } else {
-            badgeTopo.style.display = 'none';
-        }
+    // 3. SINCRONIZAR BOTÕES E CRONÔMETRO
+    if (typeof window.atualizarEstadoBotoesModo === 'function') {
+        window.atualizarEstadoBotoesModo();
     }
-
-    // Atualiza o texto dos contadores no HUD/Painel
-    const elContadorTexto = document.getElementById('contador-vidas-texto');
-    if (elContadorTexto) {
-        elContadorTexto.innerText = ehPago ? '∞' : saldoVidas;
+    if (typeof window.atualizarDisplayTimerVidas === 'function') {
+        window.atualizarDisplayTimerVidas();
     }
-
-    window.atualizarHUDVidasPartida();
-    window.atualizarEstadoBotoesModo();
 };
+
+window.atualizarEstadoBotoesModo = function() {
+    const ehPago = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
+    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+
+    const botoes = document.querySelectorAll(
+        '#btn-modo-trilha, #btn-modo-treino, #btn-modo-relampago, ' +
+        '#btn-op-mult, #btn-op-div, #btn-op-add, #btn-op-sub, #btn-op-insano, ' +
+        '.btn-comecar-desafio, .btn-iniciar-jogo-hub'
+    );
+
+    botoes.forEach(el => {
+        if (!el) return;
+        
+        // Se possui 1 ou mais vidas (ou é PRO), destrava obrigatoriamente
+        if (ehPago || saldoVidas > 0) {
+            el.disabled = false;
+            el.style.opacity = '1';
+            el.style.filter = 'none';
+            el.style.pointerEvents = 'auto';
+            el.classList.remove('modo-desativado');
+        } else {
+            // Apenas se for exatamente 0 vidas
+            el.style.opacity = '0.5';
+            el.style.filter = 'grayscale(80%)';
+            el.style.pointerEvents = 'auto'; 
+        }
+    });
+};
+
+
 
 window.atualizarEstadoBotoesModo = function() {
     const ehPago = window.verificarSeEhPro();
@@ -3902,15 +3915,27 @@ window.atualizarIndicadoresPlanoUsuario = function() {
 // 11. RELATÓRIO PEDAGÓGICO E CHART.JS
 // =========================================================================
 //#region [11] RELATÓRIO PEDAGÓGICO
+// Substitua o handler de abertura do relatório por esta trava de segurança:
 window.abrirModalRelatorio = function(e) {
     if (e && e.preventDefault) e.preventDefault();
     if (typeof window.tocarSom === 'function') window.tocarSom('clique');
     
+    const ehPago = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
+
+    if (!ehPago) {
+        // Se for Free, abre a tela do Paywall informando que o Relatório é Pro/Premium
+        if (typeof window.abrirPaywall === 'function') {
+            window.abrirPaywall("O Relatório Pedagógico Detalhado é exclusivo para assinantes PRO e PREMIUM!");
+        } else if (typeof window.abrirTelaCheckoutPremium === 'function') {
+            window.abrirTelaCheckoutPremium();
+        }
+        return;
+    }
+
     const modal = document.getElementById('modal-relatorio');
     if (modal) {
-        modal.classList.remove('oculto', 'display-none');
+        modal.classList.remove('oculto');
         modal.style.display = 'flex';
-        
         if (typeof window.carregarEstatisticasReaisRelatorio === 'function') {
             window.carregarEstatisticasReaisRelatorio();
         }

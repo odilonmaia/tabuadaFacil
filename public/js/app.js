@@ -1790,9 +1790,21 @@ window.mostrarTelaTrilha = async function() {
     if (typeof tocarSom === 'function') tocarSom('clique');
     window.mudarTela('tela-trilha');
 
-    const nomeAluno = (typeof usuarioAtualLogado !== 'undefined' && usuarioAtualLogado && usuarioAtualLogado.displayName) 
-        ? usuarioAtualLogado.displayName 
-        : (window.nomeUsuarioAtual || "Comandante");
+    // 1. Busca sempre o perfil ativo do localStorage em tempo real
+    let perfilAtivo = null;
+    try {
+        const perfilStr = localStorage.getItem('tabuada_perfil_ativo');
+        if (perfilStr) perfilAtivo = JSON.parse(perfilStr);
+    } catch (e) {
+        console.warn("Erro ao ler perfil ativo:", e);
+    }
+
+    // 2. Prioridade: Nome do perfil ativo local > Nome do Firebase > Padrão
+    const nomeAluno = (perfilAtivo && perfilAtivo.nome) 
+        ? perfilAtivo.nome 
+        : ((typeof usuarioAtualLogado !== 'undefined' && usuarioAtualLogado && usuarioAtualLogado.displayName) 
+            ? usuarioAtualLogado.displayName 
+            : "Comandante");
 
     const balao = document.getElementById('balao-taby-trilha');
     if (balao) {
@@ -1803,7 +1815,7 @@ window.mostrarTelaTrilha = async function() {
                 
                 <div style="flex: 1; text-align: left; padding-right: 28px;">
                     <div style="color: #38bdf8; font-size: 14px; font-weight: 900; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
-                        <span>🚀 Preparado, <strong id="nome-aluno-taby-trilha" style="color: #fff;">${nomeAluno}</strong>?</span>
+                        <span>🚀 Preparado, <strong id="nome-aluno-taby-trilha" style="color: #fff;">${nomeAluno} </strong>?</span>
                     </div>
                     <p style="color: #e2e8f0; font-size: 12px; line-height: 1.4; margin: 0; font-weight: 600;">
                         Conquiste <b style="color: #4ade80;">85% de Maestria</b> nos planetas para avançar e <b style="color: #fbbf24;">gravar a tabuada na memória para sempre!</b> 🧠⚡
@@ -1831,6 +1843,7 @@ window.mostrarTelaTrilha = async function() {
 
     renderizarMapaTrilha();
 };
+   
 
 function renderizarMapaTrilha() {
     const container = document.getElementById('mapa-trilha-container');

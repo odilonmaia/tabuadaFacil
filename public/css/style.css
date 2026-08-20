@@ -2553,15 +2553,90 @@ button.btn-touch-secundario {
 }
 
 /* Estilização do Select de Filtro ("Sempre", "Este Mês", etc) */
+/* Container/Alinhamento do filtro de período */
 .select-filtro-ranking {
-    background: #0f172a;
+    width: 100%;
+    max-width: 320px;
+    height: 40px;
+    margin: 0 auto 12px auto;
+    display: block;
+    background-color: #0f172a;
     color: #38bdf8;
     border: 1px solid rgba(56, 189, 248, 0.4);
-    padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 10px;
+    
+    /* Zera os paddings laterais para alinhar o centro exato */
+    padding: 0;
+    
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
+    
+    /* Centralização estrita para todos os sistemas/navegadores */
+    text-align: center;
+    text-align-last: center;
+    -moz-text-align-last: center;
+    
     outline: none;
     cursor: pointer;
+    box-sizing: border-box;
+    
+    /* Esconde a seta nativa para evitar que ela empurre o texto */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    /* Adiciona uma seta customizada via background sem afetar o fluxo do texto */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+
+/* Garante o alinhamento central nas opções do dropdown aberto */
+.select-filtro-ranking option {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px 0;
+    font-size: 13px;
+    text-align: center;
+}
+
+.select-ranking-style {
+    width: 100%;
+    max-width: 320px;
+    height: 40px;
+    margin: 0 auto 12px auto;
+    display: block;
+    background-color: #0f172a;
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 10px;
+    
+    /* Adiciona padding nas laterais (esquerda 16px e direita 35px) para afastar o texto da seta */
+    padding: 0 35px 0 16px;
+    
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    text-align-last: center;
+    outline: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    /* Seta customizada posicionada na extremidade direita */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+
+.select-ranking-style option {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px;
+    font-size: 13px;
     text-align: center;
 }

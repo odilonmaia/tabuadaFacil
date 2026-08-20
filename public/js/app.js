@@ -2913,8 +2913,9 @@ window.selecionarAbaRanking = function(tipo) {
     const elTipoHidden = document.getElementById('tipo-ranking');
     if (elTipoHidden) elTipoHidden.value = tipo;
 
-    const btnTreino = document.getElementById('btn-aba-treino');
-    const btnRelampago = document.getElementById('btn-aba-relampago');
+    // CORRIGIDO: Buscando pelos IDs exatos do HTML (btn-rank-...)
+    const btnTreino = document.getElementById('btn-rank-treino');
+    const btnRelampago = document.getElementById('btn-rank-relampago');
     const elFiltroOp = document.getElementById('filtro-operacoes-relampago');
 
     if (btnTreino && btnRelampago) {
@@ -2942,20 +2943,26 @@ window.aplicarFiltro = function() {
 };
 
 function obterDataCorteFiltro() {
-    const elFiltroTempo = document.getElementById('filtro-tempo');
+    const elFiltroTempo = document.getElementById('select-periodo-ranking') || document.getElementById('filtro-tempo');
     const valor = elFiltroTempo ? elFiltroTempo.value : 'sempre';
-    const agora = Date.now();
 
     if (valor === 'hoje') {
         const inicioHoje = new Date();
-        inicioHoje.setHours(0,0,0,0);
+        inicioHoje.setHours(0, 0, 0, 0);
         return inicioHoje.getTime();
     } else if (valor === '3dias') {
-        return agora - (3 * 24 * 60 * 60 * 1000);
+        const tresDias = new Date();
+        tresDias.setDate(tresDias.getDate() - 3);
+        tresDias.setHours(0, 0, 0, 0);
+        return tresDias.getTime();
     } else if (valor === '1mes') {
-        return agora - (30 * 24 * 60 * 60 * 1000);
+        const umMes = new Date();
+        umMes.setDate(umMes.getDate() - 30);
+        umMes.setHours(0, 0, 0, 0);
+        return umMes.getTime();
     }
-    return 0;
+
+    return -1; // Retorna -1 para identificar 'sempre' explicitamente
 }
 
 function atualizarMinhasPosicoesRanking() {
@@ -3024,29 +3031,54 @@ window.carregarRankingTreino = function() {
     const elList = document.getElementById('lista-ranking');
     if (elList) elList.innerHTML = "<p style='text-align:center;'>Carregando ranking...</p>";
 
+    const elFiltro = document.getElementById('select-periodo-ranking') || document.getElementById('filtro-tempo');
+    const valorFiltro = elFiltro ? elFiltro.value : 'sempre';
+
     const perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
     const perfilAtivoLocal = JSON.parse(localStorage.getItem('tabuada_perfil_ativo'));
     const dataCorte = obterDataCorteFiltro();
+    const hojeDataStr = new Date().toLocaleDateString('pt-BR');
 
     getDocs(collection(db, "ranking")).then(snap => {
         let listaBruta = [];
-        
+
         snap.forEach(doc => {
             const data = doc.data();
-            
-            let timeDoc = Date.now();
-            if (data.timestamp) {
-                if (typeof data.timestamp.toDate === 'function') {
-                    timeDoc = data.timestamp.toDate().getTime();
-                } else if (typeof data.timestamp === 'number') {
-                    timeDoc = data.timestamp;
-                } else if (typeof data.timestamp === 'string') {
-                    timeDoc = new Date(data.timestamp).getTime() || Date.now();
+
+            // 1. REGRA ABSOLUTA PARA "SEMPRE": Inclui o registro diretamente sem validar datas
+            if (valorFiltro === 'sempre' || valorFiltro === '' || dataCorte === -1) {
+                listaBruta.push({ ...data, docId: doc.id });
+                return;
+            }
+
+            // 2. Extração segura do timestamp do Firebase
+            let timeDoc = 0;
+            const tsRaw = data.timestamp || data.dataCriacao || data.created_at;
+
+            if (tsRaw) {
+                if (typeof tsRaw.toDate === 'function') {
+                    timeDoc = tsRaw.toDate().getTime();
+                } else if (tsRaw.seconds !== undefined) {
+                    timeDoc = tsRaw.seconds * 1000;
+                } else if (typeof tsRaw === 'number') {
+                    timeDoc = tsRaw;
+                } else if (typeof tsRaw === 'string') {
+                    timeDoc = new Date(tsRaw).getTime() || 0;
                 }
             }
 
-            if (timeDoc >= dataCorte || dataCorte === 0) {
-                listaBruta.push({ ...data, docId: doc.id });
+            // 3. Regras de filtro rígidas para 'hoje', '3dias' e '1mes'
+            if (valorFiltro === 'hoje') {
+                const ehMesmaDataTexto = (data.data && data.data === hojeDataStr);
+                const ehMesmoDiaTimestamp = (timeDoc > 0 && timeDoc >= dataCorte);
+
+                if (ehMesmaDataTexto || ehMesmoDiaTimestamp) {
+                    listaBruta.push({ ...data, docId: doc.id });
+                }
+            } else {
+                if (timeDoc > 0 && timeDoc >= dataCorte) {
+                    listaBruta.push({ ...data, docId: doc.id });
+                }
             }
         });
 
@@ -3061,17 +3093,20 @@ window.carregarRankingTreino = function() {
             const nomeOriginal = String(item.nome || item.nickname || 'Jogador').trim();
             if (!nomeOriginal) return;
 
-            const idChave = (item.perfilId || item.userId || ('user_' + nomeOriginal.toLowerCase())).trim();
+            const idChave = nomeOriginal.toUpperCase();
 
-            const perfilEncontrado = perfisLocais.find(p => (p.perfilId || p.id) === idChave);
+            const perfilEncontrado = perfisLocais.find(p => 
+                (p.perfilId || p.id) === item.perfilId || 
+                String(p.nome).trim().toUpperCase() === idChave
+            );
+            
             const nomeExibicao = perfilEncontrado ? perfilEncontrado.nome : nomeOriginal;
-
             const acertosPartida = parseInt(item.acertos !== undefined ? item.acertos : (item.pontos || 0)) || 0;
             const questoesPartida = parseInt(item.totalQuestoes) || 10;
 
             if (!mapaJogadores[idChave]) {
                 mapaJogadores[idChave] = {
-                    perfilId: idChave,
+                    perfilId: item.perfilId || item.userId || idChave,
                     nomeExibicao: nomeExibicao,
                     pontos: acertosPartida,
                     totalQuestoes: questoesPartida
@@ -3107,9 +3142,13 @@ window.carregarRankingRelampago = function() {
     const elSelectOp = document.getElementById('select-op-relampago');
     const opSelecionada = elSelectOp ? elSelectOp.value.toLowerCase().trim() : 'geral';
 
+    const elFiltro = document.getElementById('select-periodo-ranking') || document.getElementById('filtro-tempo');
+    const valorFiltro = elFiltro ? elFiltro.value : 'sempre';
+
     const perfisLocais = JSON.parse(localStorage.getItem('usuario_perfis')) || [];
     const perfilAtivoLocal = JSON.parse(localStorage.getItem('tabuada_perfil_ativo'));
     const dataCorte = obterDataCorteFiltro();
+    const hojeDataStr = new Date().toLocaleDateString('pt-BR');
 
     function categorizarOperacao(opStr) {
         const op = String(opStr || '').toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -3123,21 +3162,44 @@ window.carregarRankingRelampago = function() {
 
     getDocs(collection(db, "ranking_tempo")).then(snap => {
         let listaBruta = [];
+
         snap.forEach(doc => {
             const data = doc.data();
-            let timeDoc = Date.now();
-            if (data.timestamp) {
-                if (typeof data.timestamp.toDate === 'function') {
-                    timeDoc = data.timestamp.toDate().getTime();
-                } else if (typeof data.timestamp === 'number') {
-                    timeDoc = data.timestamp;
+            const opCategoria = categorizarOperacao(data.operacao);
+            const passaOperacao = (opSelecionada === 'geral' || opCategoria === opSelecionada);
+
+            if (!passaOperacao) return;
+
+            if (valorFiltro === 'sempre' || valorFiltro === '' || dataCorte === -1) {
+                listaBruta.push({ ...data, docId: doc.id, operacaoCat: opCategoria });
+                return;
+            }
+
+            let timeDoc = 0;
+            const tsRaw = data.timestamp || data.dataCriacao || data.created_at;
+
+            if (tsRaw) {
+                if (typeof tsRaw.toDate === 'function') {
+                    timeDoc = tsRaw.toDate().getTime();
+                } else if (tsRaw.seconds !== undefined) {
+                    timeDoc = tsRaw.seconds * 1000;
+                } else if (typeof tsRaw === 'number') {
+                    timeDoc = tsRaw;
+                } else if (typeof tsRaw === 'string') {
+                    timeDoc = new Date(tsRaw).getTime() || 0;
                 }
             }
 
-            if (timeDoc >= dataCorte || dataCorte === 0) {
-                const opCategoria = categorizarOperacao(data.operacao);
-                if (opSelecionada === 'geral' || opCategoria === opSelecionada) {
-                    listaBruta.push({ ...data, docId: doc.id });
+            if (valorFiltro === 'hoje') {
+                const ehMesmaDataTexto = (data.data && data.data === hojeDataStr);
+                const ehMesmoDiaTimestamp = (timeDoc > 0 && timeDoc >= dataCorte);
+
+                if (ehMesmaDataTexto || ehMesmoDiaTimestamp) {
+                    listaBruta.push({ ...data, docId: doc.id, operacaoCat: opCategoria });
+                }
+            } else {
+                if (timeDoc > 0 && timeDoc >= dataCorte) {
+                    listaBruta.push({ ...data, docId: doc.id, operacaoCat: opCategoria });
                 }
             }
         });
@@ -3150,11 +3212,16 @@ window.carregarRankingRelampago = function() {
         const mapaMelhoresTempos = {};
 
         listaBruta.forEach(item => {
-            const opCategoria = categorizarOperacao(item.operacao);
-            const idUnico = (item.perfilId || item.userId || ('user_' + String(item.nome || '').trim().toLowerCase())).trim();
+            const nomeOriginal = String(item.nome || item.nickname || 'Jogador').trim();
+            if (!nomeOriginal) return;
 
-            const perfilLocal = perfisLocais.find(p => (p.perfilId || p.id) === idUnico);
-            const nomeAtualizado = perfilLocal ? perfilLocal.nome : (item.nome || 'Jogador');
+            const perfilLocal = perfisLocais.find(p => 
+                (p.perfilId || p.id) === item.perfilId || 
+                String(p.nome).trim().toUpperCase() === nomeOriginal.toUpperCase()
+            );
+            
+            const nomeExibicao = perfilLocal ? perfilLocal.nome : nomeOriginal;
+            const idNomeChave = nomeExibicao.toUpperCase();
 
             let tempoEmMs = 999999;
             if (item.tempoMs !== undefined && !isNaN(item.tempoMs)) {
@@ -3163,14 +3230,16 @@ window.carregarRankingRelampago = function() {
                 tempoEmMs = Math.round(parseFloat(item.tempoSegundos) * 1000);
             }
 
-            const chaveDeduplicacao = (opSelecionada === 'geral') ? `${idUnico}_${opCategoria}` : idUnico;
+            // CHAVE DE UNICIDADE ESTRITA: Nome do Jogador + Operação
+            // Garante que cada jogador tenha apenas 1 melhor tempo absoluto por categoria de operação
+            const chaveDeduplicacao = `${idNomeChave}_${item.operacaoCat}`;
 
             if (!mapaMelhoresTempos[chaveDeduplicacao] || tempoEmMs < mapaMelhoresTempos[chaveDeduplicacao].tempoMs) {
                 mapaMelhoresTempos[chaveDeduplicacao] = { 
                     ...item, 
-                    perfilId: idUnico,
-                    nomeExibicao: nomeAtualizado,
-                    operacao: opCategoria,
+                    perfilId: item.perfilId || idNomeChave,
+                    nomeExibicao: nomeExibicao,
+                    operacao: item.operacaoCat,
                     tempoMs: tempoEmMs 
                 };
             }

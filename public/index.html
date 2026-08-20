@@ -287,50 +287,52 @@
             </div>
         </section>
 
-        <!-- TELA 5: RANKINGS GLOBAIS -->
-        <section id="tela-ranking" class="tela oculto">
-            <div class="app-container">
-                <div class="header-ranking-title">
-                    <h1 class="titulo-ranking">Top Jogadores 🏆</h1>
-                    <span class="btn-info-ico" onclick="window.mostrarAjudaTaby('ranking');">i</span>
-                </div>
-                
-               <div class="container-abas-ranking">
-    <button class="btn-aba-ranking ativo" id="btn-rank-treino" onclick="window.alternarModoRanking('treino')">
-        📊 TREINO
-    </button>
-    <button class="btn-aba-ranking" id="btn-rank-relampago" onclick="window.alternarModoRanking('relampago')">
-        ⚡ RELÂMPAGO
-    </button>
-</div>
+       <!-- TELA 5: RANKINGS GLOBAIS -->
+<section id="tela-ranking" class="tela oculto">
+    <div class="app-container">
+        <div class="header-ranking-title">
+            <h1 class="titulo-ranking">Top Jogadores 🏆</h1>
+            <span class="btn-info-ico" onclick="window.mostrarAjudaTaby('ranking');">i</span>
+        </div>
+        
+        <div class="container-abas-ranking">
+            <!-- Corrigido para chamar selecionarAbaRanking -->
+            <button class="btn-aba-ranking ativo" id="btn-rank-treino" onclick="window.selecionarAbaRanking('treino')">
+                📊 TREINO
+            </button>
+            <button class="btn-aba-ranking" id="btn-rank-relampago" onclick="window.selecionarAbaRanking('relampago')">
+                ⚡ RELÂMPAGO
+            </button>
+        </div>
 
-<input type="hidden" id="tipo-ranking" value="treino">
+        <input type="hidden" id="tipo-ranking" value="treino">
 
-<div id="filtro-operacoes-relampago" class="filtro-relampago-box" style="display: none;">
-    <select id="select-op-relampago" onchange="if(typeof window.carregarRankingRelampago === 'function') window.carregarRankingRelampago();" class="select-ranking-style">
-        <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
-        <option value="multiplicacao">✖️ Multiplicação</option>
-        <option value="divisao">➗ Divisão</option>
-        <option value="adicao">➕ Adição</option>
-        <option value="subtracao">➖ Subtração</option>
-        <option value="insano">🔥 Modo Insano</option>
-    </select>
-</div>
+        <div id="filtro-operacoes-relampago" class="filtro-relampago-box" style="display: none;">
+            <select id="select-op-relampago" onchange="if(typeof window.carregarRankingRelampago === 'function') window.carregarRankingRelampago();" class="select-ranking-style">
+                <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
+                <option value="multiplicacao">✖️ Multiplicação</option>
+                <option value="divisao">➗ Divisão</option>
+                <option value="adicao">➕ Adição</option>
+                <option value="subtracao">➖ Subtração</option>
+                <option value="insano">🔥 Modo Insano</option>
+            </select>
+        </div>
 
-<select id="select-periodo-ranking" class="select-filtro-ranking" onchange="if(typeof carregarRanking === 'function') carregarRanking();">
-    <option value="hoje" selected>Hoje</option>
-    <option value="3dias">Últimos 3 dias</option>
-    <option value="1mes">Último mês</option>
-    <option value="sempre">Sempre</option>
-</select>
+        <!-- Corrigido o onchange para disparar a função correta dependendo do modo ativo -->
+        <select id="select-periodo-ranking" class="select-filtro-ranking" onchange="window.mudarTipoRanking();">
+            <option value="hoje" selected>Hoje</option>
+            <option value="3dias">Últimos 3 dias</option>
+            <option value="1mes">Último mês</option>
+            <option value="sempre">Sempre</option>
+        </select>
 
-                <div id="lista-ranking" class="card-painel-container lista-ranking-scroll">
-                    <p class="text-center-secondary">Carregando...</p>
-                </div>
+        <div id="lista-ranking" class="card-painel-container lista-ranking-scroll">
+            <p class="text-center-secondary">Carregando...</p>
+        </div>
 
-                <button onclick="window.voltarParaInicial()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
-            </div>
-        </section>
+        <button onclick="window.voltarParaInicial()" class="btn-voltar-futurista">⬅️ Voltar ao Painel</button>
+    </div>
+</section>
 
         <!-- TELA PRÉ-JOGO (CONFIRMAÇÃO MODO RELÂMPAGO) -->
 <section id="tela-pre-jogo" class="tela oculto">

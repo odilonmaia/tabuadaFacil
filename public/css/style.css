@@ -2513,3 +2513,55 @@ button.btn-touch-secundario {
     padding-left: 0;
     padding-right: 0;
 }
+
+/* Container das abas do ranking */
+.container-abas-ranking {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px; /* Largura máxima idêntica ao select de baixo */
+    margin: 0 auto 12px auto;
+}
+/* Botões de filtro (Treino / Relâmpago) no tema dark/futurista */
+.btn-aba-ranking {
+    flex: 1;
+    height: 42px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #94a3b8;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+}
+
+/* Estado Ativo do Botão de Filtro */
+.btn-aba-ranking.ativo {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+/* Estilização do Select de Filtro ("Sempre", "Este Mês", etc) */
+.select-filtro-ranking {
+    background: #0f172a;
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+}

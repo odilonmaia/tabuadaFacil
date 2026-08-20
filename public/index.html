@@ -295,30 +295,34 @@
                     <span class="btn-info-ico" onclick="window.mostrarAjudaTaby('ranking');">i</span>
                 </div>
                 
-                <div class="container-abas-ranking">
-                    <button id="btn-aba-treino" class="btn-aba-ranking ativo" onclick="window.selecionarAbaRanking('treino')">📊 TREINO</button>
-                    <button id="btn-aba-relampago" class="btn-aba-ranking" onclick="window.selecionarAbaRanking('relampago')">⚡ RELÂMPAGO</button>
-                </div>
+               <div class="container-abas-ranking">
+    <button class="btn-aba-ranking ativo" id="btn-rank-treino" onclick="window.alternarModoRanking('treino')">
+        📊 TREINO
+    </button>
+    <button class="btn-aba-ranking" id="btn-rank-relampago" onclick="window.alternarModoRanking('relampago')">
+        ⚡ RELÂMPAGO
+    </button>
+</div>
 
-                <input type="hidden" id="tipo-ranking" value="treino">
+<input type="hidden" id="tipo-ranking" value="treino">
 
-                <div id="filtro-operacoes-relampago" class="filtro-relampago-box" style="display: none;">
-                    <select id="select-op-relampago" onchange="window.carregarRankingRelampago()" class="select-ranking-style">
-                        <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
-                        <option value="multiplicacao">✖️ Multiplicação</option>
-                        <option value="divisao">➗ Divisão</option>
-                        <option value="adicao">➕ Adição</option>
-                        <option value="subtracao">➖ Subtração</option>
-                        <option value="insano">🔥 Modo Insano</option>
-                    </select>
-                </div>
+<div id="filtro-operacoes-relampago" class="filtro-relampago-box" style="display: none;">
+    <select id="select-op-relampago" onchange="if(typeof window.carregarRankingRelampago === 'function') window.carregarRankingRelampago();" class="select-ranking-style">
+        <option value="geral" selected>⚡ Ranking Geral (Melhores Tempos)</option>
+        <option value="multiplicacao">✖️ Multiplicação</option>
+        <option value="divisao">➗ Divisão</option>
+        <option value="adicao">➕ Adição</option>
+        <option value="subtracao">➖ Subtração</option>
+        <option value="insano">🔥 Modo Insano</option>
+    </select>
+</div>
 
-                <select id="filtro-tempo" onchange="window.aplicarFiltro()" class="select-filtro-tempo">
-                    <option value="hoje" selected>Hoje</option>
-                    <option value="3dias">Últimos 3 dias</option>
-                    <option value="1mes">Último mês</option>
-                    <option value="sempre">Sempre</option>
-                </select>
+<select id="select-periodo-ranking" class="select-filtro-ranking" onchange="if(typeof carregarRanking === 'function') carregarRanking();">
+    <option value="hoje" selected>Hoje</option>
+    <option value="3dias">Últimos 3 dias</option>
+    <option value="1mes">Último mês</option>
+    <option value="sempre">Sempre</option>
+</select>
 
                 <div id="lista-ranking" class="card-painel-container lista-ranking-scroll">
                     <p class="text-center-secondary">Carregando...</p>

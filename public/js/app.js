@@ -3561,9 +3561,13 @@ window.atualizarInterfaceVidas = function() {
 
 window.atualizarEstadoBotoesModo = function() {
     const ehPago = (typeof window.verificarSeEhPro === 'function') ? window.verificarSeEhPro() : false;
-    const saldoVidas = parseInt(localStorage.getItem('usuario_vidas') || '0', 10);
+    
+    // Leitura segura com fallback padrão de 5 vidas caso a chave não exista ou seja inválida
+    const rawVidas = localStorage.getItem('usuario_vidas');
+    let saldoVidas = rawVidas !== null ? parseInt(rawVidas, 10) : 5;
+    if (isNaN(saldoVidas)) saldoVidas = 5;
 
-    // Seleciona APENAS os botões de seleção de modo e início do HUB principal
+    // Seleciona os botões do painel principal
     const botoesHub = document.querySelectorAll(
         '#tela-painel-jogo #btn-modo-trilha, ' +
         '#tela-painel-jogo #btn-modo-treino, ' +
@@ -3582,10 +3586,12 @@ window.atualizarEstadoBotoesModo = function() {
         if (ehPago || saldoVidas > 0) {
             el.style.opacity = '1';
             el.style.filter = 'none';
+            el.style.pointerEvents = 'auto'; // Garante que a interatividade esteja ativa
             el.classList.remove('modo-desativado');
         } else {
             el.style.opacity = '0.5';
             el.style.filter = 'grayscale(80%)';
+            el.classList.add('modo-desativado');
         }
     });
 };
@@ -4971,6 +4977,25 @@ document.addEventListener('click', function(event) {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- CORREÇÃO DE INICIALIZAÇÃO IMEDIATA DA INTERFACE ---
+    (function inicializarInterfaceSincrona() {
+        if (!operacoesSelecionadas || operacoesSelecionadas.length === 0) {
+            operacoesSelecionadas = ['multiplicacao'];
+        }
+
+        try {
+            const perfilSalvo = JSON.parse(localStorage.getItem('tabuada_perfil_ativo'));
+            if (perfilSalvo && perfilSalvo.nome) {
+                const elNome = document.getElementById('display-nome-inicial');
+                if (elNome) elNome.innerText = perfilSalvo.nome;
+            }
+        } catch (e) {}
+
+        if (typeof atualizarBotoesOperacaoVisual === 'function') {
+            atualizarBotoesOperacaoVisual();
+        }
+    })();
+
     window.fecharModalExclusao();
     window.fecharPaywall();
 
@@ -5156,6 +5181,7 @@ window.AdsManager = {
     }
 };
 
+
 // =========================================================================
 // CONTROLE DE MODOS (TREINO / RELÂMPAGO) E MODO INSANO (PADRONIZADO)
 // =========================================================================
@@ -5183,6 +5209,7 @@ window.selecionarModoTreino = function() {
     
     tipoJogoSelecionado = 'treino';
     
+    // Atualização visual dos botões de modo
     const btnTreino = document.getElementById('btn-modo-treino');
     const btnRelampago = document.getElementById('btn-modo-relampago');
     if (btnRelampago) btnRelampago.classList.remove('selecionado', 'ativo');
@@ -5193,14 +5220,23 @@ window.selecionarModoTreino = function() {
     if (!operacoesSelecionadas || operacoesSelecionadas.length === 0 || operacoesSelecionadas.includes('insano')) {
         operacoesSelecionadas = ['multiplicacao'];
     }
-    atualizarBotoesOperacaoVisual();
+
+    if (typeof atualizarBotoesOperacaoVisual === 'function') {
+        atualizarBotoesOperacaoVisual();
+    }
 
     // No modo Treino, ESCONDE o modo insano e EXIBE o botão "Começar Desafio"
     const btnInsano = document.getElementById('btn-op-insano');
-    if (btnInsano) btnInsano.classList.add('oculto');
+    if (btnInsano) {
+        btnInsano.classList.add('oculto');
+        btnInsano.style.display = 'none';
+    }
 
     const btnStart = document.querySelector('.btn-comecar-desafio') || document.querySelector('.btn-iniciar-jogo-hub');
-    if (btnStart) btnStart.style.display = 'block';
+    if (btnStart) {
+        btnStart.classList.remove('oculto');
+        btnStart.style.display = 'block';
+    }
 };
 
 window.selecionarModoRelampago = function() {

@@ -2398,20 +2398,33 @@ window.iniciarJogo = function() {
 function prepararFilaOperacoes() {
     filaOperacoesJogo = [];
 
+    // Garantia de array válido
     if (!operacoesSelecionadas || !Array.isArray(operacoesSelecionadas) || operacoesSelecionadas.length === 0) {
         operacoesSelecionadas = ['multiplicacao'];
     }
 
-    if (operacoesSelecionadas.includes('insano')) {
-        const ops = ['multiplicacao', 'divisao', 'adicao', 'subtracao'];
-        totalPerguntas = 12;
-
-        ops.forEach(op => {
-            for (let i = 0; i < 3; i++) {
-                filaOperacoesJogo.push(op);
+    // 1. MODO RELÂMPAGO
+    if (tipoJogoSelecionado === 'relampago') {
+        if (operacoesSelecionadas.includes('insano')) {
+            // Caso escolha 'insano' especificamente dentro do Relâmpago
+            const ops = ['multiplicacao', 'divisao', 'adicao', 'subtracao'];
+            totalPerguntas = 12;
+            ops.forEach(op => {
+                for (let i = 0; i < 3; i++) {
+                    filaOperacoesJogo.push(op);
+                }
+            });
+        } else {
+            // Modo Relâmpago Padrão: 10 perguntas estritas da operação escolhida
+            totalPerguntas = 10;
+            const opUnica = operacoesSelecionadas[0] || 'multiplicacao';
+            for (let i = 0; i < 10; i++) {
+                filaOperacoesJogo.push(opUnica);
             }
-        });
-    } else if (tipoJogoSelecionado === 'trilha') {
+        }
+    } 
+    // 2. MODO TRILHA
+    else if (tipoJogoSelecionado === 'trilha') {
         totalPerguntas = 20;
         const qtdOps = Math.max(1, operacoesSelecionadas.length);
         const repeticoesPorOp = Math.ceil(20 / qtdOps);
@@ -2423,25 +2436,36 @@ function prepararFilaOperacoes() {
         });
 
         filaOperacoesJogo = filaOperacoesJogo.slice(0, 20);
-    } else {
-        const qtdOps = Math.max(1, operacoesSelecionadas.length);
-        let repeticoes = 10;
+    } 
+    // 3. MODO TREINO / PADRÃO
+    else {
+        if (operacoesSelecionadas.includes('insano')) {
+            const ops = ['multiplicacao', 'divisao', 'adicao', 'subtracao'];
+            totalPerguntas = 12;
+            ops.forEach(op => {
+                for (let i = 0; i < 3; i++) {
+                    filaOperacoesJogo.push(op);
+                }
+            });
+        } else {
+            const qtdOps = Math.max(1, operacoesSelecionadas.length);
+            let repeticoes = 10;
 
-        if (tipoJogoSelecionado === 'treino') {
             if (qtdOps === 2) repeticoes = 5;
             else if (qtdOps === 3) repeticoes = 4;
             else if (qtdOps === 4) repeticoes = 3;
+
+            totalPerguntas = qtdOps * repeticoes;
+
+            operacoesSelecionadas.forEach(op => {
+                for (let i = 0; i < repeticoes; i++) {
+                    filaOperacoesJogo.push(op);
+                }
+            });
         }
-
-        totalPerguntas = qtdOps * repeticoes;
-
-        operacoesSelecionadas.forEach(op => {
-            for (let i = 0; i < repeticoes; i++) {
-                filaOperacoesJogo.push(op);
-            }
-        });
     }
 
+    // Embaralha a ordem das questões na fila
     filaOperacoesJogo.sort(() => Math.random() - 0.5);
 }
 
@@ -2571,36 +2595,21 @@ function gerarPergunta() {
         prepararFilaOperacoes();
     }
 
-    const opAtual = filaOperacoesJogo[perguntaAtual - 1] || 'multiplicacao';
+    // Pega a operação exata sorteada para esta questão da fila
+    const opAtual = filaOperacoesJogo[perguntaAtual - 1] || 'divisao';
 
     let n1 = Math.floor(Math.random() * 9) + 2;
     let n2 = Math.floor(Math.random() * 9) + 2;
 
-    if (tipoJogoSelecionado === 'trilha' && faseAtualTrilha?.filtroTabuada) {
-        let listaTabuadas = faseAtualTrilha.filtroTabuada;
-        n1 = listaTabuadas[Math.floor(Math.random() * listaTabuadas.length)];
-        
-        let pioresContas = [];
-        if (!dadosTrilhaUsuario) dadosTrilhaUsuario = {};
-        if (!dadosTrilhaUsuario.maestriaContas) dadosTrilhaUsuario.maestriaContas = {};
-        
-        let maestriaMap = dadosTrilhaUsuario.maestriaContas;
+    let simbolo = '÷';
 
-        for (let i = 1; i <= 10; i++) {
-            let chave = `${n1}x${i}`;
-            let score = maestriaMap[chave] || 0;
-            if (score < 85) pioresContas.push(i);
-        }
-
-        if (pioresContas.length > 0 && Math.random() < 0.8) {
-            n2 = pioresContas[Math.floor(Math.random() * pioresContas.length)];
-        } else {
-            n2 = Math.floor(Math.random() * 10) + 1;
-        }
-    }
-
-    let simbolo = '×';
-    if (opAtual === 'multiplicacao') {
+    // TRATAMENTO RÍGIDO DAS OPERAÇÕES
+    if (opAtual === 'divisao') {
+        // Para garantir divisão exata (ex: 24 ÷ 6 = 4)
+        respostaCorretaGlobal = n1; // A resposta será n1
+        n1 = respostaCorretaGlobal * n2; // O dividendo vira a multiplicação dos dois
+        simbolo = '÷';
+    } else if (opAtual === 'multiplicacao') {
         respostaCorretaGlobal = n1 * n2;
         simbolo = '×';
     } else if (opAtual === 'adicao') {
@@ -2610,10 +2619,6 @@ function gerarPergunta() {
         if (n1 < n2) [n1, n2] = [n2, n1];
         respostaCorretaGlobal = n1 - n2;
         simbolo = '-';
-    } else if (opAtual === 'divisao') {
-        respostaCorretaGlobal = n1;
-        n1 = respostaCorretaGlobal * n2;
-        simbolo = '÷';
     }
 
     fator1Atual = n1;
@@ -2627,13 +2632,13 @@ function gerarPergunta() {
     if (elF2) elF2.innerText = n2;
     if (elSinal) elSinal.innerText = simbolo;
 
+    // Gera as alternativas inteligentes baseadas no operador atual
     opcoesAtuaisJogo = gerarOpcoesInteligentes(n1, n2, respostaCorretaGlobal, opAtual);
     for (let i = 0; i < 4; i++) {
         const elAlt = document.getElementById(`alt-${i}`);
         if (elAlt) elAlt.innerText = opcoesAtuaisJogo[i];
     }
 }
-
 // VERIFICAÇÃO UNIFICADA COM TRIGGER PARA O POP-UP DO TABY
 window.verificarEscolha = function(indiceSelecionado) {
     if (respondendoTravado) return; // Evita duplo clique rápido
@@ -2795,14 +2800,14 @@ async function finalizarJogo() {
             if (typeof dispararConfetesConquista === 'function') dispararConfetesConquista();
             
             if (faseObj.boss) {
-                if (elTitRes) elTitRes.innerText = "Taby Diz: Chefão Derrotado! 🤖⚡";
+                if (elTitRes) elTitRes.innerText = "Chefão Derrotado! 🤖⚡";
                 if (elDiag) elDiag.innerText = `🤖 "Espetacular! Você venceu o ${faseObj.titulo} com ${maestriaNova}% de Maestria e liberou o próximo setor da galáxia!"`;
             } else {
-                if (elTitRes) elTitRes.innerText = "Taby Diz: Planeta Dominado! 🪐🚀";
+                if (elTitRes) elTitRes.innerText = "Planeta Dominado! 🪐🚀";
                 if (elDiag) elDiag.innerText = `🤖 "Incrível! Você atingiu ${maestriaNova}% de Maestria e liberou a próxima etapa!"`;
             }
         } else {
-            if (elTitRes) elTitRes.innerText = "Taby Diz: Bom Progresso! 💪";
+            if (elTitRes) elTitRes.innerText = "Bom Progresso! 💪";
             if (elDiag) elDiag.innerText = `🤖 "Seu nível de Maestria neste nível subiu para ${maestriaNova}%. Continue praticando para alcançar 85% e avançar na Trilha!"`;
         }
         return;
@@ -5244,21 +5249,58 @@ window.selecionarModoRelampago = function() {
     
     tipoJogoSelecionado = 'relampago';
     
+    // Atualização visual dos botões do modo
     const btnTreino = document.getElementById('btn-modo-treino');
     const btnRelampago = document.getElementById('btn-modo-relampago');
     if (btnTreino) btnTreino.classList.remove('selecionado', 'ativo');
     if (btnRelampago) btnRelampago.classList.add('selecionado', 'ativo');
 
-    // LIMPA A SELEÇÃO NO MODO RELÂMPAGO
+    // LIMPEZA RÍGIDA DAS OPERAÇÕES
+    // Reseta o array para garantir que nenhuma operação anterior permaneça ativa
     operacoesSelecionadas = [];
-    limparSelecaoVisualOperacoes();
+    if (typeof limparSelecaoVisualOperacoes === 'function') {
+        limparSelecaoVisualOperacoes();
+    }
 
     // No modo Relâmpago, EXIBE o modo insano e ESCONDE o botão "Começar Desafio"
     const btnInsano = document.getElementById('btn-op-insano');
-    if (btnInsano) btnInsano.classList.remove('oculto');
+    if (btnInsano) {
+        btnInsano.classList.remove('oculto');
+        btnInsano.style.display = 'flex'; // ou 'block', dependendo do seu CSS
+    }
 
     const btnStart = document.querySelector('.btn-comecar-desafio') || document.querySelector('.btn-iniciar-jogo-hub');
-    if (btnStart) btnStart.style.display = 'none';
+    if (btnStart) {
+        btnStart.classList.add('oculto');
+        btnStart.style.display = 'none';
+    }
+};
+
+// Função complementar para o clique direto em uma operação do Relâmpago
+window.selecionarModoRelampagoOp = function(operacaoDesejada) {
+    if (typeof window.tocarSom === 'function') window.tocarSom('clique');
+
+    tipoJogoSelecionado = 'relampago';
+
+    // ISOLAMENTO TOTAL: Garante que APENAS a operação clicada entre no array
+    const opsValidas = ['multiplicacao', 'divisao', 'adicao', 'subtracao', 'insano'];
+    if (opsValidas.includes(operacaoDesejada)) {
+        operacoesSelecionadas = [operacaoDesejada];
+    } else {
+        operacoesSelecionadas = ['multiplicacao'];
+    }
+
+    if (typeof atualizarBotoesOperacaoVisual === 'function') {
+        atualizarBotoesOperacaoVisual();
+    }
+
+    if (typeof prepararFilaOperacoes === 'function') {
+        prepararFilaOperacoes();
+    }
+
+    if (typeof window.iniciarJogo === 'function') {
+        window.iniciarJogo();
+    }
 };
 
 // Atualização da seleção de operação com trava de segurança
@@ -5266,12 +5308,21 @@ window.selecionarOperacao = function(op) {
     if (typeof window.tocarSom === 'function') window.tocarSom('clique');
 
     // Se estiver sem vidas, intercepta e abre o modal imediatamente
-    if (!verificarVidasParaJogar()) return;
+    if (typeof verificarVidasParaJogar === 'function' && !verificarVidasParaJogar()) return;
 
     if (tipoJogoSelecionado === 'relampago') {
         limparSelecaoVisualOperacoes();
+        
+        // ISOLAMENTO RÍGIDO: Garante array com um único elemento
         operacoesSelecionadas = [op];
+        
         atualizarBotoesOperacaoVisual();
+
+        // Garante que a fila de perguntas seja montada imediatamente com a nova operação
+        if (typeof prepararFilaOperacoes === 'function') {
+            prepararFilaOperacoes();
+        }
+
         window.abrirConfirmacaoPreJogo(op);
     } else {
         // Modo Treino (seleção padrão)

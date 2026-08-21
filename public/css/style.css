@@ -41,35 +41,36 @@ img, svg, canvas, iframe {
 }
 
 /* ==========================================================
-   BODY E CONTAINER SPA (ESTRUTURA DE APLICATIVO FIXO)
+   BODY E CONTAINER SPA (ESTRUTURA RESPONSIVA LIMPA)
    ========================================================== */
 
 html, body {
     width: 100%;
+    width: 100vw;
     height: 100%;
     height: 100vh;
-    height: 100dvh; /* Resolve a variação da barra do Safari iOS */
+    height: 100dvh;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Elimina rolagem da página externa */
-    position: fixed;  /* Mantém o comportamento firme de app nativo */
-    background-color: var(--bg-dark);
+    overflow: hidden;
+    background-color: #070a12;
 }
 
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #070a12; /* Cor de fundo escura uniforme */
+    background: radial-gradient(ellipse at top, #111827 0%, #070a12 100%);
     color: var(--text-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block; 
 }
 
-/* 1. CONTAINER PRINCIPAL (APP MOBILE NATIVO) */
+/* 1. CONTAINER PRINCIPAL (TELA CHEIA) */
 .app-viewport {
     width: 100%;
-    max-width: 100%; /* REMOVIDO o 440px fixo no celular para ocupar 100% da tela */
+    width: 100vw;
+    max-width: 100%;
     height: 100%;
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -77,21 +78,11 @@ body {
     box-sizing: border-box;
     background: radial-gradient(ellipse at top, #111827 0%, #070a12 100%);
     overflow: hidden;
+    margin: 0;
+    border: none;
+    border-radius: 0;
 }
 
-/* COMPORTAMENTO PARA DESKTOP E TABLETS (MOLDURA APENAS EM TELAS MAIORES) */
-@media screen and (min-width: 600px) {
-    .app-viewport {
-        max-width: 480px; /* Mantém o visual de simulador de app apenas em telas grandes */
-        height: 94vh;
-        max-height: 880px;
-        border-radius: 28px;
-        border: 1.5px solid rgba(56, 189, 248, 0.3);
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.2);
-    }
-}
-
-/* ÁREA DE CONTEÚDO CENTRALIZADA DAS TELAS */
 .app-content-area {
     flex: 1;
     width: 100%;
@@ -112,7 +103,6 @@ body {
     box-sizing: border-box;
 }
 
-/* ESTRUTURA DE CADA TELA (SPA) */
 .tela {
     display: flex;
     flex-direction: column;
@@ -120,7 +110,7 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
-    padding: 12px 16px 20px 16px; /* Ajustado os paddings para dar respiro lateral */
+    padding: 12px 16px 80px 16px; /* Ajustado para dar respiro suficiente à Navbar no Firefox/Brave */
     box-sizing: border-box;
     text-align: center;
     position: relative;
@@ -129,14 +119,23 @@ body {
     animation: fadeInSlide 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-@keyframes fadeInSlide {
-    from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.98);
+/* ==========================================================
+   MOLDURA EXCLUSIVA PARA DESKTOP (APENAS ORIENTAÇÃO PAISAGEM OU TELAS LARGAS)
+   ========================================================== */
+@media screen and (min-width: 1024px) and (orientation: landscape) {
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+
+    .app-viewport {
+        max-width: 440px;
+        height: 94vh;
+        max-height: 880px;
+        border-radius: 28px;
+        border: 1.5px solid rgba(56, 189, 248, 0.3);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.2);
     }
 }
 
@@ -144,7 +143,6 @@ body {
    HEADER TOPO GLOBAL FIXO NATIVO
    ========================================================== */
 
-/* 2. CABEÇALHO (TOPO) */
 .header-topo-global {
     width: 100%;
     padding: 10px 14px;
@@ -166,7 +164,6 @@ body {
     }
 }
 
-/* Container interno do header */
 .header-topo-global .header-container,
 .header-container {
     display: flex;
@@ -298,7 +295,6 @@ body {
    BARRA DE NAVEGAÇÃO INFERIOR NATIVA (BOTTOM NAV BAR)
    ========================================================== */
 
-/* 3. RODAPÉ / NAV (BASE) */
 .bottom-nav-app {
     width: 100%;
     background: rgba(15, 23, 42, 0.95);
@@ -316,7 +312,6 @@ body {
     border-radius: 0;
 }
 
-/* ARREDONDAMENTO EM TELAS MAIORES (DESKTOP) */
 @media screen and (min-width: 768px) {
     .bottom-nav-app {
         border-bottom-left-radius: 26px;
@@ -385,7 +380,6 @@ body {
     width: 100%;
 }
 
-/* MINI RANKING NO SUB-HEADER DA SAUDAÇÃO */
 .mini-ranking-topo {
     display: flex;
     gap: 8px;
@@ -407,7 +401,6 @@ body {
     color: var(--accent-blue);
 }
 
-/* TABY MINI CARD NO PAINEL */
 .card-taby-mini {
     display: flex;
     align-items: center;
@@ -444,14 +437,13 @@ body {
    BARRA DE STATUS GLOBAL E HARMONIZADA DO PAINEL
    ========================================================== */
 
-/* Envelopamento justo e centralizado no container */
 .app-container .status-bar-global,
 .status-bar-global {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: fit-content; /* Faz a borda abraçar APENAS os botões visíveis */
+    width: fit-content;
     max-width: 100%;
     margin: 0 auto;
     background: rgba(15, 23, 42, 0.75);
@@ -462,7 +454,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Regra de altura e espaçamento simétrico para os itens */
 .app-container .status-bar-global .status-item,
 .app-container .status-bar-global .hud-ofensiva-futurista,
 .app-container .status-bar-global .hud-vida-futurista,
@@ -530,7 +521,6 @@ body {
     color: #38bdf8;
 }
 
-/* BOTÃO DE VÍDEO NEON VERDE HARMONIZADO */
 .btn-video-neon {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.25) 100%);
     border: 1px solid #10b981;
@@ -594,11 +584,12 @@ button {
     text-align: left;
 }
 
+/* Melhora de legibilidade no estado não-selecionado */
 .btn-modo,
 .btn-op-redesign {
-    background: rgba(30, 41, 59, 0.85);
-    border: 1.5px solid rgba(255, 255, 255, 0.15);
-    color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.95);
+    border: 1.5px solid rgba(56, 189, 248, 0.25);
+    color: #e2e8f0;
     border-radius: 12px;
     padding: 10px 6px;
     font-size: 12.5px;
@@ -616,14 +607,13 @@ button {
     background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     border-color: #38bdf8;
     color: #ffffff;
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
 }
 
 /* ==========================================================
    CONFIGURADOR DO DESAFIO & MODO INSANO
    ========================================================== */
 
-/* 1. MODO INSANO (LARGURA TOTAL E RESPIRO INTERNO) */
 .btn-insano-destaque {
     background: rgba(127, 29, 29, 0.6);
     border: 1.5px solid #ef4444;
@@ -651,7 +641,6 @@ button {
     box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
 }
 
-/* 2. PADRONIZAÇÃO DOS BOTÕES DO GRID (TREINO, RELÂMPAGO E OPERAÇÕES) */
 .configurador-desafio-box .grid-2-cols button.btn-modo,
 .configurador-desafio-box .grid-2-cols button.btn-op-redesign {
     display: flex;
@@ -666,16 +655,14 @@ button {
     cursor: pointer;
 }
 
-/* Destaque visual quando selecionado */
 .configurador-desafio-box .grid-2-cols button.btn-modo.selecionado,
 .configurador-desafio-box .grid-2-cols button.btn-op-redesign.selecionado {
     background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     border-color: #38bdf8;
     color: #ffffff;
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
 }
 
-/* 3. ÍCONE DE INFORMAÇÃO (i) UNIFICADO E ISOLADO */
 .btn-info-ico {
     position: absolute;
     right: 10px;
@@ -696,13 +683,11 @@ button {
     z-index: 5;
 }
 
-/* 4. PROTEÇÃO PARA OCULTAR ELEMENTOS COM ALTA ESPECIFICIDADE */
 .configurador-desafio-box .oculto,
 .oculto {
     display: none !important;
 }
 
-/* 5. BOTÕES DE AÇÃO DO FLUXO */
 .btn-comecar-desafio {
     width: 100%;
     background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
@@ -766,7 +751,6 @@ button {
     margin: 0 auto 10px auto;
 }
 
-/* Botão Diário de Bordo */
 .btn-diario-bordo {
     width: 100%;
     max-width: 380px;
@@ -825,7 +809,6 @@ button {
     box-sizing: border-box;
 }
 
-/* Ocultação total das barras de rolagem nativas */
 .tela::-webkit-scrollbar,
 .app-content-area::-webkit-scrollbar,
 #mapa-trilha-container::-webkit-scrollbar,
@@ -1013,7 +996,6 @@ body {
     color: #e2e8f0;
 }
 
-/* STACK DE BOTOES EM MODAIS */
 .stack-botoes-full {
     display: flex;
     flex-direction: column;
@@ -1021,7 +1003,6 @@ body {
     width: 100%;
 }
 
-/* ADSENSE CONTAINER BOX */
 .adsense-container-box {
     width: 100%;
     min-height: 90px;
@@ -1957,7 +1938,6 @@ span.oculto,
     margin-top: 16px;
 }
 
-/* Estilo harmonizado para o Cronômetro */
 .app-container .status-bar-global .hud-timer-futurista,
 .hud-timer-futurista {
     height: 32px;
@@ -2338,7 +2318,6 @@ span.oculto,
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Especificidade composta para sobrepor estilos padrão */
 div.balao-taby-container-ui button,
 div#balao-taby-trilha button,
 button.btn-fechar-balao {
@@ -2353,7 +2332,7 @@ button.btn-fechar-balao {
     justify-content: center;
     line-height: 1;
     box-sizing: border-box;
-    flex-shrink: 0; /* Impede a compressão do flexbox no container */
+    flex-shrink: 0;
 }
 
 #balao-taby-trilha .btn-fechar-balao:hover,
@@ -2364,7 +2343,6 @@ button.btn-fechar-balao {
     transform: scale(1.1);
 }
 
-/* Container que garante a centralização vertical no Viewport Mobile */
 section#tela-pre-jogo {
     display: flex;
     align-items: center;
@@ -2380,7 +2358,6 @@ div.container-pre-jogo-centro {
     margin: auto 0;
 }
 
-/* Card Principal Central */
 div.card-pre-jogo-container {
     background: linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
     border: 1.5px solid rgba(56, 189, 248, 0.3);
@@ -2391,7 +2368,6 @@ div.card-pre-jogo-container {
     backdrop-filter: blur(10px);
 }
 
-/* Taby + Balão de Fala */
 div.pre-jogo-mascote-box {
     display: flex;
     flex-direction: column;
@@ -2425,7 +2401,6 @@ div.balao-fala-taby p {
     margin: 0;
 }
 
-/* Título e Destaque da Operação */
 div.badge-op-pre-jogo h2.titulo-pre-jogo {
     color: #38bdf8;
     font-size: 17px;
@@ -2441,7 +2416,6 @@ p.subtitulo-pre-jogo {
     margin-bottom: 20px;
 }
 
-/* Ergonomia dos Botoes (Thumb Zone) */
 div.acoes-pre-jogo-stack {
     display: flex;
     flex-direction: column;
@@ -2468,7 +2442,6 @@ button.btn-touch-secundario {
     50% { transform: translateY(-6px); }
 }
 
-/* Container da Contagem Regressiva Arcade */
 #box-contador-regressivo,
 .contador-regressivo-box {
     font-size: 64px;
@@ -2484,7 +2457,6 @@ button.btn-touch-secundario {
     font-family: 'Fredoka', 'Popins', sans-serif, system-ui;
 }
 
-/* Animação disparada a cada segundo via JS */
 .anim-pop-contador {
     animation: popContador 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
@@ -2506,6 +2478,7 @@ button.btn-touch-secundario {
         filter: drop-shadow(0 0 15px #38bdf8);
     }
 }
+
 .btn-compartilhar-resultado, 
 #btn-compartilhar-tempo {
     display: flex;
@@ -2517,17 +2490,16 @@ button.btn-touch-secundario {
     padding-right: 0;
 }
 
-/* Container das abas do ranking */
 .container-abas-ranking {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
     width: 100%;
-    max-width: 320px; /* Largura máxima idêntica ao select de baixo */
+    max-width: 320px;
     margin: 0 auto 12px auto;
 }
-/* Botões de filtro (Treino / Relâmpago) no tema dark/futurista */
+
 .btn-aba-ranking {
     flex: 1;
     height: 42px;
@@ -2547,7 +2519,6 @@ button.btn-touch-secundario {
     box-sizing: border-box;
 }
 
-/* Estado Ativo do Botão de Filtro */
 .btn-aba-ranking.ativo {
     background: linear-gradient(135deg, #0284c7, #0369a1);
     color: #ffffff;
@@ -2555,8 +2526,6 @@ button.btn-touch-secundario {
     box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
 }
 
-/* Estilização do Select de Filtro ("Sempre", "Este Mês", etc) */
-/* Container/Alinhamento do filtro de período */
 .select-filtro-ranking {
     width: 100%;
     max-width: 320px;
@@ -2567,35 +2536,24 @@ button.btn-touch-secundario {
     color: #38bdf8;
     border: 1px solid rgba(56, 189, 248, 0.4);
     border-radius: 10px;
-    
-    /* Zera os paddings laterais para alinhar o centro exato */
     padding: 0;
-    
     font-size: 13px;
     font-weight: 700;
-    
-    /* Centralização estrita para todos os sistemas/navegadores */
     text-align: center;
     text-align-last: center;
     -moz-text-align-last: center;
-    
     outline: none;
     cursor: pointer;
     box-sizing: border-box;
-    
-    /* Esconde a seta nativa para evitar que ela empurre o texto */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    
-    /* Adiciona uma seta customizada via background sem afetar o fluxo do texto */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 14px;
 }
 
-/* Garante o alinhamento central nas opções do dropdown aberto */
 .select-filtro-ranking option {
     background-color: #0f172a;
     color: #f8fafc;
@@ -2614,10 +2572,7 @@ button.btn-touch-secundario {
     color: #38bdf8;
     border: 1px solid rgba(56, 189, 248, 0.4);
     border-radius: 10px;
-    
-    /* Adiciona padding nas laterais (esquerda 16px e direita 35px) para afastar o texto da seta */
     padding: 0 35px 0 16px;
-    
     font-size: 13px;
     font-weight: 700;
     text-align: center;
@@ -2628,8 +2583,6 @@ button.btn-touch-secundario {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    
-    /* Seta customizada posicionada na extremidade direita */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -2673,10 +2626,8 @@ button.btn-touch-secundario {
 
 .btn-info-ico:hover {
     background: rgba(56, 189, 248, 0.3);
-    
 }
 
-/* Container flexível para centralização vertical do login */
 .login-container-flex {
     display: flex;
     flex-direction: column;
@@ -2687,7 +2638,6 @@ button.btn-touch-secundario {
     min-height: 80vh;
 }
 
-/* Caixa de boas-vindas do mascote */
 .login-header-box {
     text-align: center;
     margin-bottom: 20px;
@@ -2718,7 +2668,6 @@ button.btn-touch-secundario {
     margin: 0;
 }
 
-/* Card principal do formulário */
 .card-form-acesso {
     width: 100%;
     max-width: 340px;
@@ -2741,7 +2690,6 @@ button.btn-touch-secundario {
     margin: 0 0 4px 0;
 }
 
-/* Botão de login do Google */
 .btn-google-login {
     width: 100%;
     height: 42px;
@@ -2769,7 +2717,6 @@ button.btn-touch-secundario {
     height: 18px;
 }
 
-/* Divisor "ou com e-mail" */
 .divisor-ou {
     display: flex;
     align-items: center;
@@ -2794,7 +2741,6 @@ button.btn-touch-secundario {
     margin-left: 10px;
 }
 
-/* Inputs de email e senha */
 .input-grupo-login {
     display: flex;
     flex-direction: column;
@@ -2819,7 +2765,6 @@ button.btn-touch-secundario {
     border-color: #38bdf8;
 }
 
-/* Botão principal Entrar Agora */
 .btn-entrar-acao {
     width: 100%;
     height: 44px;
@@ -2840,7 +2785,6 @@ button.btn-touch-secundario {
     transform: translateY(-1px);
 }
 
-/* Links do rodapé (Criar Conta / Ajuda) */
 .login-links-footer {
     display: flex;
     justify-content: center;
@@ -2867,7 +2811,6 @@ button.btn-touch-secundario {
     font-size: 12px;
 }
 
-/* Cabeçalho da Seção */
 .header-secao-com-info {
     display: flex;
     align-items: center;
@@ -2883,7 +2826,6 @@ button.btn-touch-secundario {
     text-transform: uppercase;
 }
 
-/* Ícone de Ajuda Discreto */
 .btn-info-secao {
     display: inline-flex;
     align-items: center;
@@ -2906,7 +2848,6 @@ button.btn-touch-secundario {
     transform: scale(1.1);
 }
 
-/* Botões Principais Limpos */
 .btn-modo-selecao {
     width: 100%;
     height: 48px;
@@ -2919,4 +2860,17 @@ button.btn-touch-secundario {
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+.dica-editar-nome {
+    font-size: 0.8rem;
+    color: #38bdf8;
+    cursor: pointer;
+    margin-left: 5px;
+    animation: pulseDica 2s infinite;
+}
+
+@keyframes pulseDica {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }

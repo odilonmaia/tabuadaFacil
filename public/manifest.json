@@ -2,25 +2,24 @@
   "name": "Tabuada Fácil",
   "short_name": "Tabuada Fácil",
   "description": "Aprenda e domine a tabuada de forma divertida com o Taby!",
-  "start_url": "index.html",
+  "start_url": "/",
+  "id": "/",
   "display": "standalone",
   "background_color": "#0d1b2a",
   "theme_color": "#0d1b2a",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "logo192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "logo512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
-
 }
-

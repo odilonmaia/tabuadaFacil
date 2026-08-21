@@ -18,13 +18,14 @@
     <link rel="stylesheet" href="css/style.css?v=5.2">
 
     <!-- Configurações PWA & Mobile Nativo -->
-    <meta name="theme-color" content="#070a12">
+    <meta name="theme-color" content="#0d1b2a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tabuada Fácil">
     <link rel="manifest" href="manifest.json">
     
-    <!-- Ícones -->
+    <!-- Ícones (Garantindo nomes padrão sem hífen) -->
     <link rel="icon" type="image/x-icon" href="icone.ico?v=10">
     <link rel="icon" type="image/png" sizes="48x48" href="icon48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon192.png">
@@ -580,8 +581,8 @@
 
     </main>
 
-    <!-- BARRA DE NAVEGAÇÃO INFERIOR NATIVA -->
-    <nav class="bottom-nav-app">
+   <!-- BARRA DE NAVEGAÇÃO INFERIOR NATIVA -->
+    <nav id="bottomNavApp" class="bottom-nav-app oculto">
         <button class="btn-nav-item ativo" onclick="window.irParaPainelJogo(event)">
             <span class="icon-nav">🎮</span>
             <span class="label-nav">Treino</span>
@@ -926,6 +927,16 @@
 
 <!-- SCRIPT PRINCIPAL DA APLICAÇÃO -->
 <script type="module" src="js/app.js?v=6.4"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker ativo com sucesso!'))
+        .catch(err => console.error('Erro ao registrar Service Worker:', err));
+    });
+  }
+</script>
 
 </body>
 </html>

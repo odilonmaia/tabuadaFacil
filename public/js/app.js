@@ -384,11 +384,16 @@ let timerTransicaoQuestao = null;
 //#region [3] AUTENTICAÇÃO E SESSÃO
 onAuthStateChanged(auth, async (user) => {
     const headerTopo = document.querySelector('.header-topo-global');
+    const bottomNav = document.getElementById('bottomNavApp') || document.querySelector('.bottom-nav-app');
     const telaAuth = document.getElementById('tela-autenticacao');
 
     if (user) {
         usuarioAtualLogado = user;
+        
+        // Exibe o cabeçalho e a navbar inferior correta (.bottom-nav-app)
         if (headerTopo) headerTopo.classList.remove('oculto');
+        if (bottomNav) bottomNav.classList.remove('oculto');
+
         if (telaAuth) {
             telaAuth.style.display = 'none';
             telaAuth.classList.add('oculto');
@@ -408,9 +413,17 @@ onAuthStateChanged(auth, async (user) => {
         window.irParaPainelJogo();
     } else {
         usuarioAtualLogado = null;
+        
+        // Limpeza completa do LocalStorage no Logout
+        localStorage.removeItem('tabuada_perfil_ativo');
         localStorage.removeItem('tabuada_perfil_selecionado');
         localStorage.removeItem('perfil_ativo_id');
+        localStorage.removeItem('usuario_atual');
+
+        // Oculta cabeçalho e navbar inferior
         if (headerTopo) headerTopo.classList.add('oculto');
+        if (bottomNav) bottomNav.classList.add('oculto');
+
         window.mudarTela('tela-autenticacao');
     }
 });
@@ -431,9 +444,13 @@ window.carregarOuCriarPerfilPrincipal = function(uid, nome, email, fotoUrl) {
             plano: 'gratis'
         };
         perfisLocais.push(perfilAtivo);
-        localStorage.setItem('usuario_perfis', JSON.stringify(perfisLocais));
+    } else {
+        if (nome && nome !== 'JOGADOR') perfilAtivo.nome = nome;
+        if (fotoUrl) perfilAtivo.fotoUrl = fotoUrl;
+        if (email) perfilAtivo.email = email;
     }
 
+    localStorage.setItem('usuario_perfis', JSON.stringify(perfisLocais));
     localStorage.setItem('tabuada_perfil_ativo', JSON.stringify(perfilAtivo));
     localStorage.setItem('perfil_ativo_id', perfilAtivo.perfilId || perfilAtivo.id);
 
@@ -466,7 +483,7 @@ window.fazerLoginGoogle = async function() {
 };
 
 window.fazerLoginFirebase = function() {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const email = document.getElementById('login-email').value.trim();
     const senha = document.getElementById('login-senha').value.trim();
     
@@ -507,7 +524,7 @@ window.realizarCadastroFirebase = async function() {
 };
 
 window.alternarFormularios = function(alvo) {
-    tocarSom('clique');
+    if (typeof tocarSom === 'function') tocarSom('clique');
     const formLogin = document.getElementById('form-login');
     const formCad = document.getElementById('form-cadastro');
     if (formLogin) formLogin.classList.toggle('oculto', alvo === 'cadastro');
@@ -515,8 +532,9 @@ window.alternarFormularios = function(alvo) {
 };
 
 window.sairDaConta = function() {
-    // Ação correta do botão SAIR DA CONTA: limpa sessão e vai para o login
     localStorage.removeItem('tabuada_perfil_ativo');
+    localStorage.removeItem('tabuada_perfil_selecionado');
+    localStorage.removeItem('perfil_ativo_id');
     localStorage.removeItem('usuario_atual');
     
     if (typeof auth !== 'undefined' && typeof signOut === 'function') {
@@ -549,7 +567,6 @@ async function reautenticarResponsavel(senhaDigitada = null) {
     }
 }
 //#endregion
-
 
 //#region [4] PERFIS, GALERIA E AVATARES
 
@@ -5354,4 +5371,32 @@ function verificarVidasParaJogar() {
         return false;
     }
     return true;
+}
+
+
+function atualizarSaudacaoUsuario(usuario) {
+    const elNome = document.getElementById('nomeUsuario'); // ID da tag <h1> ou <span> do "Olá, [Nome]!"
+    const elFoto = document.getElementById('fotoPerfil');   // ID da foto de perfil no topo
+    
+    // 1. Extrai o primeiro nome se existir no objeto de auth/banco
+    let nomeExibicao = '';
+    
+    if (usuario.displayName) {
+        nomeExibicao = usuario.displayName.split(' ')[0]; // Pega só o primeiro nome
+    } else if (usuario.nome) {
+        nomeExibicao = usuario.nome.split(' ')[0];
+    }
+
+    // 2. Trata o fluxo de fallback se não houver nome
+    if (nomeExibicao && nomeExibicao.trim() !== '') {
+        elNome.innerText = `Olá, ${nomeExibicao.toUpperCase()}! 👋`;
+    } else {
+        // Primeiro acesso sem nick cadastrado
+        elNome.innerHTML = `Olá, Estudante! <span class="dica-editar-nome" title="Clique no perfil para alterar">(Editar) ✏️</span> 👋`;
+    }
+
+    // 3. Atualiza a foto do perfil no cabeçalho
+    if (usuario.photoURL && elFoto) {
+        elFoto.src = usuario.photoURL;
+    }
 }
